@@ -1,16 +1,24 @@
-# Welcome to Remix + Vite!
+# Welcome to MC1 the next iteration of NSF CRM
 
-📖 See the [Remix docs](https://remix.run/docs) and the [Remix Vite docs](https://remix.run/docs/en/main/guides/vite) for details on supported features.
+📖Building a CRM as an experiment using Remix, Remix Auth, React, SQLite,
+Prisma, Zod, Resend
 
 ## Development
 
-Run the Vite dev server:
+Setup DB
+```sh
 
+npx prisma migrate dev --name "initial migration"
+
+```
+
+Run the Vite dev server:
+s
 ```shellscript
 npm run dev
 ```
 
-## Deployment
+## Deployment   i'm not this far yet
 
 First, build your app for production:
 
@@ -18,13 +26,14 @@ First, build your app for production:
 npm run build
 ```
 
-Then run the app in production mode:
+
+Then run the app in production mode:    i'm not this far yet
 
 ```sh
 npm start
 ```
 
-Now you'll need to pick a host to deploy it to.
+Now you'll need to pick a host to deploy it to.     i'm not this far yet
 
 ### DIY
 

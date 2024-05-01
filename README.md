@@ -9,6 +9,15 @@ Setup DB
 ```sh
 
 npx prisma migrate dev --name "initial migration"
+```
+
+To add the 1st user
+
+```sh
+
+tsc prisma/seed.ts
+mv prisma/seed.js prisma/seed.cjs
+node prisma/seeds.cjs
 
 ```
 

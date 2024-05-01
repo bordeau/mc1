@@ -1,7 +1,13 @@
 # Welcome to MC1 the next iteration of NSF CRM
 
 📖Building a CRM as an experiment using Remix, Remix Auth, React, SQLite,
-Prisma, Zod, Resend
+Prisma, Zod, Resend.
+
+This is not tested much as of now.  The current routes seems to be running fairly well as of this update.  For authentication it uses Remix Auth with the Form strategy.  
+
+So far there is login, logout, self registration (current implementation inserts request into registration table, notifies Admin via email, requires Admin approval, which also creates user record and notifies new user to create password via email), forgot password, change password for logged in user, forgot password has form to fill in username and email then sends email to user with link to set new password.  The emails are via Resend. 
+
+Most of the forms use Zod for validation.
 
 ## Development
 

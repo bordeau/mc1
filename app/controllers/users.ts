@@ -11,14 +11,35 @@ export async function getAllUsers() {
 }
 
 export async function getAllAdminUsers() {
+  const users = await getAllUsersByRole("Admin");
+  return users;
+}
+
+export async function getAllUsersByRole(r: string) {
   const users = await prisma.users.findMany({
-    where: { role: "Admin" },
+    where: { role: r },
     orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
   });
   return users;
 }
 
-export async function getLikeNameUsers(sp) {
+export async function getAllUsersByRoleIsActive(r: string, a: boolean) {
+  const users = await prisma.users.findMany({
+    where: { AND: [{ role: r }, { isActive: a }] },
+    orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
+  });
+  return users;
+}
+
+export async function getAllUsersByIsActive(r: boolean) {
+  const users = await prisma.users.findMany({
+    where: { isActive: r },
+    orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
+  });
+  return users;
+}
+
+export async function getLikeNameUsers(sp: string) {
   const users = await prisma.users.findMany({
     where: {
       OR: [
@@ -30,6 +51,99 @@ export async function getLikeNameUsers(sp) {
         {
           lastName: {
             contains: sp,
+          },
+        },
+      ],
+    },
+    orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
+  });
+  return users;
+}
+
+export async function getLikeNameIsActiveUsers(sp: string, a: boolean) {
+  const users = await prisma.users.findMany({
+    where: {
+      OR: [
+        {
+          firstName: {
+            contains: sp,
+          },
+        },
+        {
+          lastName: {
+            contains: sp,
+          },
+        },
+      ],
+      AND: [
+        {
+          isActive: {
+            equals: a,
+          },
+        },
+      ],
+    },
+    orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
+  });
+  return users;
+}
+
+export async function getLikeNameRoleUsers(sp: string, r: string) {
+  const users = await prisma.users.findMany({
+    where: {
+      OR: [
+        {
+          firstName: {
+            contains: sp,
+          },
+        },
+        {
+          lastName: {
+            contains: sp,
+          },
+        },
+      ],
+      AND: [
+        {
+          role: {
+            equals: r,
+          },
+        },
+      ],
+    },
+    orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
+  });
+  return users;
+}
+
+export async function getLikeNameRoleIsActiveUsers(
+  sp: string,
+  r: string,
+  a: boolean
+) {
+  const users = await prisma.users.findMany({
+    where: {
+      OR: [
+        {
+          firstName: {
+            contains: sp,
+          },
+        },
+        {
+          lastName: {
+            contains: sp,
+          },
+        },
+      ],
+      AND: [
+        {
+          role: {
+            equals: r,
+          },
+        },
+        {
+          isActive: {
+            equals: a,
           },
         },
       ],

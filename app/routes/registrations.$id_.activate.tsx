@@ -227,7 +227,7 @@ export default function RegistrationActivate() {
               <button type = "submit" className = "btn btn-primary">
                 Activate
               </button>
-              <button type = "cancel" className = "btn btn-secondary">
+              <button type = "reset" className = "btn btn-secondary">
                 Cancel
               </button>
             </div>

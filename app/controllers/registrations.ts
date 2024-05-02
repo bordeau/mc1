@@ -10,6 +10,14 @@ export async function getAllRegistrations() {
   return registrations;
 }
 
+export async function getAllInProcessingRegistrations() {
+  const registrations = await prisma.registrations.findMany({
+    where: { isProcessed: false },
+    orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
+  });
+  return registrations;
+}
+
 export async function getLikeNameRegistrations(sp) {
   const registrations = await prisma.registrations.findMany({
     where: {
@@ -28,6 +36,35 @@ export async function getLikeNameRegistrations(sp) {
     },
     orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
   });
+  return registrations;
+}
+
+export async function getLikeNameIsProcessedRegistrations(sp) {
+  const registrations = await prisma.registrations.findMany({
+    where: {
+      OR: [
+        {
+          firstName: {
+            contains: sp,
+          },
+        },
+        {
+          lastName: {
+            contains: sp,
+          },
+        },
+      ],
+      AND: [
+        {
+          isProcessed: {
+            equals: false,
+          },
+        },
+      ],
+    },
+    orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
+  });
+
   return registrations;
 }
 

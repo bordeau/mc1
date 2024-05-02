@@ -1,12 +1,12 @@
 export class Roles {
-  public static validRoles: string[] = ["Admin", "Manager", "User", "Pending"];
+  public static validRoles: string[] = ["Admin", "Manager", "User"];
 
   public static isRoleValid(rr: string | undefined): string | undefined {
     let rval;
     if (rr != undefined) {
       rval = this.validRoles.find((r) => r === rr);
     }
-    if (rval === undefined) rval = "Pending";
+    if (rval === undefined) rval = "User";
     return rval;
   }
 
@@ -20,9 +20,5 @@ export class Roles {
 
   public static isUser(rr: string): boolean {
     return rr === "User";
-  }
-
-  public static isPending(rr: string): boolean {
-    return rr === "Pending";
   }
 }

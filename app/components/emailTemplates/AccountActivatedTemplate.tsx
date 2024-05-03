@@ -15,17 +15,19 @@ import * as React from "react";
 import { SVGLogo } from "~/components/nav";
 import { SYSTEM_TITLE } from "~/components/utils";
 
-interface AdminRegistrationRequestEmailProps {
-  urlLink: string;
+interface AccountActivatedEmailProps {
+  name: string;
+  passwdLink: string;
 }
 
-export const AdminRegistrationRequestEmail = ({
-  urlLink,
-}: AdminRegistrationRequestEmailProps) => {
+export const AccountActivatedEmail = ({
+  name,
+  passwdLink,
+}: AccountActivatedEmailProps) => {
   return (
     <Html>
       <Head />
-      <Preview>An {SYSTEM_TITLE} registration has been submitted</Preview>
+      <Preview>Your {SYSTEM_TITLE} user account is activated.</Preview>
       <Body style={main}>
         <Container style={container}>
           <Section style={logo}>
@@ -39,14 +41,18 @@ export const AdminRegistrationRequestEmail = ({
             </Row>
           </Section>
           <Section style={content}>
-            <Text style={paragraph}>Hi,</Text>
+            <Text style={paragraph}>Hi {name},</Text>
             <Text style={paragraph}>
-              Someone has submitted an registration request for {SYSTEM_TITLE}.
-              <Link href={urlLink} style={link}>
-                click here to view
+              Your {SYSTEM_TITLE} user account is activated. Please use the
+              following link to
+              <Link href={passwdLink} style={link}>
+                set your new account password
               </Link>{" "}
             </Text>
-
+            <Text style={paragraph}>
+              Remember to use a password that is both strong and unique to your
+              {SYSTEM_TITLE} account.
+            </Text>
             <Text style={paragraph}>
               Still have questions? Please contact{" "}
               <Link href="#" style={link}>
@@ -74,11 +80,12 @@ export const AdminRegistrationRequestEmail = ({
   );
 };
 
-AdminRegistrationRequestEmail.PreviewProps = {
-  urlLink: "http://blah.com/blah",
-} as AdminRegistrationRequestEmailProps;
+AccountActivatedEmail.PreviewProps = {
+  id: "alanturing",
+  name: "Alan Turing",
+} as AccountActivatedEmailProps;
 
-export default AdminRegistrationRequestEmail;
+export default AccountActivatedEmail;
 
 const fontFamily = "HelveticaNeue,Helvetica,Arial,sans-serif";
 

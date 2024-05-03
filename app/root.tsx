@@ -16,6 +16,7 @@ export const links: LinksFunction = () => [
 ];
 import { isRouteErrorResponse, useRouteError } from "@remix-run/react";
 import React from "react";
+import { SYSTEM_TITLE } from "~/components/utils";
 
 export function ErrorBoundary() {
   const error = useRouteError();
@@ -34,7 +35,7 @@ export function ErrorBoundary() {
             <nav className="navbar navbar-expand-lg navbar-light bg-light">
               <div className="container-fluid">
                 <a className="navbar-brand" href="about">
-                  NSF CRM
+                  {SYSTEM_TITLE}
                 </a>
                 <button
                   className="navbar-toggler"
@@ -71,7 +72,7 @@ export function ErrorBoundary() {
             <nav className="navbar navbar-expand-lg navbar-light bg-light">
               <div className="container-fluid">
                 <a className="navbar-brand" href="about">
-                  NSF CRM
+                  {SYSTEM_TITLE}
                 </a>
                 <button
                   className="navbar-toggler"
@@ -108,7 +109,7 @@ export function ErrorBoundary() {
             <nav className="navbar navbar-expand-lg navbar-light bg-light">
               <div className="container-fluid">
                 <a className="navbar-brand" href="about">
-                  NSF CRM
+                  {SYSTEM_TITLE}
                 </a>
                 <button
                   className="navbar-toggler"
@@ -135,7 +136,7 @@ function Footer() {
   return (
     <div className="container align-content-center pt-4 mt-5">
       <p className="text-center">
-        Copyright 2024, all rights reserved - fake NSF CRM
+        Copyright 2024, all rights reserved - fake {SYSTEM_TITLE}
       </p>
     </div>
   );

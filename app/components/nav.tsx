@@ -1,5 +1,6 @@
 import React from "react";
 import { NavLink } from "@remix-run/react";
+import { SYSTEM_TITLE } from "~/components/utils";
 
 function NavItem(props) {
   // console.log("MenuItem props:" + JSON.stringify(props));
@@ -82,7 +83,7 @@ export default function Nav(props) {
             <div className="container-fluid">
               <a className="navbar-brand align-middle" href="about">
                 <SVGLogo />
-                <span className="align-middle">NSF CRM</span>
+                <span className="align-middle">{SYSTEM_TITLE}</span>
               </a>
               <button
                 className="navbar-toggler"

@@ -9,3 +9,5 @@ export function blankAddress(t) {
     country: "",
   };
 }
+
+export const SYSTEM_TITLE = "NSF CRM";

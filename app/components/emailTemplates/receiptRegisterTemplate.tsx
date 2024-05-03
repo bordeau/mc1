@@ -15,17 +15,17 @@ import * as React from "react";
 import { SVGLogo } from "~/components/nav";
 import { SYSTEM_TITLE } from "~/components/utils";
 
-interface AdminRegistrationRequestEmailProps {
-  urlLink: string;
+interface ReceiptRegisterEmailProps {
+  name: string;
 }
 
-export const AdminRegistrationRequestEmail = ({
-  urlLink,
-}: AdminRegistrationRequestEmailProps) => {
+// const baseUrl = process.env.BASE_URL ? `http://${process.env.BASE_URL}` : "";
+
+export const ReceiptRegisterEmail = ({ name }: ReceiptRegisterEmailProps) => {
   return (
     <Html>
       <Head />
-      <Preview>An {SYSTEM_TITLE} registration has been submitted</Preview>
+      <Preview>You updated the password for your NSF CRM account</Preview>
       <Body style={main}>
         <Container style={container}>
           <Section style={logo}>
@@ -39,14 +39,12 @@ export const AdminRegistrationRequestEmail = ({
             </Row>
           </Section>
           <Section style={content}>
-            <Text style={paragraph}>Hi,</Text>
+            <Text style={paragraph}>Hi {name},</Text>
             <Text style={paragraph}>
-              Someone has submitted an registration request for {SYSTEM_TITLE}.
-              <Link href={urlLink} style={link}>
-                click here to view
-              </Link>{" "}
+              Thank you for requesting a login account for {SYSTEM_TITLE}. Your
+              request is being processed. You will receive another email soon
+              enabling you to set a password and then login.
             </Text>
-
             <Text style={paragraph}>
               Still have questions? Please contact{" "}
               <Link href="#" style={link}>
@@ -74,11 +72,11 @@ export const AdminRegistrationRequestEmail = ({
   );
 };
 
-AdminRegistrationRequestEmail.PreviewProps = {
-  urlLink: "http://blah.com/blah",
-} as AdminRegistrationRequestEmailProps;
+ReceiptRegisterEmail.PreviewProps = {
+  name: "Alan Turing",
+} as ReceiptRegisterEmailProps;
 
-export default AdminRegistrationRequestEmail;
+export default ReceiptRegisterEmail;
 
 const fontFamily = "HelveticaNeue,Helvetica,Arial,sans-serif";
 

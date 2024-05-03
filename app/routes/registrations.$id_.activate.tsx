@@ -10,7 +10,7 @@ import FormAddress from "~/components/formaddress";
 
 import { isAuthenticated } from "~/services/auth.server";
 import { createUser, getUserById, updateUser } from "~/controllers/users";
-import { blankAddress } from "~/components/utils";
+import { blankAddress, SYSTEM_TITLE } from "~/components/utils";
 import Nav from "~/components/nav";
 import { Roles } from "~/models/role";
 import { useActionData } from "react-router";
@@ -21,6 +21,11 @@ import {
 } from "~/controllers/registrations";
 import PlainAddress from "~/components/plainaddress";
 import { EmailType, sendEmail } from "~/components/myresend";
+import {
+  ReactPasswordResetEmailType,
+  sendAccountActivatedEmail,
+  sendPasswordResetEmail
+} from "~/components/emailTemplates/myreactemailresend";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const currentUser = await isAuthenticated(request);
@@ -77,7 +82,7 @@ export async function action({ request }: ActionFunctionArgs) {
   else {
 
     await setIsProcessRegistration(registration.id, true );
-
+/*
     const emailResult = await sendEmail({
                                       from: "onboarding@resend.dev",
                                       to: ["delivered@resend.dev"],
@@ -86,6 +91,15 @@ export async function action({ request }: ActionFunctionArgs) {
                                           "Your account is activated, you can click this link to set your password. <a href='http://localhost:5173/resetpassword/" +
                                           user.id + "'>Set your Password.</a>",
                                     } as EmailType);
+*/
+
+    const er = await sendAccountActivatedEmail({
+                                              from: "Acme <onboarding@resend.dev>",
+                                              to: ["delivered@resend.dev"],
+                                              subject: "Your " + SYSTEM_TITLE + " account is activated",
+                                              name: user.firstName + " " + user.lastName,
+                                              passwordLink: "http://localhost:5173/resetpassword/" + user.id,
+                                            } as ReactPasswordResetEmailType);
 
 
     return redirect(`/users/${user.id}`); }

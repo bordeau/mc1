@@ -26,13 +26,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
   else return redirect("/login");
 }
 
-export default function Index() {
+export default function Dashboard() {
   const { currentUser } = useLoaderData<typeof loader>();
 
   const isAdmin = Roles.isAdmin(currentUser.role);
   const isLoggedIn = currentUser.isLoggedIn;
-
-  // console.log("\n\n in Dashbaord index: " + JSON.stringify(currentUser));
 
   if (isLoggedIn) {
     return (

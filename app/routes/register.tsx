@@ -30,8 +30,10 @@ import { EmailType, sendEmail } from "~/components/myresend";
 import {
   ReactAdminRegistrationRequestType,
   ReactPasswordResetEmailType,
+  ReactRegisterReceiptEmailType,
   sendAdminRegistrationRequestEmail,
   sendPasswordResetEmail,
+  sendRegisterReceiptEmail,
 } from "~/components/emailTemplates/myreactemailresend";
 
 /*
@@ -58,20 +60,19 @@ export async function action({ request }: ActionFunctionArgs) {
     users.map((i) => {
       tos.push(i.firstName + " " + i.lastName + "<" + i.email + ">");
     });
-    /*
-    const emailResult = await sendEmail({
-      from: "onboarding@resend.dev", // registration.firstName + " " + registration.lastName + "<" + registration.email + ">"
-      to: ["delivered@resend.dev"], // tos
-      subject: "There is a new registration request",
-      html: "click here <a href='http://localhost:5173/registrations/'>Registration Requests.</a>",
-    } as EmailType);
-*/
+
     const er = await sendAdminRegistrationRequestEmail({
-      from: "<onboarding@resend.dev>", // registration.firstName + " " + registration.lastName + "<" + registration.email + ">"
+      from: "onboarding@resend.dev", // registration.firstName +  " + registration.lastName + "<" + registration.email + ">"
       to: ["delivered@resend.dev"], // tos
       subject: "There is a new registration request",
       urlLink: "http://localhost:5173/registrations/",
     } as ReactAdminRegistrationRequestType);
+
+    const er2 = await sendRegisterReceiptEmail({
+      from: "onboarding@resend.dev", // admin@example.com
+      to: ["delivered@resend.dev"], // registration.firstName + " " + registration.lastName + "<" + registration.email + ">"
+      subject: "Your NSF CRM registration receipt",
+    } as ReactRegisterReceiptEmailType);
 
     return redirect(
       `/login?mesg=Registration submitted to NSF CRM, once approved you will get an email`

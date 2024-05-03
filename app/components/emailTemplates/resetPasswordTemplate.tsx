@@ -13,13 +13,12 @@ import {
 } from "@react-email/components";
 import * as React from "react";
 import { SVGLogo } from "~/components/nav";
+import { SYSTEM_TITLE } from "~/components/utils";
 
 interface ResetPasswordEmailProps {
   name: string;
   passwdLink: string;
 }
-
-const baseUrl = process.env.BASE_URL ? `http://${process.env.BASE_URL}` : "";
 
 export const ResetPasswordEmail = ({
   name,
@@ -28,11 +27,13 @@ export const ResetPasswordEmail = ({
   return (
     <Html>
       <Head />
-      <Preview>You updated the password for your NSF CRM account</Preview>
+      <Preview>
+        You updated the password for your {SYSTEM_TITLE} account
+      </Preview>
       <Body style={main}>
         <Container style={container}>
           <Section style={logo}>
-            <SVGLogo /> NSF CRM
+            <SVGLogo /> {SYSTEM_TITLE}
           </Section>
           <Section style={sectionsBorders}>
             <Row>
@@ -44,8 +45,8 @@ export const ResetPasswordEmail = ({
           <Section style={content}>
             <Text style={paragraph}>Hi {name},</Text>
             <Text style={paragraph}>
-              You requested to change your password for your NSF CRM account. If
-              this was you, then click the link to{" "}
+              You requested to change your password for your {SYSTEM_TITLE}{" "}
+              account. If this was you, then click the link to{" "}
               <Link href={passwdLink} style={link}>
                 reset your account password
               </Link>{" "}
@@ -56,18 +57,18 @@ export const ResetPasswordEmail = ({
             </Text>
             <Text style={paragraph}>
               Remember to use a password that is both strong and unique to your
-              NSF CRM account.
+              {SYSTEM_TITLE} account.
             </Text>
             <Text style={paragraph}>
               Still have questions? Please contact{" "}
               <Link href="#" style={link}>
-                NSF CRM Support
+                {SYSTEM_TITLE} Support
               </Link>
             </Text>
             <Text style={paragraph}>
               Thanks,
               <br />
-              NSF CRM Support Team
+              {SYSTEM_TITLE} Support Team
             </Text>
           </Section>
         </Container>
@@ -75,7 +76,7 @@ export const ResetPasswordEmail = ({
         <Section style={footer}>
           <Row>
             <Text style={{ textAlign: "center", color: "#706a7b" }}>
-              © 2024 NSF CRM, All Rights Reserved <br />
+              © 2024 {SYSTEM_TITLE}, All Rights Reserved <br />
               somewhere in Florida USA
             </Text>
           </Row>

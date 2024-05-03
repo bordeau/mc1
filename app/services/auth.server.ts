@@ -72,6 +72,24 @@ export class UserClass {
   }
 }
 
+async function logLoginAttempt(uid: string | undefined, mesg: string) {
+  const data = {
+    userId: uid,
+    status: mesg,
+  };
+  const la = await prisma.loginLog.create({ data });
+  /*
+  console.log(
+    "\n\n auth log login attempt: " +
+      uid +
+      " mesg:" +
+      "la:" +
+      JSON.stringify(la)
+  );
+*/
+  return;
+}
+
 async function login(username: string, password: string) {
   try {
     const userFromDB = await prisma.users.findUniqueOrThrow({
@@ -98,8 +116,12 @@ async function login(username: string, password: string) {
 
     // console.log("\n\n auth login user: " + JSON.stringify(user));
 
+    await logLoginAttempt(userFromDB.id, "success");
+
     return user;
   } catch (e) {
+    console.log("\n\n auth login error: " + JSON.stringify(e, null, 2));
+    await logLoginAttempt(undefined, JSON.stringify(e));
     const user: UserClass = new UserClass();
     return user;
   }
@@ -115,17 +137,22 @@ authenticator.use(
     const username = form.get("username") as string;
     const password = form.get("password") as string;
 
-    //console.log(
-    //  "\n\n in authenticator username/password: " +
-    //    { username: username, password: password }
-    //);
+    /*
+    console.log(
+      "\n\n in authenticator username/password: " +
+        JSON.stringify({ username: username, password: password }, null, 2 )
+    );
+
+     */
 
     const user = await login(username, password);
 
-    console.log("\n\n in authenticator user: " + JSON.stringify(user));
+    // console.log("\n\n in authenticator user: " + JSON.stringify(user, null, 2));
+
     // the type of this user must match the type you pass to the Authenticator
     // the strategy will automatically inherit the type if you instantiate
     // directly inside the `use` method
+
     return user;
   }),
   // each strategy has a name and can be changed to use another one
@@ -138,7 +165,7 @@ export async function isAuthenticated(request) {
     failureRedirect: "/login",
   });
 
-  // console.log("\n\n my isAuthenticated user: " + JSON.stringify(user));
+  //  console.log("\n\n my isAuthenticated user: " + JSON.stringify(user, null, 2));
 
   if (user === null) return undefined;
   else return user;
@@ -147,7 +174,7 @@ export async function isAuthenticated(request) {
 export async function isAuthenticatedNoRedirect(request) {
   const user = await authenticator.isAuthenticated(request, {});
 
-  //console.log("\n\n my isAuthenticated user: " + JSON.stringify(user));
+  //console.log("\n\n my isAuthenticated user: " + JSON.stringify(user, null, 2));
 
   if (user === null) return undefined;
   else return user;

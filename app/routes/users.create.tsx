@@ -16,6 +16,7 @@ import { Roles } from "~/models/role";
 import { useActionData } from "react-router";
 import React from "react";
 import SecondaryNav from "~/components/secondarynav";
+import { EmailType, sendEmail } from "~/components/myresend";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const currentUser = await isAuthenticated(request);
@@ -28,6 +29,16 @@ export async function action({ request }: ActionFunctionArgs) {
   const formdata = Object.fromEntries(await request.formData());
   formdata.password = "password";
   const user = await createUser(formdata);
+
+  const emailResult = await sendEmail({
+    from: "onboarding@resend.dev",
+    to: ["delivered@resend.dev"],
+    subject: "Your NSF CRM account is activated",
+    html:
+      "Your account is activated, you can click this link to set your password. <a href='http://localhost:5173/resetpassword/" +
+      user.id +
+      "'>Set your Password.</a>",
+  } as EmailType);
 
   console.log("\n\n clone result: " + JSON.stringify(user));
 
@@ -45,7 +56,12 @@ export default function UserCreate() {
   const isAdmin = Roles.isAdmin(currentUser.role);
   const isLoggedIn = currentUser.isLoggedIn;
 
-  if (isAdmin) {
+  if (!isAdmin) {
+    console.log(
+      "\n\n user: " + currentUser.username + " is trying to access users.create"
+    );
+    throw new Error("Sorry you do have access to this feature.");
+  } else {
     return (
       <div className="container-md">
         <Nav
@@ -230,41 +246,5 @@ export default function UserCreate() {
         </Form>
       </div>
     );
-  } else {
-    return (
-      <>
-        <p>You're not an Admin and therefore do not have access.</p>
-      </>
-    );
   }
 }
-
-/*
-
-  <nav className="navbar navbar-expand-lg navbar-light bg-light border border-primary rounded-1 ">
-          <nav className="nav flex-sm">
-            <Link
-              to={`/users/` + user.id + `/edit`}
-              className="nav-link"
-              aria-current="page"
-            >
-              Edit
-            </Link>
-            {!user.id ? (
-              <Link
-                to={`/users/` + user.id + `/destroy`}
-                className="nav-link"
-                aria-current="page"
-              >
-                Delete
-              </Link>
-            ) : (
-              " "
-            )}
-
-            <Link to={`/users`} className="nav-link" aria-current="page">
-              Back to list
-            </Link>
-          </nav>
-        </nav>
- */

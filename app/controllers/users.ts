@@ -161,6 +161,15 @@ export async function getUserById(i: string) {
   return rval;
 }
 
+export async function getUserByIdWithLog(i: string) {
+  const rval = await prisma.users.findUniqueOrThrow({
+    where: { id: i },
+    include: { loginLog: true },
+  });
+
+  return rval;
+}
+
 export async function getUserByUsername(nm: string) {
   const rval = await prisma.users.findUniqueOrThrow({
     where: { username: nm },
@@ -361,4 +370,29 @@ export async function destroyUser(pid: string) {
   });
 
   return;
+}
+
+////////     the following is for Password Reset table
+
+export async function getPasswordResetById(rid: string) {
+  const rval = await prisma.passwordReset.findUniqueOrThrow({
+    where: { id: rid },
+  });
+
+  return rval;
+}
+
+export async function deletePasswordResetById(rid: string) {
+  const rval = await prisma.passwordReset.delete({
+    where: { id: rid },
+  });
+
+  return rval;
+}
+
+export async function createPasswordReset(uid: string) {
+  const data = { userId: uid };
+  const rval = await prisma.passwordReset.create({ data: data });
+
+  return rval;
 }

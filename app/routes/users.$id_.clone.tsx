@@ -62,7 +62,14 @@ export default function UserClone() {
   const isAdmin = Roles.isAdmin(currentUser.role);
   const isLoggedIn = currentUser.isLoggedIn;
 
-  if (isAdmin) {
+  if (!isAdmin) {
+    console.log(
+      "\n\n user: " +
+        currentUser.username +
+        " is trying to access users.$id_.clone"
+    );
+    throw new Error("Sorry you do have access to this feature.");
+  } else {
     return (
       <div className="container-md">
         <Nav isAdmin={isAdmin} isLoggedIn={isLoggedIn} />
@@ -250,12 +257,6 @@ export default function UserClone() {
           </div>
         </Form>
       </div>
-    );
-  } else {
-    return (
-      <>
-        <p>You're not an Admin and therefore do not have access.</p>
-      </>
     );
   }
 }

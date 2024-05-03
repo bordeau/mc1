@@ -4,25 +4,28 @@ import {
   LoaderFunctionArgs,
   redirect,
 } from "@remix-run/node";
-import { isAuthenticated } from "~/services/auth.server";
-import { getUserById, updateUserPassword } from "~/controllers/users";
-import { sendEmail, EmailType } from "~/components/myresend";
+
+import {
+  getPasswordResetById,
+  getUserById,
+  updateUserPassword,
+} from "~/controllers/users";
 import { useActionData } from "react-router";
 import React from "react";
-import { Roles } from "~/models/role";
-import Nav from "~/components/nav";
-import bcrypt from "bcryptjs";
 import { z } from "zod";
 import invariant from "tiny-invariant";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  invariant(params.id, "Missing User ID param");
+  invariant(params.id, "Missing Password Reset ID param");
 
   let user = undefined;
   try {
-    user = await getUserById(params.id);
+    const pwr = await getPasswordResetById(params.id);
+    if (pwr) {
+      user = await getUserById(pwr.userId);
+    }
   } catch (e) {
-    console.log("\n\n forgot password didn't find user");
+    console.log("\n\n forgot password didn't find password reset or user");
     throw new Error("Bad Request");
   }
   return { user };
@@ -43,7 +46,7 @@ export async function action({ request }: ActionFunctionArgs) {
   });
   const validatedData = schema.safeParse(formData);
 
-  if (validatedData.success == false) {
+  if (!validatedData.success) {
     console.log("\n\nreturning to previous");
     return { error: validatedData.error.format() };
   }

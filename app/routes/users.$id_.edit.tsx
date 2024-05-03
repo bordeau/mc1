@@ -62,7 +62,14 @@ export default function UserEdit() {
   const isAdmin = Roles.isAdmin(currentUser.role);
   const isLoggedIn = currentUser.isLoggedIn;
 
-  if (isAdmin) {
+  if (!isAdmin) {
+    console.log(
+      "\n\n user: " +
+        currentUser.username +
+        " is trying to access users.$id_.edit"
+    );
+    throw new Error("Sorry you do have access to this feature.");
+  } else {
     return (
       <div className="container-md">
         <Nav
@@ -252,12 +259,6 @@ export default function UserEdit() {
           </div>
         </Form>
       </div>
-    );
-  } else {
-    return (
-      <>
-        <p>You're not an Admin and therefore do not have access.</p>
-      </>
     );
   }
 }

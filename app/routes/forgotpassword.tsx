@@ -1,27 +1,26 @@
-import { Form, NavLink, useLoaderData, useNavigate } from "@remix-run/react";
-import {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  redirect,
-} from "@remix-run/node";
-import { isAuthenticated } from "~/services/auth.server";
-import { getUserByUsername } from "~/controllers/users";
-import { sendEmail, EmailType } from "~/components/myresend";
+import { Form, NavLink, useNavigate } from "@remix-run/react";
+import { ActionFunctionArgs, redirect } from "@remix-run/node";
+
+import { createPasswordReset, getUserByUsername } from "~/controllers/users";
+
 import { useActionData } from "react-router";
-import React from "react";
-import { Roles } from "~/models/role";
-import Nav from "~/components/nav";
+
 import { z } from "zod";
+import {
+  ReactPasswordResetEmailType,
+  sendPasswordResetEmail,
+} from "~/components/emailTemplates/myreactemailresend";
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await Object.fromEntries(await request.formData());
 
   const schema = z.object({
-    id: z.string(),
     username: z.string().min(2, { message: "Username is required" }),
     email: z.string().email().min(5, { message: "Email is required" }),
   });
   const validatedData = schema.safeParse(formData);
+
+  // console.log("\n\n validatedData: " + JSON.stringify(validatedData, null, 2));
 
   if (validatedData.success == false) {
     console.log("\n\nreturning to previous");
@@ -31,34 +30,32 @@ export async function action({ request }: ActionFunctionArgs) {
   const parsedData = validatedData.data;
 
   const user = await getUserByUsername(parsedData.username);
-
+  /*
   console.log(
     "\n\n change password action formdata: " + JSON.stringify(parsedData)
   );
   console.log("\n\n change password action user: " + JSON.stringify(user));
-
-  let emailResult;
+*/
+  let pwr;
   if (
     user &&
     user.username === parsedData.username &&
     user.email === parsedData.email
   ) {
-    emailResult = await sendEmail({
+    pwr = await createPasswordReset(user.id);
+
+    const er = await sendPasswordResetEmail({
       from: "Acme <onboarding@resend.dev>",
       to: ["delivered@resend.dev"],
       subject: "Your password change request",
-      html:
-        "Click this link to create a new password: <a href='http://localhost:5173/resetpassword/" +
-        parsedData.id +
-        "'>Change Password</a>",
-    } as EmailType);
+      name: user.firstName + " " + user.lastName,
+      passwordLink: "http://localhost:5173/resetpassword/" + pwr.id,
+    } as ReactPasswordResetEmailType);
+
+    // console.log("\n\n change password action result: " + JSON.stringify(er));
   }
 
-  console.log(
-    "\n\n change password action result: " + JSON.stringify(emailResult)
-  );
-
-  if (user.hasOwnProperty("error")) return user;
+  if (user.hasOwnProperty("error")) return pwr;
   else return redirect(`/login`);
 }
 

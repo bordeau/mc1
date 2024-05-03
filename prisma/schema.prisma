@@ -14,18 +14,40 @@ datasource db {
 }
 
 model Users {
-  id        String   @id @default(cuid())
-  username  String   @unique
-  password  String
-  role      String
-  firstName String
-  lastName  String
-  email     String
-  phone     String?
-  address   String?
-  isActive  Boolean  @default(false)
+  id                   String    @id @default(cuid())
+  username             String    @unique
+  password             String
+  role                 String
+  firstName            String
+  lastName             String
+  email                String
+  phone                String?
+  address              String?
+  lastLogAt            DateTime?
+  lastPasswordChangeAt DateTime?
+  isActive             Boolean   @default(false)
+
+  passwordReset PasswordReset[] @relation("password_reset_user")
+  loginLog      LoginLog[]      @relation("login_log_user")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model PasswordReset {
+  id        String   @id @default(cuid())
+  userId    String
+  users     Users    @relation("password_reset_user", fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  createdAt DateTime @default(now())
+}
+
+model LoginLog {
+  id     String  @id @default(cuid())
+  userId String?
+  users  Users?  @relation("login_log_user", fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  status String // success, bad login attempt, bad login attempt bad userid
+
+  createdAt DateTime @default(now())
 }
 
 model Registrations {

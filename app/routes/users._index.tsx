@@ -123,118 +123,125 @@ export default function Users() {
   const isAdmin = Roles.isAdmin(currentUser.role);
   const isLoggedIn = currentUser.isLoggedIn;
 
-  return (
-    <>
-      <Nav
-        isAdmin={isAdmin}
-        isLoggedIn={isLoggedIn}
-        name={currentUser.firstName + " " + currentUser.lastName}
-      />
-      <div>
-        <h1>Users</h1>
-      </div>
-
-      <SecondaryNav
-        target="users"
-        id={""}
-        canDelete={false}
-        canCreate={true}
-        canEdit={false}
-        canClone={false}
-        showBack={false}
-        backTarget={""}
-        what="User"
-      />
-      <div class="container border">
-        <h5>Filter</h5>
-        <Form
-          id="search-form"
-          role="search"
-          onChange={(event) => submit(event.currentTarget)}
-        >
-          <input
-            aria-label="Search users"
-            defaultValue={q || ""}
-            id="q"
-            name="q"
-            placeholder="Search"
-            type="search"
-          />
-          &nbsp;
-          <input
-            className="form-check-input"
-            type="radio"
-            name="a"
-            value="ac"
-            id="ac"
-            defaultChecked={a == "ac"}
-          />
-          <label className="form-check-label" htmlFor="flexCheckDefault">
-            Show Active
-          </label>
-          <input
-            className="form-check-input"
-            type="radio"
-            name="a"
-            id="in"
-            value="in"
-            defaultChecked={a == "in"}
-          />
-          <label className="form-check-label" htmlFor="flexCheckDefault">
-            Show Inactive
-          </label>
-          <input
-            className="form-check-input"
-            type="radio"
-            name="a"
-            id="all"
-            value="all"
-            defaultChecked={a == "all"}
-          />
-          <label className="form-check-label" htmlFor="flexCheckDefault">
-            Show All
-          </label>
-          &nbsp;
-          <select name="r" defaultValue="">
-            <option value="">Choose Role (Leave empty for Any)</option>
-            {Roles.validRoles.map((o) => (
-              <option key={o} value={o}>
-                {o}
-              </option>
-            ))}
-          </select>
-          &nbsp;
-          <button className="btn btn-primary btn-sm" type="reset">
-            Reset Search
-          </button>
-          {/* existing elements */}
-        </Form>
-      </div>
-
-      <br />
-
-      <div className="container">
-        <div className="row">
-          <div className="col lead">Name</div>
-          <div className="col lead">Is Active</div>
-          <div className="col lead">Role</div>
+  if (!isAdmin) {
+    console.log(
+      "\n\n user: " + currentUser.username + " is trying to access users._index"
+    );
+    throw new Error("Sorry you do have access to this feature.");
+  } else {
+    return (
+      <>
+        <Nav
+          isAdmin={isAdmin}
+          isLoggedIn={isLoggedIn}
+          name={currentUser.firstName + " " + currentUser.lastName}
+        />
+        <div>
+          <h1>Users</h1>
         </div>
-        {users.map((u) => (
-          <div className="row" key={u.id}>
-            <div className="col">
-              <Link
-                to={`/users/${u.id}`}
-                className="nav-link"
-                aria-current="page"
-              >
-                {u.firstName + " " + u.lastName}
-              </Link>
-            </div>
-            <div className="col">{u.isActive ? "Active" : "Inactive"}</div>
-            <div className="col">{u.role}</div>
+
+        <SecondaryNav
+          target="users"
+          id={""}
+          canDelete={false}
+          canCreate={true}
+          canEdit={false}
+          canClone={false}
+          showBack={false}
+          backTarget={""}
+          what="User"
+        />
+        <div class="container border">
+          <h5>Filter</h5>
+          <Form
+            id="search-form"
+            role="search"
+            onChange={(event) => submit(event.currentTarget)}
+          >
+            <input
+              aria-label="Search users"
+              defaultValue={q || ""}
+              id="q"
+              name="q"
+              placeholder="Search"
+              type="search"
+            />
+            &nbsp;
+            <input
+              className="form-check-input"
+              type="radio"
+              name="a"
+              value="ac"
+              id="ac"
+              defaultChecked={a == "ac"}
+            />
+            <label className="form-check-label" htmlFor="flexCheckDefault">
+              Show Active
+            </label>
+            <input
+              className="form-check-input"
+              type="radio"
+              name="a"
+              id="in"
+              value="in"
+              defaultChecked={a == "in"}
+            />
+            <label className="form-check-label" htmlFor="flexCheckDefault">
+              Show Inactive
+            </label>
+            <input
+              className="form-check-input"
+              type="radio"
+              name="a"
+              id="all"
+              value="all"
+              defaultChecked={a == "all"}
+            />
+            <label className="form-check-label" htmlFor="flexCheckDefault">
+              Show All
+            </label>
+            &nbsp;
+            <select name="r" defaultValue="">
+              <option value="">Choose Role (Leave empty for Any)</option>
+              {Roles.validRoles.map((o) => (
+                <option key={o} value={o}>
+                  {o}
+                </option>
+              ))}
+            </select>
+            &nbsp;
+            <button className="btn btn-primary btn-sm" type="reset">
+              Reset Search
+            </button>
+            {/* existing elements */}
+          </Form>
+        </div>
+
+        <br />
+
+        <div className="container">
+          <div className="row">
+            <div className="col lead">Name</div>
+            <div className="col lead">Is Active</div>
+            <div className="col lead">Role</div>
           </div>
-        ))}
-      </div>
-    </>
-  );
+          {users.map((u) => (
+            <div className="row" key={u.id}>
+              <div className="col">
+                <Link
+                  to={`/users/${u.id}`}
+                  className="nav-link"
+                  aria-current="page"
+                >
+                  {u.firstName + " " + u.lastName}
+                </Link>
+              </div>
+              <div className="col">{u.isActive ? "Active" : "Inactive"}</div>
+              <div className="col">{u.role}</div>
+            </div>
+          ))}
+        </div>
+      </>
+    );
+  }
 }

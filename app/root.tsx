@@ -131,6 +131,16 @@ export function ErrorBoundary() {
   }
 }
 
+function Footer() {
+  return (
+    <div className="container align-content-center pt-4 mt-5">
+      <p className="text-center">
+        Copyright 2024, all rights reserved - fake NSF CRM
+      </p>
+    </div>
+  );
+}
+
 export default function App() {
   return (
     <html>
@@ -140,6 +150,7 @@ export default function App() {
       </head>
       <body>
         <Outlet />
+        <Footer />
         <ScrollRestoration />
         <Scripts />
         <script src="/assets/js/bootstrap.min.js"></script>

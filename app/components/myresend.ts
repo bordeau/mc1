@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { json } from "@remix-run/node";
+import Email from "~/components/email";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -13,14 +14,6 @@ export type EmailType = {
 export async function sendEmail(content: EmailType) {
   console.log("\n\n sendemail content:  " + JSON.stringify(content));
 
-  /*
-  const { data, error } = await resend.emails.send({
-    from: "onboarding@resend.dev",
-    to: "charlesbordeaux@gmail.com",
-    subject: "Hello World",
-    html: "<p>Congrats on sending your <strong>first email</strong>!</p>",
-  });
-*/
   const { data, error } = await resend.emails.send({
     from: content.from,
     to: content.to,

@@ -62,6 +62,29 @@ export default function SecondaryNav(props) {
         ) : (
           " "
         )}
+        {props.viewLoginLog ? (
+          <Link
+            to={"/" + props.target + "/" + props.id + "?log=yes"}
+            className="nav-link"
+            aria-current="page"
+          >
+            View Login Log for {props.what}
+          </Link>
+        ) : (
+          " "
+        )}
+
+        {props.viewDetail ? (
+          <Link
+            to={"/" + props.target + "/" + props.id}
+            className="nav-link"
+            aria-current="page"
+          >
+            View Detail {props.what}
+          </Link>
+        ) : (
+          " "
+        )}
 
         {props.showBack ? (
           <Link

@@ -1,5 +1,5 @@
 export default function PlainAddress(props) {
-  console.log("\n\n\naddress props: " + JSON.stringify(props));
+  //console.log("\n\n\naddress props: " + JSON.stringify(props));
 
   return (
     <>

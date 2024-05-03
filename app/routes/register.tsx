@@ -27,6 +27,12 @@ import SecondaryNav from "~/components/secondarynav";
 import { createRegistration } from "~/controllers/registrations";
 import NavNon from "~/components/navnon";
 import { EmailType, sendEmail } from "~/components/myresend";
+import {
+  ReactAdminRegistrationRequestType,
+  ReactPasswordResetEmailType,
+  sendAdminRegistrationRequestEmail,
+  sendPasswordResetEmail,
+} from "~/components/emailTemplates/myreactemailresend";
 
 /*
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
@@ -52,12 +58,21 @@ export async function action({ request }: ActionFunctionArgs) {
     users.map((i) => {
       tos.push(i.firstName + " " + i.lastName + "<" + i.email + ">");
     });
+    /*
     const emailResult = await sendEmail({
       from: "onboarding@resend.dev", // registration.firstName + " " + registration.lastName + "<" + registration.email + ">"
       to: ["delivered@resend.dev"], // tos
       subject: "There is a new registration request",
       html: "click here <a href='http://localhost:5173/registrations/'>Registration Requests.</a>",
     } as EmailType);
+*/
+    const er = await sendAdminRegistrationRequestEmail({
+      from: "<onboarding@resend.dev>", // registration.firstName + " " + registration.lastName + "<" + registration.email + ">"
+      to: ["delivered@resend.dev"], // tos
+      subject: "There is a new registration request",
+      urlLink: "http://localhost:5173/registrations/",
+    } as ReactAdminRegistrationRequestType);
+
     return redirect(
       `/login?mesg=Registration submitted to NSF CRM, once approved you will get an email`
     );

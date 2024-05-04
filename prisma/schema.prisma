@@ -30,6 +30,10 @@ model Users {
   passwordReset PasswordReset[] @relation("password_reset_user")
   loginLog      LoginLog[]      @relation("login_log_user")
 
+  personsOwner       Persons[]       @relation("persons_owner")
+  orgsOwner          Orgs[]          @relation("orgs_owner")
+  OpportunitiesOwner Opportunities[] @relation("oppos_owner")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -61,4 +65,248 @@ model Registrations {
   isProcessed Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+///// CRM tables
+
+model Persons {
+  id          String  @id @default(cuid())
+  firstName   String
+  middleName  String?
+  lastName    String
+  isActive    Boolean @default(true)
+  email       String?
+  phone       String?
+  address     String? // the contents will be Json
+  description String?
+
+  orgs            Orgs[]
+  personOrgs      PersonsOrgs[]
+  opportunityTeam OpportunityTeam[]
+  opportunities   Opportunities[]
+
+  ownerId String
+  owner   Users  @relation("persons_owner", fields: [ownerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// based on SF {
+//  Prospect
+//  Customer - Direct
+//  Customer - Channel
+//  Channel Partner / Reseller
+//  Installation Partner
+//  Technology Partner
+//  Other
+
+model OrgTypes {
+  id String @id
+
+  orgs Orgs[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// based on sf
+// Agriculture
+// Apparel
+// Banking
+// Biotechnology
+// Chemicals
+// Communications
+// Construction
+// Consulting
+// Education (K-12)
+// Education (Beyond K-12)
+// Electronics
+// Energy
+// Engineering
+// Entertainment
+// Environmental
+// Family -- added
+// Finance
+// Food & Beverage
+// Government
+// Healthcare
+// Hospitality
+// Insurance
+// Machinery
+// Manufacturing
+// Media
+// Not For Profit
+// Recreation
+// Retail
+// Shipping
+// Team
+// Technology
+// Telecommunications
+// Transportation
+// Utilities
+// Other
+
+model OrgIndustries {
+  id String @id
+
+  orgs Orgs[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Orgs {
+  id          String  @id @default(cuid())
+  name        String
+  isActive    Boolean @default(true)
+  address     String? // the contents will be Json
+  description String?
+  website     String?
+
+  persons       PersonsOrgs[]
+  opportunities Opportunities[]
+
+  orgType       String?
+  orgTypes      OrgTypes?      @relation(fields: [orgType], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  orgIndustry   String?
+  orgIndustries OrgIndustries? @relation(fields: [orgIndustry], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  ownerId String
+  owner   Users  @relation("orgs_owner", fields: [ownerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  createdaAt DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  Persons    Persons? @relation(fields: [personsId], references: [id])
+  personsId  String?
+}
+
+model PersonsOrgs {
+  id          String  @id @default(cuid())
+  title       String?
+  subOrg      String?
+  email       String?
+  phone       String?
+  address     String? // the contents will be Json
+  description String?
+
+  orgId    String
+  org      Orgs    @relation(fields: [orgId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  personId String
+  person   Persons @relation(fields: [personId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([orgId, personId])
+}
+
+model OpportunityTeam {
+  id        String  @id @default(cuid())
+  role      String
+  isOurTeam Boolean @default(true)
+
+  personId      String
+  person        Persons       @relation(fields: [personId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  opportunityId String
+  opportunity   Opportunities @relation(fields: [opportunityId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([personId, opportunityId])
+}
+
+model OpportunityStatuses {
+  id String @id
+
+  opportunities Opportunities[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// based on sf --- since not building the Lead from SF, probably combine
+// Open Lead - Not Contacted
+// Working Lead - Contacted
+// Closed Lead - Discontinued
+// Initating Opportunity
+// Qualification
+// Needs Analysis
+// Value Proposition
+// Identify Decision Makers
+// Perception Analysis
+// Proposal/Price Quote
+// Negotiation/Review
+// Closed Won
+// Closed Lost
+
+model OpportunityTypes {
+  id String @id
+
+  opportunities Opportunities[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// based on sf
+// Existing Customer - Upgrade
+// Existing Customer - Replacement
+// Existing Customer - Downgrade
+// New Customer
+
+model OpportunitySources {
+  id String @id
+
+  opporunities Opportunities[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// based on sf
+// External Referral
+// Internal Referral
+// Phone Inquiry
+// Partner Referral
+// Public Relations
+// Purchased List
+// Other
+// Show or Presentation
+// Word of Mouth
+// Web
+
+// opportunities
+// should be either a orgId or personId, but not both
+model Opportunities {
+  id   String @id @default(cuid())
+  name String @default("Name your opportunity something meaningful")
+
+  statusChangeDate DateTime?
+  closeDate        DateTime?
+  description      String?
+  expectedOutcome  String?
+  closedOutcome    String?
+  activity         String?
+
+  opportunityTeam     OpportunityTeam[]
+  opportunityType     String
+  opporunityTypes     OpportunityTypes    @relation(fields: [opportunityType], references: [id])
+  opportunitySource   String
+  opportunitySources  OpportunitySources  @relation(fields: [opportunitySource], references: [id])
+  opprtunityStatus    String
+  opportunityStatuses OpportunityStatuses @relation(fields: [opprtunityStatus], references: [id])
+
+  orgId String?
+  orgs  Orgs?   @relation(fields: [orgId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  personId String?
+  persons  Persons? @relation(fields: [personId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  ownerId String
+  owner   Users  @relation("oppos_owner", fields: [ownerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  createdaAt DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }

@@ -1,8 +1,10 @@
-import { Link } from "@remix-run/react";
+import { Link, useNavigate } from "@remix-run/react";
 import React from "react";
 
 export default function SecondaryNav(props) {
   // console.log("\n\n secondary nav props: " + JSON.stringify(props));
+
+  const navigate = useNavigate();
 
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light border border-primary rounded-1 ">
@@ -89,6 +91,21 @@ export default function SecondaryNav(props) {
         {props.showBack ? (
           <Link
             to={"/" + props.backTarget}
+            className="nav-link"
+            aria-current="page"
+          >
+            {props.showBackTitle ? props.showBackTitle : "Back to list"}
+          </Link>
+        ) : (
+          " "
+        )}
+
+        {props.showBack1 ? (
+          <Link
+            to={"/" + props.backTarget}
+            onClick={() => {
+              navigate(-1);
+            }}
             className="nav-link"
             aria-current="page"
           >

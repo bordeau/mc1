@@ -14,6 +14,17 @@ function NavItem(props) {
   );
 }
 
+function ManagerNavItem(props) {
+  // console.log("MenuItem props:" + JSON.stringify(props));
+
+  return (
+    <li className="nav-item">
+      <NavLink to={props.target} className="nav-link">
+        {props.label}
+      </NavLink>
+    </li>
+  );
+}
 function AdminNavItem(props) {
   // console.log("MenuItem props:" + JSON.stringify(props));
 
@@ -22,6 +33,26 @@ function AdminNavItem(props) {
       <NavLink to={props.target} className="nav-link">
         {props.label}
       </NavLink>
+    </li>
+  );
+}
+
+function ManagerNav({ children }) {
+  return (
+    <li className="nav-item dropdown">
+      <a
+        className="nav-link dropdown-toggle"
+        href="#"
+        id="navbarDropdownMenuLink"
+        role="button"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+      >
+        Manager
+      </a>
+      <ul className="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+        {children}
+      </ul>
     </li>
   );
 }
@@ -108,6 +139,16 @@ export default function Nav(props) {
                     requireAdmin={false}
                   />
                   <NavItem target="/persons" label="People" />
+                  <ManagerNav>
+                    <ManagerNavItem
+                      target="/orgIndustries"
+                      label="Organizational Industries"
+                    />
+                    <ManagerNavItem
+                      target="/orgTypes"
+                      label="Organizational Types"
+                    />
+                  </ManagerNav>
                   <AdminNav>
                     <AdminNavItem target="/users" label="Users" />
                     <AdminNavItem
@@ -150,7 +191,88 @@ export default function Nav(props) {
           </nav>
         </>
       );
-    } else {
+    } else if (props.isManager) {
+      // logged - admin
+      return (
+        <>
+          <nav className="navbar navbar-expand-lg navbar-light bg-light">
+            <div className="container-fluid">
+              <a className="navbar-brand align-middle" href="about">
+                <SVGLogo />
+                <span className="align-middle">{SYSTEM_TITLE}</span>
+              </a>
+              <button
+                className="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarTogglerDemo02"
+                aria-controls="navbarTogglerDemo02"
+                aria-expanded="false"
+                aria-label="Toggle navigation"
+              >
+                <span className="navbar-toggler-icon"></span>
+              </button>
+              <div
+                className="collapse navbar-collapse"
+                id="navbarTogglerDemo02"
+              >
+                <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+                  <NavItem target="/dashboard" label="Home" />
+                  <NavItem
+                    target="/organizations"
+                    label="Organizations"
+                    requireAdmin={false}
+                  />
+                  <NavItem target="/persons" label="People" />
+                  <ManagerNav>
+                    <ManagerNavItem
+                      target="/orgIndustries"
+                      label="Organizational Industries"
+                    />
+                    <ManagerNavItem
+                      target="/orgTypes"
+                      label="Organizational Types"
+                    />
+                  </ManagerNav>
+                </ul>
+              </div>
+              <div className="d-flex mr-150">
+                <ul className="nav nav-tabs">
+                  <li className="nav-item dropdown">
+                    <a
+                      className="flex-sm-fill text-sm-left nav-link dropdown-toggle mr-5"
+                      data-bs-toggle="dropdown"
+                      href="#"
+                      role="button"
+                      aria-expanded="false"
+                    >
+                      {props.name} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </a>
+                    <ul className="dropdown-menu">
+                      <NavLink
+                        to="/changepassword"
+                        className="dropdown-item flex-sm-fill text-sm-left nav-link"
+                      >
+                        Change Password
+                      </NavLink>
+                      <NavLink
+                        to="/logout"
+                        className="dropdown-item flex-sm-fill text-sm-left nav-link"
+                      >
+                        Logout
+                      </NavLink>
+                    </ul>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </nav>
+        </>
+      );
+    }
+
+    //
+    else {
       // logged in -- not admin
       return (
         <>

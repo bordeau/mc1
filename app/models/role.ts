@@ -18,6 +18,10 @@ export class Roles {
     return rr === "Manager";
   }
 
+  public static isAdminOrManager(rr: string): boolean {
+    return rr === "Manager" || rr === "Admin";
+  }
+
   public static isUser(rr: string): boolean {
     return rr === "User";
   }

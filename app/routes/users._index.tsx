@@ -147,11 +147,12 @@ export default function Users() {
           canCreate={true}
           canEdit={false}
           canClone={false}
-          showBack={false}
-          backTarget={""}
+          showBack={true}
+          backTarget={"dashboard"}
+          showBackTitle="To Dashboard"
           what="User"
         />
-        <div class="container border">
+        <div className="container border">
           <h5>Filter</h5>
           <Form
             id="search-form"

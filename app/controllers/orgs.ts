@@ -14,6 +14,14 @@ export async function getAllOrgs() {
   return orgs;
 }
 
+export async function getAllOrgsByOwner(oid) {
+  const orgs = await prisma.orgs.findMany({
+    where: { ownerId: oid },
+    orderBy: [{ name: "asc" }],
+  });
+  return orgs;
+}
+
 export async function getLikeNameOrgs(sp) {
   const orgs = await prisma.orgs.findMany({
     where: {

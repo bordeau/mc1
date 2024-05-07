@@ -142,11 +142,21 @@ export default function Nav(props) {
                   <ManagerNav>
                     <ManagerNavItem
                       target="/orgIndustries"
-                      label="Organizational Industries"
+                      label="Org Industries"
+                    />
+                    <ManagerNavItem target="/orgTypes" label="Org Types" />
+
+                    <ManagerNavItem
+                      target="/opportunityStatuses"
+                      label="Opp Statuses"
                     />
                     <ManagerNavItem
-                      target="/orgTypes"
-                      label="Organizational Types"
+                      target="/opportunitySources"
+                      label="Opp Sources"
+                    />
+                    <ManagerNavItem
+                      target="/opportunityTypes"
+                      label="Opp Types"
                     />
                   </ManagerNav>
                   <AdminNav>
@@ -227,11 +237,21 @@ export default function Nav(props) {
                   <ManagerNav>
                     <ManagerNavItem
                       target="/orgIndustries"
-                      label="Organizational Industries"
+                      label="Org Industries"
+                    />
+                    <ManagerNavItem target="/orgTypes" label="Org Types" />
+
+                    <ManagerNavItem
+                      target="/opportunityStatuses"
+                      label="Opp Statuses"
                     />
                     <ManagerNavItem
-                      target="/orgTypes"
-                      label="Organizational Types"
+                      target="/opportunitySources"
+                      label="Opp Sources"
+                    />
+                    <ManagerNavItem
+                      target="/opportunityTypes"
+                      label="Opp Types"
                     />
                   </ManagerNav>
                 </ul>

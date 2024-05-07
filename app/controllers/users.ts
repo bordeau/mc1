@@ -184,7 +184,10 @@ function validateEdit(formData) {
     username: z.string(),
     password: z.string(),
     role: z.string(),
-    isActive: z.boolean(),
+    isActive: z.string().transform((val) => {
+      const p = !!val; // val ? true : false;
+      return p;
+    }),
     firstName: z.string().min(1, { message: "First Name is required" }),
     lastName: z.string().min(1, { message: "Last Name is required" }),
     email: z.string().email().min(5, { message: "Email is required" }),
@@ -221,7 +224,10 @@ function validateCreate(formData) {
     username: z.string(),
     password: z.string(),
     role: z.string(),
-    isActive: z.boolean(),
+    isActive: z.string().transform((val) => {
+      const p = !!val; // val ? true : false;
+      return p;
+    }),
     firstName: z.string().min(1, { message: "First Name is required" }),
     lastName: z.string().min(1, { message: "Last Name is required" }),
     email: z.string().email().min(5, { message: "Email is required" }),

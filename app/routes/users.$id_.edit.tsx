@@ -71,7 +71,7 @@ export default function UserEdit() {
     throw new Error("Sorry you do have access to this feature.");
   } else {
     return (
-      <div className="container-md">
+      <>
         <Nav
           isAdmin={isAdmin}
           isLoggedIn={isLoggedIn}
@@ -258,7 +258,7 @@ export default function UserEdit() {
             </button>
           </div>
         </Form>
-      </div>
+      </>
     );
   }
 }

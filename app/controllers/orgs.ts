@@ -6,7 +6,7 @@ export async function getAllOrgs() {
   const orgs = await prisma.orgs.findMany({
     orderBy: [{ name: "asc" }],
     include: {
-      persons: true,
+      personsOrgs: true,
       orgIndustries: true,
       orgTypes: true,
     },
@@ -22,7 +22,7 @@ export async function getLikeNameOrgs(sp) {
       },
     },
     include: {
-      persons: true,
+      personsOrgs: true,
       orgIndustries: true,
       orgTypes: true,
     },
@@ -35,8 +35,8 @@ export async function getOrgById(i: string) {
   const rval = await prisma.orgs.findUnique({
     where: { id: i },
     include: {
-      persons: true,
-      owner: { include: { personOwners: true } },
+      personsOrgs: { include: { person: true } },
+      owner: true,
     },
   });
 

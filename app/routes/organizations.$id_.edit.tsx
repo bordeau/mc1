@@ -13,12 +13,12 @@ import { getAllOrgTypes } from "~/controllers/orgTypes";
 import { getOrgById, updateOrg } from "~/controllers/orgs";
 import React from "react";
 import { getAllOrgIndustries } from "~/controllers/orgIndustries";
-import { getAllPersonUsers } from "~/controllers/persons";
 import { blankAddress } from "~/components/utils";
 import { isAuthenticated } from "~/services/auth.server";
 import Nav from "~/components/nav";
 import SecondaryNav from "~/components/secondarynav";
 import { Roles } from "~/models/role";
+import { getAllUsers } from "~/controllers/users";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   invariant(params.id, "Missing ID param");
@@ -26,13 +26,11 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const currentUser = await isAuthenticated(request);
   if (!currentUser) return redirect("/login");
 
-  const id = params.id;
-
-  const [org, orgTypes, orgIndustries, ownerPersons] = await Promise.all([
-    getOrgById(id),
+  const [org, orgTypes, orgIndustries, users] = await Promise.all([
+    getOrgById(params.id),
     getAllOrgTypes(),
     getAllOrgIndustries(),
-    getAllPersonUsers(),
+    getAllUsers(),
   ]);
 
   //console.log("\n\nperson loader:" + JSON.stringify(ownerPersons));
@@ -43,7 +41,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   // console.log("\n\n orgTypes=" + JSON.stringify(orgTypes, null, 2 ));
   // console.log("\n\n orgIndustries=" + JSON.stringify(orgIndustries, null, 2));
 
-  return { currentUser, org, orgTypes, orgIndustries, ownerPersons };
+  return { currentUser, org, orgTypes, orgIndustries, users };
 };
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -58,7 +56,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function OrgEdit() {
-  const { org, orgTypes, orgIndustries, currentUser, ownerPersons } =
+  const { currentUser, org, orgTypes, orgIndustries, users } =
     useLoaderData<typeof loader>();
   const data = useActionData<typeof action>();
   const navigate = useNavigate();
@@ -71,7 +69,7 @@ export default function OrgEdit() {
   }
 
   return (
-    <div className="container-md">
+    <>
       <Nav
         isAdmin={isAdmin}
         isLoggedIn={isLoggedIn}
@@ -79,11 +77,11 @@ export default function OrgEdit() {
       />
       <h1>User Detail</h1>
       <SecondaryNav
-        target="users"
+        target="organizations"
         id={org.id}
         canDelete={false}
         canCreate={true}
-        canEdit={true}
+        canEdit={false}
         canClone={true}
         viewLoginLog={false}
         viewDetail={true}
@@ -184,16 +182,16 @@ export default function OrgEdit() {
           <select
             name="isActive"
             className="form-control"
-            defaultValue={org.isActive}
+            defaultValue={org.isActive ? "yes" : ""}
           >
             <option key="yes" value="yes">
               Yes
             </option>
-            <option key="no" value="no">
+            <option key="no" value="">
               No
             </option>
           </select>
-          {data && data.error.website && (
+          {data && data.error.isActive && (
             <p className="text-danger">{data.error.isActive._errors[0]}</p>
           )}
         </div>
@@ -234,24 +232,22 @@ export default function OrgEdit() {
             Owner:
           </label>
 
-          {org.ownerId === myUserProfile.id ? (
+          {org.ownerId === currentUser.id ? (
             <select
               name="ownerId"
               className="form-control"
               defaultValue={org.ownerId}
             >
               <option value="">Choose Owner</option>
-              {ownerPersons.map((o) => (
-                <option key={o.userId} value={o.userId}>
+              {users.map((o) => (
+                <option key={o.id} value={o.id}>
                   {o.lastName}, {o.firstName}
                 </option>
               ))}
             </select>
           ) : (
             <p className="lead">
-              {org.owner.personOwners[0].firstName +
-                " " +
-                org.owner.personOwners[0].lastName}
+              {org.owner.firstName + " " + org.owner.lastName}
             </p>
           )}
           {data && data.error.ownerId && (
@@ -264,16 +260,12 @@ export default function OrgEdit() {
             <button type="submit" className="btn btn-primary">
               Save
             </button>
-            <button
-              className="btn btn-secondary"
-              onClick={() => navigate(-1)}
-              type="button"
-            >
+            <button type="reset" className="btn btn-secondary">
               Cancel
             </button>
           </div>
         </div>
       </Form>
-    </div>
+    </>
   );
 }

@@ -123,7 +123,7 @@ export default function RegistrationActivate() {
 
   if (isAdmin) {
     return (
-      <div className="container-md">
+        <>
         <Nav
           isAdmin={isAdmin}
           isLoggedIn={isLoggedIn}
@@ -246,7 +246,7 @@ export default function RegistrationActivate() {
               </button>
             </div>
         </Form>
-      </div>
+      </>
   );
   }
   else {

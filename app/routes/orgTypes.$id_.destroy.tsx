@@ -3,11 +3,7 @@ import { redirect } from "@remix-run/node";
 import { Form, useLoaderData, useNavigate } from "@remix-run/react";
 import invariant from "tiny-invariant";
 
-import {
-  destroyOrgType,
-  getOrgTypeById,
-  getOrgTypeByOrgTypeId,
-} from "~/controllers/orgTypes";
+import { destroyOrgType, getOrgTypeById } from "~/controllers/orgTypes";
 import { isAuthenticated } from "~/services/auth.server";
 import Nav from "~/components/nav";
 import SecondaryNav from "~/components/secondarynav";
@@ -24,84 +20,127 @@ function myconfirm(n) {
   else return false;
 }
 
+const target = "orgTypes";
+const what = "Org Type";
+
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   invariant(params.id, "Missing org type ID param");
 
   const currentUser = await isAuthenticated(request);
   if (!currentUser) return redirect("/login");
 
-  const orgType = await getOrgTypeById(params.id);
+  let item = await getOrgTypeById(params.id);
 
-  return { currentUser, orgType };
+  //console.log(
+  //  "\n\n delete org type loader:" + JSON.stringify(item, null, 2)
+  //);
+
+  if (item.orgs.length === 0) return { currentUser, item };
+  else {
+    item = null;
+    console.log("\n\n attempt to delete org type that is currently referenced");
+    return { currentUser, item };
+  }
 };
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = Object.fromEntries(await request.formData());
-  console.log("\n\n delete form data: " + JSON.stringify(formData));
-  const orgTypeId = formData.org_type_id;
+  // console.log("\n\n delete form data: " + JSON.stringify(formData));
+  const id = formData.id;
   if (formData.button === "yes") {
-    await destroyOrgType(orgTypeId);
-    return redirect("/orgTypes");
+    await destroyOrgType(id);
+    return redirect("/" + target);
   } else {
-    return redirect("/orgTypes/" + orgTypeId);
+    return redirect("/" + target + "/" + id);
   }
 }
 
-export default function EditRole() {
-  const { currentUser, orgType } = useLoaderData<typeof loader>();
+export default function OrgTypesId_Destroy() {
+  const { currentUser, item } = useLoaderData<typeof loader>();
 
   const isAdmin = Roles.isAdmin(currentUser.role);
   const isManager = Roles.isManager(currentUser.role);
   const isLoggedIn = currentUser.isLoggedIn;
 
-  return (
-    <div className="container-md">
-      <Nav
-        isAdmin={isAdmin}
-        isManager={isManager}
-        isLoggedIn={isLoggedIn}
-        name={currentUser.firstName + " " + currentUser.lastName}
-      />
-      <h1>User Detail</h1>
-      <SecondaryNav
-        target="orgTypes"
-        canDelete={false}
-        canCreate={true}
-        canEdit={true}
-        canClone={true}
-        viewLoginLog={false}
-        viewDetail={false}
-        showBack={true}
-        backTarget={"orgTypes"}
-        what="Organizational Types"
-      />
-      <br />
-      <Form key="orgTypeIddelete" id="orgTypeIddelete-form" method="post">
-        <input type="hidden" name="org_type_id" value={orgType.id} />
-        <div className="mg-3">
-          <label className="form-label">
-            Are you sure you want to delete Organzational Type : {orgType.id}?
-          </label>
-        </div>
-        <div className="mg-3">
-          <button
-            type="submit"
-            className="btn btn-primary"
-            name="button"
-            value="yes"
-          >
-            Yes
-          </button>
-          <button
-            type="submit"
-            className="btn btn-secondary"
-            name="button"
-            value="no"
-          >
-            No
-          </button>
-        </div>
-      </Form>
-    </div>
-  );
+  if (item === null) {
+    return (
+      <>
+        <Nav
+          isAdmin={isAdmin}
+          isManager={isManager}
+          isLoggedIn={isLoggedIn}
+          name={currentUser.firstName + " " + currentUser.lastName}
+        />
+        <h1>User Detail</h1>
+        <SecondaryNav
+          target={target}
+          canDelete={false}
+          canCreate={true}
+          canEdit={true}
+          canClone={true}
+          viewLoginLog={false}
+          viewDetail={false}
+          showBack={true}
+          backTarget={target}
+          what={what}
+        />
+        <br />
+
+        <p>
+          The {what} is referenced by an Org, to delete you will need to remove
+          all references
+        </p>
+      </>
+    );
+  } else
+    return (
+      <>
+        <Nav
+          isAdmin={isAdmin}
+          isManager={isManager}
+          isLoggedIn={isLoggedIn}
+          name={currentUser.firstName + " " + currentUser.lastName}
+        />
+        <h1>User Detail</h1>
+        <SecondaryNav
+          target={target}
+          canDelete={false}
+          canCreate={true}
+          canEdit={true}
+          canClone={true}
+          viewLoginLog={false}
+          viewDetail={false}
+          showBack={true}
+          backTarget={target}
+          what={what}
+        />
+        <br />
+        <Form key="orgTypeIddelete" id="orgTypeIddelete-form" method="post">
+          <input type="hidden" name="id" value={item.id} />
+          <div className="mg-3">
+            <label className="form-label">
+              Are you sure you want to delete {what} : {item.id}?
+            </label>
+          </div>
+          <div className="mg-3">
+            <button
+              type="submit"
+              className="btn btn-primary"
+              name="button"
+              value="yes"
+            >
+              Yes
+            </button>
+            <button
+              type="submit"
+              className="btn btn-secondary"
+              name="button"
+              value="no"
+            >
+              No
+            </button>
+          </div>
+        </Form>
+      </>
+    );
 }

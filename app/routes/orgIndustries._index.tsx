@@ -1,30 +1,52 @@
 import { json, LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { useLoaderData, Link } from "@remix-run/react";
+import { useLoaderData, Link, Form, useSubmit } from "@remix-run/react";
 
-import { getAllOrgIndustries } from "~/controllers/orgIndustries";
+import {
+  getAllActiveOrgIndustries,
+  getAllOrgIndustries,
+} from "~/controllers/orgIndustries";
 import { isAuthenticated } from "~/services/auth.server";
 import { Roles } from "~/models/role";
 import Nav from "~/components/nav";
 import SecondaryNav from "~/components/secondarynav";
+import React, { useEffect } from "react";
+
+const target = "orgIndustries";
+const what = "Org Industry";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const currentUser = await isAuthenticated(request);
   if (!currentUser) return redirect("/login");
 
-  const orgIndustries = await getAllOrgIndustries();
+  const url = new URL(request.url);
+  const q = url.searchParams.get("q");
 
-  return json({ currentUser, orgIndustries });
+  const qq = q == null ? false : true;
+
+  let list;
+  if (qq) list = await getAllOrgIndustries();
+  else list = await getAllActiveOrgIndustries();
+
+  return json({ currentUser, list, qq });
 };
 
 export default function Index() {
-  const { currentUser, orgIndustries } = useLoaderData<typeof loader>();
+  const { currentUser, list, qq } = useLoaderData<typeof loader>();
+
+  const submit = useSubmit();
+  useEffect(() => {
+    const searchField = document.getElementById("q");
+    if (searchField instanceof HTMLInputElement) {
+      searchField.value = qq || "";
+    }
+  }, [qq]);
 
   const isAdmin = Roles.isAdmin(currentUser.role);
   const isManager = Roles.isManager(currentUser.role);
   const isLoggedIn = currentUser.isLoggedIn;
 
   return (
-    <div className="container-md">
+    <>
       <Nav
         isAdmin={isAdmin}
         isManager={isManager}
@@ -36,7 +58,7 @@ export default function Index() {
         <h1>Org Industries</h1>
       </div>
       <SecondaryNav
-        target="orgIndustries"
+        target={target}
         canDelete={false}
         canCreate={true}
         canEdit={false}
@@ -45,27 +67,51 @@ export default function Index() {
         viewDetail={false}
         showBack={true}
         showBack1={false}
+        reOrder={true}
         backTarget={"dashboard"}
         showBackTitle="To Dashboard"
-        what="Organizational Industries"
+        what={what}
       />
       <br />
 
+      <Form
+        id="search-form"
+        role="search"
+        onChange={(event) => submit(event.currentTarget)}
+      >
+        <input
+          value="true"
+          defaultChecked={qq}
+          id="q"
+          name="q"
+          placeholder="Search"
+          type="checkbox"
+        />
+        <label htmlFor="q" className="form-label">
+          Show Active & Inactive
+        </label>
+
+        {/* existing elements */}
+      </Form>
+
       <nav className="nav flex-column">
-        {orgIndustries.map((oi) => (
-          <li key={oi.id}>
-            <h5>
+        {list.map((oi) => (
+          <div className="row" key={oi.id}>
+            <div className="col-sm-9">
               <Link
-                to={`/orgIndustries/${oi.id}`}
-                className="nav-link"
+                className="col-sm-9"
+                to={"/" + target + "/" + oi.id}
                 aria-current="page"
               >
                 {oi.id}
               </Link>
-            </h5>
-          </li>
+            </div>
+            <div className="col-sm-2">
+              <span>{oi.isActive ? "Active" : "Inactive"}</span>
+            </div>
+          </div>
         ))}
       </nav>
-    </div>
+    </>
   );
 }

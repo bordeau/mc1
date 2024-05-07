@@ -18,9 +18,10 @@ import { isAuthenticated } from "~/services/auth.server";
 import { Roles } from "~/models/role";
 import Nav from "~/components/nav";
 import SecondaryNav from "~/components/secondarynav";
+import { EmptyLetterTray } from "~/components/icons";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  invariant(params.personId, "Missing Person ID param");
+  invariant(params.id, "Missing ID param");
 
   const currentUser = await isAuthenticated(request);
   if (!currentUser) return redirect("/login");
@@ -31,26 +32,32 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   // console.log("\n\n q:" + q);
 
   let orgs;
+  let person;
   if (q == null) {
-    orgs = await getAllOrgs();
-
-    // return json({ orgs, q });
-  } else {
-    orgs = await getLikeNameOrgs(q);
-    // return json({ orgs, q });
+    [orgs, person] = await Promise.all([
+      getAllOrgs(),
+      getPersonById(params.id),
+    ]);
+  }
+  //
+  else {
+    [orgs, person] = await Promise.all([
+      getLikeNameOrgs(q),
+      getPersonById(params.id),
+    ]);
   }
 
-  const person = await getPersonById(Number(params.id));
   if (!person) {
     throw new Response("Not Found", { status: 404 });
   }
-  const personOrgs = person.orgs;
+  const personOrgs = person.personOrgs;
 
   let i = 0;
   let showOrgs = [];
 
   // console.log("\n\n person: " + JSON.stringify(person, null, 2));
   // console.log("\n\n personOrgs: " + JSON.stringify(personOrgs, null, 2));
+  // console.log("\n\n orgs: " + JSON.stringify(orgs, null, 2));
 
   // this bit of code makes sure the list of orgs that can be linked doesn't include already linked orgs
   for (i; i < orgs.length; i++) {
@@ -67,7 +74,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   }
 
   //console.log("\n\n orgs: " + JSON.stringify(orgs));
-  //console.log("\n\n showOrgs: " + JSON.stringify(showOrgs));
+  //console.log("\n\n showOrgs: " + JSON.stringify(showOrgs, null, 2));
   //console.log("\n\n orgs:" + orgs.length);
 
   return { currentUser, person, personOrgs, showOrgs, q };
@@ -75,31 +82,22 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formdata = Object.fromEntries(await request.formData());
-
-  // console.log(
-  //  "\n\nperson/org link formdata?: " + JSON.stringify(formdata, null, 2)
-  // );
-
   /*
-  if (Array.isArray(formdata)) {
-    let j = 0;
-    for (j; j < formdata.length; j++) {
-      formdata[j].title = "Needs a title";
-    }
-  } else {
-    formdata.title = "Needs a title";
-  }
-
-   */
+  console.log(
+    "\n\nperson/org link formdata?: " + JSON.stringify(formdata, null, 2)
+  );
+*/
 
   const personorg = await createPersonOrg(formdata);
 
-  // console.log(
-  //   "\n\npersonOorg post link personOrg?: " + JSON.stringify(personorg, null, 2)
-  // );
+  /*
+  console.log(
+    "\n\npersonOorg post link personOrg?: " + JSON.stringify(personorg, null, 2)
+  );
+*/
 
   if (personorg.hasOwnProperty("error")) return personorg;
-  else return redirect(`/persons/${personorg.id}`);
+  else return redirect(`/persons/${personorg.personId}`);
 
   return {};
 };
@@ -132,14 +130,14 @@ export default function PersonDetail() {
   const isLoggedIn = currentUser.isLoggedIn;
 
   return (
-    <div className="container-md">
+    <>
       <Nav
         isAdmin={isAdmin}
         isManager={isManager}
         isLoggedIn={isLoggedIn}
         name={currentUser.firstName + " " + currentUser.lastName}
       />
-      <h1>User Detail</h1>
+      <h1>Person Detail</h1>
       <SecondaryNav
         target="persons"
         id={person.id}
@@ -155,34 +153,41 @@ export default function PersonDetail() {
       />
       <br />
 
-      <h1>Person Detail</h1>
-
       <div className="row">
-        <h6 className="col-2 align-text-top">First Name:</h6>
-        <p className="col-7 lead align-text-top">{person.firstName}</p>
+        <h6 className="col-2 align-text-top">First Name</h6>
+        <p className="col-9 lead align-text-top">{person.firstName}</p>
       </div>
 
       <div className="row">
-        <h6 className="col-2 align-text-top">Last Name:</h6>
-        <p className="col-7 lead align-text-top">{person.lastName}</p>
+        <h6 className="col-2 align-text-top">Last Name</h6>
+        <p className="col-9 lead align-text-top">{person.lastName}</p>
       </div>
 
       <div className="row">
-        <h6 className="col-2 align-text-top">Email:</h6>
-        <p className="col-7 lead align-text-top">
+        <h6 className="col-2 align-text-top">Email</h6>
+        <p className="col-9 lead align-text-top">
           <a href={`mailto:` + person.email}>{person.email}</a>
         </p>
       </div>
 
       <div className="row">
-        <h6 className="col-2 align-text-top">Phone:</h6>
-        <p className="col-7 lead align-text-top">{person.phone}</p>
+        <h6 className="col-2 align-text-top">Phone</h6>
+        <p className="col-9 lead align-text-top">
+          {person.phone ? person.phone : <EmptyLetterTray />}
+        </p>
       </div>
 
       <div className="row">
-        <h6 className="col-2 align-text-top">Is User Profile?</h6>
-        <p className="col-7 lead align-text-top">
-          {person.userId ? "Yes" : "No"}
+        <h6 className="col-2 align-text-top">Description</h6>
+        <p className="col-9 lead align-text-top">
+          {person.description ? person.description : <EmptyLetterTray />}
+        </p>
+      </div>
+
+      <div className="row">
+        <h6 className="col-2 align-text-top">Is Active?</h6>
+        <p className="col-9 lead align-text-top">
+          {person.isActive ? "Yes" : "No"}
         </p>
       </div>
 
@@ -199,16 +204,17 @@ export default function PersonDetail() {
         />
       </div>
 
-      <div className="bd-example">
-        <h6 className="h6">Owner:</h6>
-        <p className="lead">
-          {person.owner.personOwners[0].firstName +
-            " " +
-            person.owner.personOwners[0].lastName}
-        </p>
+      <div className="border border-primary border-2 gx-10">
+        <label htmlFor="ownerId" className="form-label">
+          Owner
+        </label>
+        <span className="lead">
+          &nbsp;&nbsp;---&nbsp;&nbsp;
+          {person.owner.firstName + " " + person.owner.lastName}
+        </span>
       </div>
-
-      <h4 className="mt-xl-4">Linked Organizations</h4>
+      <br />
+      <h4 className="mt-xl-4">Associated Organizations</h4>
 
       {personOrgs != null && personOrgs.length ? (
         <div className="flex-column">
@@ -232,9 +238,10 @@ export default function PersonDetail() {
           ))}
         </div>
       ) : (
-        <i>No linked organizations</i>
+        <i>No Associated Organizations</i>
       )}
 
+      <br />
       {showOrgs != null && showOrgs.length ? (
         <div className="accordion-body">
           <div className="accordion " id="associateAccordian">
@@ -248,7 +255,7 @@ export default function PersonDetail() {
                   aria-expanded="false"
                   aria-controls="collapseTwo"
                 >
-                  Link Organization(s)
+                  Associate Additional Organization(s)
                 </button>
               </h4>
               <div
@@ -273,12 +280,12 @@ export default function PersonDetail() {
                   {/* existing elements */}
                 </Form>
 
-                <Link
-                  to={`/organizations/${person.id}/createlink`}
-                  className="nav-link"
-                >
-                  Create &amp; Link New Organization
-                </Link>
+                <p>
+                  If you need to create a new Organization,{" "}
+                  <Link to="organizations">Go to Organizations</Link>, create
+                  the organization record, then you can associate the
+                  organization to this person in the Organization detail{" "}
+                </p>
 
                 <nav className="nav flex-column my-5">
                   <Form method="post">
@@ -290,12 +297,12 @@ export default function PersonDetail() {
 
                     {showOrgs.map((org) => (
                       <div className="row" key={org.id}>
-                        <div className="col-sm-1">
+                        <div className="col-sm-2">
                           <input type="checkbox" name="orgId" value={org.id} />
                         </div>
-                        <div className="col-sm-8">
+                        <div className="col-sm-7">
                           <Link
-                            to={`/organizations/${org.id}`}
+                            to={`/organizations/${org.id}?back=1`}
                             className="nav-link"
                             aria-current="page"
                           >
@@ -308,7 +315,7 @@ export default function PersonDetail() {
                       <button type="submit" className="btn btn-primary">
                         Link
                       </button>
-                      <button type="cancel" className="btn btn-secondary">
+                      <button type="reset" className="btn btn-secondary">
                         Cancel
                       </button>
                     </div>
@@ -321,6 +328,6 @@ export default function PersonDetail() {
       ) : (
         <></>
       )}
-    </div>
+    </>
   );
 }

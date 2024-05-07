@@ -1,18 +1,18 @@
 import { ActionFunctionArgs, json, LoaderFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
-import { Form, useLoaderData, useNavigate } from "@remix-run/react";
+import { Form, useLoaderData } from "@remix-run/react";
 
-import { createRole, updateRole } from "~/controllers/roles";
-import { z } from "zod";
-import { createOrgType, getOrgTypeById } from "~/controllers/orgTypes";
+import { createOrgType } from "~/controllers/orgTypes";
 import { useActionData } from "react-router";
 import React from "react";
 import { Roles } from "~/models/role";
 import Nav from "~/components/nav";
 import SecondaryNav from "~/components/secondarynav";
-import { loader } from "~/routes/orgTypes.$id";
-import invariant from "tiny-invariant";
+
 import { isAuthenticated } from "~/services/auth.server";
+
+const target = "orgTypes";
+const what = "Org Type";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const currentUser = await isAuthenticated(request);
@@ -24,12 +24,12 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formdata = Object.fromEntries(await request.formData());
 
-  console.log("\n\nperson edit formdata?: " + JSON.stringify(formdata));
+  // console.log("\n\norgtype edit formdata?: " + JSON.stringify(formdata));
 
-  const orgType = await createOrgType(formdata);
+  const item = await createOrgType(formdata);
 
-  if (orgType.hasOwnProperty("error")) return orgType;
-  else return redirect(`/orgTypes/${orgType.id}`);
+  if (item.hasOwnProperty("error")) return item;
+  else return redirect("/" + target + "/" + item.id);
 };
 
 export default function CreateOrganizationType() {
@@ -41,56 +41,82 @@ export default function CreateOrganizationType() {
   const isLoggedIn = currentUser.isLoggedIn;
 
   return (
-    <div className="container-md">
+    <>
       <Nav
         isAdmin={isAdmin}
         isManager={isManager}
         isLoggedIn={isLoggedIn}
         name={currentUser.firstName + " " + currentUser.lastName}
       />
-      <h1>Create Organization Type</h1>
+      <h1>Create {what}</h1>
       <SecondaryNav
-        target="orgTypes"
+        target={target}
         canDelete={false}
-        canCreate={true}
+        canCreate={false}
         canEdit={false}
-        canClone={true}
+        canClone={false}
         viewLoginLog={false}
-        viewDetail={true}
+        viewDetail={false}
         showBack={true}
-        backTarget={"orgTypes"}
-        what="Organizational Type"
+        backTarget={target}
+        what={what}
       />
       <br />
 
       <div className="bd-example">
         <Form id="orgtype-form" method="post">
-          <div className="mg-3">
-            <label htmlFor="id" className="form-label">
-              Name
-            </label>
-
-            <input
-              defaultValue=""
-              name="id"
-              type="text"
-              placeholder="Name"
-              className="form-control"
-            />
-            {data && data.error.id && (
-              <p className="text-danger">{data.error.id._errors[0]}</p>
-            )}
+          <input type="hidden" name="orderBy" value="100" />
+          <div className="row">
+            <div className="col-2 align-text-top">
+              <label htmlFor="id" className="form-label">
+                Name
+              </label>
+            </div>
+            <div className="col-9 lead align-text-top">
+              <input
+                defaultValue=""
+                name="id"
+                type="text"
+                placeholder="Name"
+                className="form-control"
+              />
+              {data && data.error.id && (
+                <p className="text-danger">{data.error.id._errors[0]}</p>
+              )}
+            </div>
           </div>
+
+          <div className="row">
+            <div className="col-2 align-text-top">
+              <label htmlFor="isActive" className="form-label">
+                Active?
+              </label>
+            </div>
+            <div className="col-9 lead align-text-top">
+              <select name="isActive" className="form-control">
+                <option key="yes" value="yes">
+                  Yes
+                </option>
+                <option key="no" value="">
+                  No
+                </option>
+              </select>
+              {data && data.error.isActive && (
+                <p className="text-danger">{data.error.isActive._errors[0]}</p>
+              )}
+            </div>
+          </div>
+
           <div className="mg-3">
             <button type="submit" className="btn btn-primary">
               Save
             </button>
-            <button type="cancel" className="btn btn-secondary">
+            <button type="reset" className="btn btn-secondary">
               Cancel
             </button>
           </div>
         </Form>
       </div>
-    </div>
+    </>
   );
 }

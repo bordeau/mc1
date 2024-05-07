@@ -88,6 +88,18 @@ export default function SecondaryNav(props) {
           " "
         )}
 
+        {props.reOrder ? (
+          <Link
+            to={"/" + props.target + "/reOrder"}
+            className="nav-link"
+            aria-current="page"
+          >
+            Re-order {props.what}s
+          </Link>
+        ) : (
+          " "
+        )}
+
         {props.showBack ? (
           <Link
             to={"/" + props.backTarget}

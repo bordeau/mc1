@@ -14,6 +14,7 @@ import { Roles } from "~/models/role";
 import Nav from "~/components/nav";
 import SecondaryNav from "~/components/secondarynav";
 import { isAuthenticated } from "~/services/auth.server";
+import { blankAddress } from "~/components/utils";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const currentUser = await isAuthenticated(request);
@@ -40,22 +41,14 @@ export default function PersonCreate() {
   const navigate = useNavigate();
   const { currentUser } = useLoaderData<typeof loader>();
 
-  let address = {
-    address_type: "personal",
-    street1: "",
-    street2: "",
-    city: "",
-    zip: "",
-    state: "",
-    country: "",
-  };
+  const address = blankAddress("personal");
 
   const isAdmin = Roles.isAdmin(currentUser.role);
   const isManager = Roles.isManager(currentUser.role);
   const isLoggedIn = currentUser.isLoggedIn;
 
   return (
-    <div className="container-md">
+    <>
       <Nav
         isAdmin={isAdmin}
         isManager={isManager}
@@ -79,6 +72,7 @@ export default function PersonCreate() {
       <div className="container-md">
         <Form key="personcreate" id="person-form" method="post">
           <input name="ownerId" type="hidden" value={currentUser.id} />
+          <input name="isActive" type="hidden" value="true" />
           <div className="mg-3">
             <label htmlFor="firstName" className="form-label">
               First Name:
@@ -166,12 +160,13 @@ export default function PersonCreate() {
             <FormAddress
               type="personal"
               typeLabel="Personal Address"
-              street1=""
-              street2=""
-              city=""
-              state=""
-              country=""
-              zip=""
+              street1={address.street1}
+              street2={address.street2}
+              city={address.city}
+              state={address.state}
+              country={address.country}
+              zip={address.zip}
+              data={data}
             />
           </div>
 
@@ -189,6 +184,6 @@ export default function PersonCreate() {
           </div>
         </Form>
       </div>
-    </div>
+    </>
   );
 }

@@ -55,7 +55,7 @@ export default function OrgCreate() {
   const isLoggedIn = currentUser.isLoggedIn;
 
   return (
-    <div className="container-md">
+    <>
       <Nav
         isAdmin={isAdmin}
         isLoggedIn={isLoggedIn}
@@ -209,6 +209,6 @@ export default function OrgCreate() {
           </button>
         </div>
       </Form>
-    </div>
+    </>
   );
 }

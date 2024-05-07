@@ -75,7 +75,7 @@ export default function ForgotPassword() {
   const { user } = useLoaderData<typeof loader>();
 
   return (
-    <div class="container-md">
+    <>
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
         <div className="container-fluid">
           <a className="navbar-brand" href="about">
@@ -161,6 +161,6 @@ export default function ForgotPassword() {
           </button>
         </div>
       </Form>
-    </div>
+    </>
   );
 }

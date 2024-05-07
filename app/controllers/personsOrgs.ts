@@ -2,7 +2,7 @@ import { prisma } from "~/db/db.server.ts";
 import { z } from "zod";
 import { json } from "@remix-run/node";
 
-export async function findPersonOrgsByPersonId(pid: number) {
+export async function findPersonOrgsByPersonId(pid: string) {
   const rval = await prisma.personsOrgs.findMany({
     where: { personId: pid },
     include: { org: true, person: true },
@@ -11,16 +11,16 @@ export async function findPersonOrgsByPersonId(pid: number) {
   return rval;
 }
 
-export async function findPersonOrgsByOrgId(pid: number) {
+export async function findPersonOrgsByOrgId(oid: string) {
   const rval = await prisma.personsOrgs.findMany({
-    where: { orgId: pid },
+    where: { orgId: oid },
     include: { org: true, person: true },
   });
 
   return rval;
 }
 
-export async function getPersonOrgId(id: number) {
+export async function getPersonOrgById(id: string) {
   const rval = await prisma.personsOrgs.findUnique({
     where: {
       id: id,
@@ -33,17 +33,7 @@ export async function getPersonOrgId(id: number) {
 
 function validateEdit(formData) {
   const schema = z.object({
-    id: z.string().transform((val, ctx) => {
-      const p = parseInt(val);
-      if (isNaN(p)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Not a number",
-        });
-        return z.NEVER;
-      }
-      return p;
-    }),
+    id: z.string(),
     title: z.string().nullable(),
     subOrg: z.string().nullable(),
     email: z.union([z.string().email().nullable(), z.literal("")]),
@@ -82,28 +72,8 @@ function validateEdit(formData) {
 
 function validateCreate(formData) {
   const schema = z.object({
-    personId: z.string().transform((val, ctx) => {
-      const p = parseInt(val);
-      if (isNaN(p)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Not a number",
-        });
-        return z.NEVER;
-      }
-      return p;
-    }),
-    orgId: z.string().transform((val, ctx) => {
-      const p = parseInt(val);
-      if (isNaN(p)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Not a number",
-        });
-        return z.NEVER;
-      }
-      return p;
-    }),
+    personId: z.string(),
+    orgId: z.string(),
     title: z.string().nullable(),
     subOrg: z.string().nullable(),
     email: z.union([z.string().email().nullable(), z.literal("")]),
@@ -179,7 +149,9 @@ export async function updatePersonOrg(formdata) {
 
   const id = parsedData.id;
 
-  console.log("\n\nperson org to update data: " + JSON.stringify(data));
+  console.log(
+    "\n\nperson org to update data: " + JSON.stringify(data, null, 2)
+  );
 
   const rval = await prisma.personsOrgs.update({
     where: {
@@ -236,7 +208,7 @@ export async function createPersonOrg(formdata) {
   return rval;
 }
 
-export async function destroyPersonOrg(id: number) {
+export async function destroyPersonOrg(id: string) {
   await prisma.personsOrgs.delete({
     where: {
       id: id,

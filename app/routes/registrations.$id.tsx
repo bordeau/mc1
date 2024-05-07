@@ -43,7 +43,7 @@ export default function RegistrationDetail() {
   const isLoggedIn = currentUser.isLoggedIn;
 
   return (
-    <div className="container-md">
+    <>
       <Nav
         isAdmin={isAdmin}
         isLoggedIn={isLoggedIn}
@@ -106,6 +106,6 @@ export default function RegistrationDetail() {
           zip={address.zip}
         />
       </div>
-    </div>
+    </>
   );
 }

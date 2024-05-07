@@ -80,7 +80,6 @@ model Persons {
   address     String? // the contents will be Json
   description String?
 
-  orgs            Orgs[]
   personOrgs      PersonsOrgs[]
   opportunityTeam OpportunityTeam[]
   opportunities   Opportunities[]
@@ -92,17 +91,10 @@ model Persons {
   updatedAt DateTime @updatedAt
 }
 
-// based on SF {
-//  Prospect
-//  Customer - Direct
-//  Customer - Channel
-//  Channel Partner / Reseller
-//  Installation Partner
-//  Technology Partner
-//  Other
-
 model OrgTypes {
-  id String @id
+  id       String  @id
+  isActive Boolean @default(true)
+  orderBy  Int     @default(100)
 
   orgs Orgs[]
 
@@ -110,45 +102,10 @@ model OrgTypes {
   updatedAt DateTime @updatedAt
 }
 
-// based on sf
-// Agriculture
-// Apparel
-// Banking
-// Biotechnology
-// Chemicals
-// Communications
-// Construction
-// Consulting
-// Education (K-12)
-// Education (Beyond K-12)
-// Electronics
-// Energy
-// Engineering
-// Entertainment
-// Environmental
-// Family -- added
-// Finance
-// Food & Beverage
-// Government
-// Healthcare
-// Hospitality
-// Insurance
-// Machinery
-// Manufacturing
-// Media
-// Not For Profit
-// Recreation
-// Retail
-// Shipping
-// Team
-// Technology
-// Telecommunications
-// Transportation
-// Utilities
-// Other
-
 model OrgIndustries {
-  id String @id
+  id       String  @id
+  isActive Boolean @default(true)
+  orderBy  Int     @default(100)
 
   orgs Orgs[]
 
@@ -164,7 +121,7 @@ model Orgs {
   description String?
   website     String?
 
-  persons       PersonsOrgs[]
+  personsOrgs   PersonsOrgs[]
   opportunities Opportunities[]
 
   orgType       String?
@@ -177,8 +134,6 @@ model Orgs {
 
   createdaAt DateTime @default(now())
   updatedAt  DateTime @updatedAt
-  Persons    Persons? @relation(fields: [personsId], references: [id])
-  personsId  String?
 }
 
 model PersonsOrgs {
@@ -218,31 +173,20 @@ model OpportunityTeam {
 }
 
 model OpportunityStatuses {
-  id String @id
+  id       String  @id
+  isActive Boolean @default(true)
+  orderBy  Int     @default(100)
 
   opportunities Opportunities[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
-
-// based on sf --- since not building the Lead from SF, probably combine
-// Open Lead - Not Contacted
-// Working Lead - Contacted
-// Closed Lead - Discontinued
-// Initating Opportunity
-// Qualification
-// Needs Analysis
-// Value Proposition
-// Identify Decision Makers
-// Perception Analysis
-// Proposal/Price Quote
-// Negotiation/Review
-// Closed Won
-// Closed Lost
 
 model OpportunityTypes {
-  id String @id
+  id       String  @id
+  isActive Boolean @default(true)
+  orderBy  Int     @default(100)
 
   opportunities Opportunities[]
 
@@ -250,32 +194,16 @@ model OpportunityTypes {
   updatedAt DateTime @updatedAt
 }
 
-// based on sf
-// Existing Customer - Upgrade
-// Existing Customer - Replacement
-// Existing Customer - Downgrade
-// New Customer
-
 model OpportunitySources {
-  id String @id
+  id       String  @id
+  isActive Boolean @default(true)
+  orderBy  Int     @default(100)
 
   opporunities Opportunities[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
-
-// based on sf
-// External Referral
-// Internal Referral
-// Phone Inquiry
-// Partner Referral
-// Public Relations
-// Purchased List
-// Other
-// Show or Presentation
-// Word of Mouth
-// Web
 
 // opportunities
 // should be either a orgId or personId, but not both
@@ -309,4 +237,16 @@ model Opportunities {
 
   createdaAt DateTime @default(now())
   updatedAt  DateTime @updatedAt
+}
+
+// currently using changes to this to force prisma to generate new, when only spelling issue above
+model Event {
+  id String @id
+
+  name      String
+  eventTime DateTime
+  location  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

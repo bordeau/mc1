@@ -71,7 +71,7 @@ export default function UserClone() {
     throw new Error("Sorry you do have access to this feature.");
   } else {
     return (
-      <div className="container-md">
+      <>
         <Nav isAdmin={isAdmin} isLoggedIn={isLoggedIn} />
         <h1>Clone User</h1>
 
@@ -256,7 +256,7 @@ export default function UserClone() {
             </button>
           </div>
         </Form>
-      </div>
+      </>
     );
   }
 }

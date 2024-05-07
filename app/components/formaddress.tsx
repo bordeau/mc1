@@ -18,7 +18,7 @@ const country_states = [
       { code: "GA", name: "Georgia" },
       { code: "GU", name: "Guam" },
       { code: "HI", name: "Hawaii" },
-      { code: "ID", name: "Idaho<" },
+      { code: "ID", name: "Idaho" },
       { code: "IL", name: "Illinois" },
       { code: "IN", name: "Indiana" },
       { code: "IA", name: "Iowa" },
@@ -114,134 +114,150 @@ export default function FormAddress(props) {
   }
   return (
     <>
-      <div className="container">
-        <h4>{props.typeLabel}</h4>
-        <input type="hidden" name="addressType" value={props.type} />
-        <div className="row">
-          <div className="col">
-            <div className="mg-3">
-              <label htmlFor="street1" className="form-label">
-                Street 1:
-              </label>
+      <div className="accordion" id="addressAccordian">
+        <div className="accordion-item">
+          <h2 className="accordion-header" id="headingOne">
+            <button
+              className="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#collapseOne"
+              aria-expanded="false"
+              aria-controls="collapseOne"
+            >
+              {props.typeLabel}
+            </button>
+          </h2>
+          <div
+            id="collapseOne"
+            className="accordion-collapse collapse"
+            aria-labelledby="headingOne"
+            data-bs-parent="#addressAccordian"
+          >
+            <input type="hidden" name="addressType" value={props.type} />
+            <div className="row">
+              <div className="col-2 align-text-top">
+                <label htmlFor="street1" className="form-label">
+                  Street 1:
+                </label>
+              </div>
+              <div className="col-9 align-text-top">
+                <input
+                  defaultValue={props.street1}
+                  name="street1"
+                  type="text"
+                  className="form-control"
+                />
 
-              <input
-                defaultValue={props.street1}
-                name="street1"
-                type="text"
-                className="form-control"
-              />
-
-              {data && data.error.street1 && (
-                <p className="text-danger">{data.error.street1._errors[0]}</p>
-              )}
+                {data && data.error.street1 && (
+                  <p className="text-danger">{data.error.street1._errors[0]}</p>
+                )}
+              </div>
             </div>
-          </div>
-        </div>
 
-        <div className="row">
-          <div className="col">
-            <div className="mg-3">
-              <label htmlFor="street2" className="form-label">
-                Street 2:
-              </label>
-
-              <input
-                defaultValue={props.street2}
-                name="street2"
-                type="text"
-                className="form-control"
-              />
-              {data && data.error.street2 && (
-                <p className="text-danger">{data.error.street2._errors[0]}</p>
-              )}
+            <div className="row">
+              <div className="col-2 align-text-top">
+                <label htmlFor="street2" className="form-label">
+                  Street 2:
+                </label>
+              </div>
+              <div className="col-9 align-text-top">
+                <input
+                  defaultValue={props.street2}
+                  name="street2"
+                  type="text"
+                  className="form-control"
+                />
+                {data && data.error.street2 && (
+                  <p className="text-danger">{data.error.street2._errors[0]}</p>
+                )}
+              </div>
             </div>
-          </div>
-        </div>
 
-        <div className="row">
-          <div className="col">
-            <div className="mg-3">
-              <label htmlFor="city" className="form-label">
-                City:
-              </label>
+            <div className="row">
+              <div className="col-1 align-text-top">
+                <label htmlFor="city" className="form-label">
+                  City
+                </label>
+              </div>
+              <div className="col-3 align-text-top">
+                <input
+                  defaultValue={props.city}
+                  name="city"
+                  type="text"
+                  className="form-control"
+                />
+                {data && data.error.city && (
+                  <p className="text-danger">{data.error.city._errors[0]}</p>
+                )}
+              </div>
 
-              <input
-                defaultValue={props.city}
-                name="city"
-                type="text"
-                className="form-control"
-              />
-              {data && data.error.city && (
-                <p className="text-danger">{data.error.city._errors[0]}</p>
-              )}
+              <div className="col-1 align-text-top">
+                <label htmlFor="state" className="form-label">
+                  State
+                </label>
+              </div>
+              <div className="col-3 align-text-top">
+                <select
+                  id="state"
+                  name="state"
+                  className="form-control"
+                  defaultValue={props.state}
+                >
+                  <option value="">Choose State/Province/Territory</option>
+                  {states.map((st) => (
+                    <option key={st.code} value={st.code}>
+                      {st.name}
+                    </option>
+                  ))}
+                </select>
+                {data && data.error.state && (
+                  <p className="text-danger">{data.error.state._errors[0]}</p>
+                )}
+              </div>
+
+              <div className="col-1 align-text-top">
+                <label htmlFor="zip" className="form-label">
+                  Zip
+                </label>
+              </div>
+              <div className="col-3 align-text-top">
+                <input
+                  defaultValue={props.zip}
+                  name="zip"
+                  type="text"
+                  className="form-control"
+                  maxLength={10}
+                />
+                {data && data.error.zip && (
+                  <p className="text-danger">{data.error.zip._errors[0]}</p>
+                )}
+              </div>
             </div>
-          </div>
-          <div className="col">
-            <div className="mg-3">
-              <label htmlFor="state" className="form-label">
-                State/Province:
-              </label>
-
-              <select
-                id="state"
-                name="state"
-                className="form-control"
-                defaultValue={props.state}
-              >
-                <option value="">Choose State/Province/Territory</option>
-                {states.map((st) => (
-                  <option key={st.code} value={st.code}>
-                    {st.name}
-                  </option>
-                ))}
-              </select>
-              {data && data.error.state && (
-                <p className="text-danger">{data.error.state._errors[0]}</p>
-              )}
-            </div>
-          </div>
-
-          <div className="col">
-            <div className="mg-3">
-              <label htmlFor="zip" className="form-label">
-                Zip/Postal Code:
-              </label>
-
-              <input
-                defaultValue={props.zip}
-                name="zip"
-                type="text"
-                className="form-control"
-              />
-              {data && data.error.zip && (
-                <p className="text-danger">{data.error.zip._errors[0]}</p>
-              )}
-            </div>
-          </div>
-        </div>
-        <div className="row">
-          <div className="col">
-            <div className="mg-3">
-              <label htmlFor="country" className="form-label">
-                Country:
-              </label>
-
-              <select
-                name="country"
-                className="form-control"
-                defaultValue={props.country}
-                onChange={changeSelectOptionHandler}
-              >
-                <option value="">Choose Country</option>
-                {countries.map((c) => (
-                  <option key={c.code} value={c.code}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-              {data && data.error.country && (
-                <p className="text-danger">{data.error.country._errors[0]}</p>
-              )}
+            <div className="row">
+              <div className="col-2 align-text-top">
+                <label htmlFor="country" className="form-label">
+                  Country
+                </label>
+              </div>
+              <div className="col-9 align-text-top">
+                <select
+                  name="country"
+                  className="form-control"
+                  defaultValue={props.country}
+                  onChange={changeSelectOptionHandler}
+                >
+                  <option value="">Choose Country</option>
+                  {countries.map((c) => (
+                    <option key={c.code} value={c.code}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+                {data && data.error.country && (
+                  <p className="text-danger">{data.error.country._errors[0]}</p>
+                )}
+              </div>
             </div>
           </div>
         </div>

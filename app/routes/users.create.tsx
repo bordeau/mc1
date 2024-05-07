@@ -63,7 +63,7 @@ export default function UserCreate() {
     throw new Error("Sorry you do have access to this feature.");
   } else {
     return (
-      <div className="container-md">
+      <>
         <Nav
           isAdmin={isAdmin}
           isLoggedIn={isLoggedIn}
@@ -244,7 +244,7 @@ export default function UserCreate() {
             </button>
           </div>
         </Form>
-      </div>
+      </>
     );
   }
 }

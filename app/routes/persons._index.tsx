@@ -41,7 +41,7 @@ export default function Persons() {
   const isLoggedIn = currentUser.isLoggedIn;
 
   return (
-    <div className="container-md">
+    <>
       <Nav
         isAdmin={isAdmin}
         isManager={isManager}
@@ -95,6 +95,6 @@ export default function Persons() {
           </li>
         ))}
       </nav>
-    </div>
+    </>
   );
 }

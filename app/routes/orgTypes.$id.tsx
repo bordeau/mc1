@@ -1,5 +1,5 @@
 import { json, LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { Form, Link, useLoaderData, useNavigate } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
 // existing imports
 
@@ -10,56 +10,62 @@ import Nav from "~/components/nav";
 import SecondaryNav from "~/components/secondarynav";
 import React from "react";
 
+const target = "orgTypes";
+const what = "Org Type";
+
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  console.log("\n\nloader: " + JSON.stringify(params));
   invariant(params.id, "Missing Org Type ID param");
 
   const currentUser = await isAuthenticated(request);
   if (!currentUser) return redirect("/login");
 
-  const orgType = await getOrgTypeById(params.id);
+  const item = await getOrgTypeById(params.id);
 
-  if (!orgType) {
+  if (!item) {
     throw new Response("Not Found", { status: 404 });
   }
-  return json({ currentUser, orgType });
+  return json({ currentUser, item });
 };
 
 export default function OrgTypeDetail() {
-  const { currentUser, orgType } = useLoaderData<typeof loader>();
+  const { currentUser, item } = useLoaderData<typeof loader>();
 
   const isAdmin = Roles.isAdmin(currentUser.role);
   const isManager = Roles.isManager(currentUser.role);
   const isLoggedIn = currentUser.isLoggedIn;
 
   return (
-    <div className="container-md">
+    <>
       <Nav
         isAdmin={isAdmin}
         isManager={isManager}
         isLoggedIn={isLoggedIn}
         name={currentUser.firstName + " " + currentUser.lastName}
       />
-      <h1>Organiziational Type Detail</h1>
+      <h1>{what} Detail</h1>
       <SecondaryNav
-        target="orgTypes"
-        id={orgType.id}
-        canDelete={false}
+        target={target}
+        id={item.id}
+        canDelete={true}
         canCreate={true}
         canEdit={true}
-        canClone={true}
+        canClone={false}
         viewLoginLog={false}
         viewDetail={false}
         showBack={true}
-        backTarget={"orgTypes"}
-        what="Organizational Type"
+        backTarget={target}
+        what={what}
       />
       <br />
 
       <div className="bd-example">
-        <h6 className="card-title">Name:</h6>
-        <p className="lead">{orgType.id}</p>
+        <div className="row">
+          <div className="col lead">{item.id}</div>
+          <div className="col lead">
+            {item.isActive ? "Active" : "Inactive"}
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

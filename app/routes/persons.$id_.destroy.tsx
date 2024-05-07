@@ -49,7 +49,7 @@ export default function DestroyPerson() {
   const isLoggedIn = currentUser.isLoggedIn;
 
   return (
-    <div className="container-md">
+    <>
       <Nav
         isAdmin={isAdmin}
         isManager={isManager}
@@ -100,6 +100,6 @@ export default function DestroyPerson() {
           </button>
         </div>
       </Form>
-    </div>
+    </>
   );
 }

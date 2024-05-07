@@ -10,14 +10,6 @@ export async function getAllPersons() {
   return persons;
 }
 
-export async function getAllPersonUsers() {
-  const ownerPersons = await prisma.persons.findMany({
-    where: { userId: { not: null } },
-    orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
-  });
-  return ownerPersons;
-}
-
 export async function getLikeNamePersons(sp) {
   const persons = await prisma.persons.findMany({
     where: {
@@ -43,8 +35,10 @@ export async function getPersonById(i: number) {
   const rval = await prisma.persons.findUnique({
     where: { id: i },
     include: {
-      orgs: { include: { org: true } },
-      owner: { include: { personOwners: true } },
+      owner: true,
+      personOrgs: {
+        include: { org: true },
+      },
     },
   });
 
@@ -52,31 +46,15 @@ export async function getPersonById(i: number) {
 }
 function validateEdit(formData) {
   const schema = z.object({
-    id: z.string().transform((val, ctx) => {
-      const p = parseInt(val);
-      if (isNaN(p)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Not a number",
-        });
-        return z.NEVER;
-      }
-      return p;
-    }),
+    id: z.string(),
     firstName: z.string().min(1, { message: "First Name is required" }),
     lastName: z.string().min(1, { message: "Last Name is required" }),
-    ownerId: z.string().transform((val, ctx) => {
-      const p = parseInt(val);
-      if (isNaN(p)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Not a number",
-        });
-        return z.NEVER;
-      }
+    ownerId: z.string(),
+    email: z.string().email().min(5, { message: "Email is required" }),
+    isActive: z.string().transform((val) => {
+      const p = !!val; // val ? true : false;
       return p;
     }),
-    email: z.string().email().min(5, { message: "Email is required" }),
     phone: z.string().nullable(),
     addressType: z.string().nullable(),
     street1: z.string().nullable(),
@@ -111,18 +89,12 @@ function validateCreate(formData) {
   const schema = z.object({
     firstName: z.string().min(1, { message: "First Name is required" }),
     lastName: z.string().min(1, { message: "Last Name is required" }),
-    ownerId: z.string().transform((val, ctx) => {
-      const p = parseInt(val);
-      if (isNaN(p)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Not a number",
-        });
-        return z.NEVER;
-      }
+    ownerId: z.string(),
+    email: z.string().email().min(5, { message: "Email is required" }),
+    isActive: z.string().transform((val) => {
+      const p = !!val; // val ? true : false;
       return p;
     }),
-    email: z.string().email().min(5, { message: "Email is required" }),
     phone: z.string().nullable(),
     addressType: z.string().nullable(),
     street1: z.string().nullable(),
@@ -187,6 +159,7 @@ export async function updatePerson(formData): Promise<Person> {
     lastName: parsedData.lastName,
     ownerId: parsedData.ownerId,
     email: parsedData.email,
+    isActive: parsedData.isActive,
     phone: parsedData.phone,
     address: address,
     description: parsedData.description,
@@ -230,6 +203,7 @@ export async function createPerson(formData): Promise<Person> {
     lastName: parsedData.lastName,
     ownerId: parsedData.ownerId,
     email: parsedData.email,
+    isActive: parsedData.isActive,
     phone: parsedData.phone,
     address: address,
     description: parsedData.description,

@@ -1,22 +1,35 @@
-import { json, LoaderFunction, LoaderFunctionArgs } from "@remix-run/node";
+import {
+  json,
+  LoaderFunction,
+  LoaderFunctionArgs,
+  redirect,
+} from "@remix-run/node";
 import { Link, useLoaderData, useNavigate } from "@remix-run/react";
 
 import invariant from "tiny-invariant";
 
 import PlainAddress from "~/components/plainaddress";
 
-import { getPersonOrgId } from "~/controllers/personsOrgs";
+import { getPersonOrgById } from "~/controllers/personsOrgs";
 import React from "react";
+import { isAuthenticated } from "~/services/auth.server";
+import { Roles } from "~/models/role";
+import Nav from "~/components/nav";
+import SecondaryNav from "~/components/secondarynav";
+import { EmptyLetterTray } from "~/components/icons";
 
-export const loader = async ({ params }: LoaderFunctionArgs) => {
-  console.log("\n\nperson org loader:" + JSON.stringify(params));
-  const orgPersonId = params.personOrgId;
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
+  //console.log("\n\nperson org loader:" + JSON.stringify(params));
+  const id = params.id;
 
-  console.log("\n\nperson org id:" + orgPersonId);
+  const currentUser = await isAuthenticated(request);
+  if (!currentUser) return redirect("/login");
 
-  const orgPerson = await getPersonOrgId(Number(orgPersonId));
+  //console.log("\n\nperson org id:" + id);
 
-  console.log("\n\n\n personOrg: " + JSON.stringify(orgPerson));
+  const personOrg = await getPersonOrgById(id);
+
+  //console.log("\n\n\n personOrg: " + JSON.stringify(personOrg, null, 2));
 
   // invariant(params.personOrgId, "Missing Org ID param");
 
@@ -28,11 +41,11 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
   // if (!org) {
   // throw new Response("Not Found", { status: 404 });
   // }
-  return { orgPerson };
+  return { currentUser, personOrg };
 };
 
 export default function PersonOrgDetail() {
-  const { orgPerson } = useLoaderData<typeof loader>();
+  const { currentUser, personOrg } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
 
   let address = {
@@ -44,58 +57,83 @@ export default function PersonOrgDetail() {
     state: "",
     country: "",
   };
-  if (orgPerson.address != null) {
+  if (personOrg.address != null) {
     // console.log("\n\n splitting before json " + JSON.stringify(tadd));
 
-    address = JSON.parse(orgPerson.address);
+    address = JSON.parse(personOrg.address);
 
     // console.log("\n\n splitting address " + JSON.stringify(address));
   }
 
+  const isAdmin = Roles.isAdmin(currentUser.role);
+  const isManager = Roles.isManager(currentUser.role);
+  const isLoggedIn = currentUser.isLoggedIn;
+
   return (
-    <div className="container-md">
-      <h1>Person Organization Link Detail</h1>
+    <>
+      <Nav
+        isAdmin={isAdmin}
+        isManager={isManager}
+        isLoggedIn={isLoggedIn}
+        name={currentUser.firstName + " " + currentUser.lastName}
+      />
+      <h1>Person Organization Association Detail</h1>
+      <SecondaryNav
+        target="personOrgs"
+        id={personOrg.id}
+        canDelete={false}
+        canCreate={false}
+        canEdit={true}
+        canClone={false}
+        viewLoginLog={false}
+        viewDetail={false}
+        showBack1={true}
+        backTarget={"persons/" + personOrg.personId}
+        showBackTitle="Back to User Detail"
+        what="Person Org Linkage"
+      />
+      <br />
 
       <div className="row">
         <h6 className="col-2 align-text-top">Person:</h6>
         <p className="col-7 lead align-text-top">
-          {orgPerson.person.firstName} {orgPerson.person.lastName}
+          {personOrg.person.firstName} {personOrg.person.lastName}
         </p>
       </div>
 
       <div className="row">
         <h6 className="col-2 align-text-top">Organization:</h6>
-        <p className="col-7 lead align-text-top">{orgPerson.org.name}</p>
+        <p className="col-7 lead align-text-top">{personOrg.org.name}</p>
       </div>
 
       <div className="row">
         <h6 className="col-2 align-text-top">Sub-Organization:</h6>
         <p className="col-7 lead align-text-top">
-          {orgPerson.subOrg ? orgPerson.subOrg : "?"}
+          {personOrg.subOrg ? personOrg.subOrg : <EmptyLetterTray />}
         </p>
       </div>
 
       <div className="row">
         <h6 className="col-2 align-text-top">Title:</h6>
         <p className="col-7 lead align-text-top">
-          {orgPerson.title ? orgPerson.title : "?"}
+          {personOrg.title ? personOrg.title : <EmptyLetterTray />}
         </p>
       </div>
 
       <div className="row">
         <h6 className="col-2 align-text-top">Phone:</h6>
         <p className="col-7 lead align-text-top">
-          {orgPerson.phone ? orgPerson.phone : "?"}
+          {personOrg.phone ? personOrg.phone : <EmptyLetterTray />}
         </p>
       </div>
 
       <div className="row">
         <h6 className="col-2 align-text-top">Email:</h6>
         <p className="col-7 lead align-text-top">
-          {orgPerson.email ? (
-            <a href={`mailto:` + orgPerson.email}>{orgPerson.email}</a>
+          {personOrg.email ? (
+            <a href={`mailto:` + personOrg.email}>{personOrg.email}</a>
           ) : (
-            "?"
+            <EmptyLetterTray />
           )}
         </p>
       </div>
@@ -103,7 +141,7 @@ export default function PersonOrgDetail() {
       <div className="row">
         <h6 className="col-2 align-text-top">Description:</h6>
         <p className="col-7 lead align-text-top">
-          {orgPerson.description ? orgPerson.description : "?"}
+          {personOrg.description ? personOrg.description : <EmptyLetterTray />}
         </p>
       </div>
 
@@ -119,33 +157,6 @@ export default function PersonOrgDetail() {
           zip={address.zip}
         />
       </div>
-      <div className="border border-primary rounded-1">
-        <nav className="border border-primary rounded-1">
-          <Link
-            to={`/personOrgs/` + orgPerson.id + `/edit`}
-            className="nav-link"
-            aria-current="page"
-          >
-            Edit
-          </Link>
-
-          <Link
-            to={`/personOrgs/` + orgPerson.id + `/destroy`}
-            className="nav-link"
-            aria-current="page"
-          >
-            Delete
-          </Link>
-
-          <Link
-            to={`/persons/` + orgPerson.person.id}
-            className="nav-link"
-            aria-current="page"
-          >
-            Back
-          </Link>
-        </nav>
-      </div>
-    </div>
+    </>
   );
 }

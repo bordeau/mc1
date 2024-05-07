@@ -86,7 +86,7 @@ export default function Register() {
   const navigate = useNavigate();
 
   return (
-    <div className="container-md">
+    <>
       <NavNon showLogin={false} />
 
       <h1>Register for Login</h1>
@@ -220,6 +220,6 @@ export default function Register() {
           </button>
         </div>
       </Form>
-    </div>
+    </>
   );
 }

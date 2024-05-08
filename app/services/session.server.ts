@@ -12,5 +12,7 @@ export const sessionStorage = createCookieSessionStorage({
   },
 });
 
+// add expires to the above cookie storage, but will probably have to rebuild the cookie every few times redirect??
+
 // you can also export the methods individually for your own usage
 export const { getSession, commitSession, destroySession } = sessionStorage;

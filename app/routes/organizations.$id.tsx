@@ -54,7 +54,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   let i = 0;
   // console.log("\n\n person: " + JSON.stringify(person, null, 2));
   // console.log("\n\n personOrgs: " + JSON.stringify(personOrgs, null, 2));
-  console.log("\n\n orgs: " + JSON.stringify(org, null, 2));
+  // console.log("\n\n orgs: " + JSON.stringify(org, null, 2));
 
   // this bit of code makes sure the list of orgs that can be linked doesn't include already linked orgs
   for (i; i < persons.length; i++) {

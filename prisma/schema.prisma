@@ -30,6 +30,10 @@ model Users {
   passwordReset PasswordReset[] @relation("password_reset_user")
   loginLog      LoginLog[]      @relation("login_log_user")
 
+  managerId String?
+  manager   Users?  @relation("manager_user", fields: [managerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  managees  Users[] @relation("manager_user")
+
   personsOwner       Persons[]       @relation("persons_owner")
   orgsOwner          Orgs[]          @relation("orgs_owner")
   OpportunitiesOwner Opportunities[] @relation("oppos_owner")

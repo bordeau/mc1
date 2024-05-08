@@ -7,10 +7,6 @@ import { Form, Link, useLoaderData } from "@remix-run/react";
 
 import invariant from "tiny-invariant";
 
-import PlainAddress from "~/components/plainaddress";
-import { getLikeNameOrgs, getOrgById } from "~/controllers/orgs";
-
-import { blankAddress } from "~/components/utils";
 import React from "react";
 import { isAuthenticated } from "~/services/auth.server";
 import Nav from "~/components/nav";
@@ -148,7 +144,7 @@ export default function OpportunitiesId() {
       </div>
 
       <div className="row">
-        <h6 className="col-2 align-text-top">Type:</h6>
+        <h6 className="col-2 align-text-top">Status:</h6>
         <p className="col-7 lead align-text-top">
           {item.opportunityStatus ? (
             item.opportunityStatus

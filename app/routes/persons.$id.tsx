@@ -144,7 +144,7 @@ export default function PersonDetail() {
         canDelete={false}
         canCreate={true}
         canEdit={true}
-        canClone={true}
+        canClone={false}
         viewLoginLog={false}
         viewDetail={false}
         showBack={true}
@@ -226,7 +226,13 @@ export default function PersonDetail() {
             <div className="row" key={morg.id}>
               <div className="col-sm-5">
                 <Link
-                  to={`/personOrgs/${morg.id}`}
+                  to={
+                    "/personOrgs/" +
+                    morg.id +
+                    "?re=persons/" +
+                    morg.personId +
+                    "&ret=Back to Person Detail"
+                  }
                   className="nav-link"
                   aria-current="page"
                 >

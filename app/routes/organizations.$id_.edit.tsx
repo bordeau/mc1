@@ -82,7 +82,7 @@ export default function OrgEdit() {
         canDelete={false}
         canCreate={true}
         canEdit={false}
-        canClone={true}
+        canClone={false}
         viewLoginLog={false}
         viewDetail={true}
         showBack={true}

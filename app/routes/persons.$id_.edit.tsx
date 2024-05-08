@@ -87,7 +87,7 @@ export default function PersonEdit() {
         canDelete={false}
         canCreate={true}
         canEdit={false}
-        canClone={true}
+        canClone={false}
         viewLoginLog={false}
         viewDetail={false}
         showBack={true}

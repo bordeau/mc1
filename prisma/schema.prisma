@@ -211,20 +211,23 @@ model Opportunities {
   id   String @id @default(cuid())
   name String @default("Name your opportunity something meaningful")
 
-  statusChangeDate DateTime?
-  closeDate        DateTime?
-  description      String?
-  expectedOutcome  String?
-  closedOutcome    String?
-  activity         String?
+  statusChangeDate   DateTime?
+  expectedCloseDate  DateTime?
+  actualClosedDate   DateTime?
+  description        String?
+  expectedOutcome    String?
+  closedOutcome      String?
+  activityDiscussion String?
+
+  isActive Boolean @default(true)
 
   opportunityTeam     OpportunityTeam[]
-  opportunityType     String
-  opporunityTypes     OpportunityTypes    @relation(fields: [opportunityType], references: [id])
-  opportunitySource   String
-  opportunitySources  OpportunitySources  @relation(fields: [opportunitySource], references: [id])
-  opprtunityStatus    String
-  opportunityStatuses OpportunityStatuses @relation(fields: [opprtunityStatus], references: [id])
+  opportunityType     String?
+  opportunityTypes    OpportunityTypes?    @relation(fields: [opportunityType], references: [id])
+  opportunitySource   String?
+  opportunitySources  OpportunitySources?  @relation(fields: [opportunitySource], references: [id])
+  opportunityStatus   String?
+  opportunityStatuses OpportunityStatuses? @relation(fields: [opportunityStatus], references: [id])
 
   orgId String?
   orgs  Orgs?   @relation(fields: [orgId], references: [id], onDelete: NoAction, onUpdate: NoAction)

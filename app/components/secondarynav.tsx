@@ -55,7 +55,16 @@ export default function SecondaryNav(props) {
         )}
         {props.canDelete ? (
           <Link
-            to={"/" + props.target + "/" + props.id + "/destroy"}
+            to={
+              "/" +
+              props.target +
+              "/" +
+              props.id +
+              "/destroy" +
+              (props.re != undefined
+                ? "?re=" + props.re + "&ret" + props.ret
+                : "")
+            }
             className="nav-link"
             aria-current="page"
           >

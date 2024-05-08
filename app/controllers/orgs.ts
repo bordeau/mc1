@@ -14,6 +14,19 @@ export async function getAllOrgs() {
   return orgs;
 }
 
+export async function getAllActiveOrgs() {
+  const orgs = await prisma.orgs.findMany({
+    where: { isActive: true },
+    orderBy: [{ name: "asc" }],
+    include: {
+      personsOrgs: true,
+      orgIndustries: true,
+      orgTypes: true,
+    },
+  });
+  return orgs;
+}
+
 export async function getAllOrgsByOwner(oid) {
   const orgs = await prisma.orgs.findMany({
     where: { ownerId: oid },

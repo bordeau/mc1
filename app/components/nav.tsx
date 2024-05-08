@@ -139,6 +139,11 @@ export default function Nav(props) {
                     requireAdmin={false}
                   />
                   <NavItem target="/persons" label="People" />
+                  <NavItem
+                    target="/opportunities"
+                    label="Opportunities"
+                    requireAdmin={false}
+                  />
                   <ManagerNav>
                     <ManagerNavItem
                       target="/orgIndustries"

@@ -65,7 +65,7 @@ function validateEdit(formData) {
 
   const parseddata = optional.safeParse(formData);
 
-  console.log("\n\nperson verified data?: " + JSON.stringify(parseddata));
+  // console.log("\n\nperson verified data?: " + JSON.stringify(parseddata));
 
   return parseddata;
 }
@@ -105,7 +105,7 @@ function validateCreate(formData) {
 
   const parseddata = optional.safeParse(formData);
 
-  console.log("\n\nperson verified data?: " + JSON.stringify(parseddata));
+  // console.log("\n\nperson verified data?: " + JSON.stringify(parseddata));
 
   return parseddata;
 }
@@ -113,19 +113,22 @@ function validateCreate(formData) {
 export async function updatePersonOrg(formdata) {
   const validatedData = validateEdit(formdata);
 
+  /*
   console.log(
     "\n\nupdate person: " +
-      JSON.stringify(validatedData) +
+      JSON.stringify(validatedData, null, 2) +
       " success:" +
       validatedData.success
   );
 
+   */
+
   if (validatedData.success == false) {
-    console.log("\n\nreturning to previous");
+    // console.log("\n\nreturning to previous");
     return { error: validatedData.error.format() };
   }
 
-  console.log("\n\n\n should only be here if parsedata.sucess is true");
+  // console.log("\n\n\n should only be here if parsedata.sucess is true");
   const parsedData = validatedData.data;
 
   const address = JSON.stringify({
@@ -149,9 +152,9 @@ export async function updatePersonOrg(formdata) {
 
   const id = parsedData.id;
 
-  console.log(
-    "\n\nperson org to update data: " + JSON.stringify(data, null, 2)
-  );
+  // console.log(
+  //  "\n\nperson org to update data: " + JSON.stringify(data, null, 2)
+  // );
 
   const rval = await prisma.personsOrgs.update({
     where: {
@@ -164,13 +167,13 @@ export async function updatePersonOrg(formdata) {
 }
 
 export async function createPersonOrg(formdata) {
-  console.log("\n\ncreatepersonOrg formdata: " + JSON.stringify(formdata));
+  // console.log("\n\ncreatepersonOrg formdata: " + JSON.stringify(formdata));
 
   const validatedData = validateCreate(formdata);
 
-  console.log(
-    "\n\ncreatepersonOrg validated: " + JSON.stringify(validatedData)
-  );
+  // console.log(
+  //   "\n\ncreatepersonOrg validated: " + JSON.stringify(validatedData)
+  // );
 
   if (!validatedData.success) {
     return { error: validatedData.error.format() };
@@ -199,7 +202,7 @@ export async function createPersonOrg(formdata) {
     description: parsedData.description,
   };
 
-  console.log("\n\nperson org to create data: " + JSON.stringify(data));
+  // console.log("\n\nperson org to create data: " + JSON.stringify(data));
 
   const rval = await prisma.personsOrgs.create({
     data: data,

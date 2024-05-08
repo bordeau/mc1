@@ -25,6 +25,13 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const currentUser = await isAuthenticated(request);
   if (!currentUser) return redirect("/login");
 
+  const url = new URL(request.url);
+  const re = url.searchParams.get("re");
+  const ret = url.searchParams.get("ret");
+
+  // console.log("\n\n re: " + re);
+  // console.log("\n\n ret: " + ret);
+
   //console.log("\n\nperson org id:" + id);
 
   const personOrg = await getPersonOrgById(id);
@@ -41,11 +48,11 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   // if (!org) {
   // throw new Response("Not Found", { status: 404 });
   // }
-  return { currentUser, personOrg };
+  return { currentUser, personOrg, re, ret };
 };
 
 export default function PersonOrgDetail() {
-  const { currentUser, personOrg } = useLoaderData<typeof loader>();
+  const { currentUser, personOrg, re, ret } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
 
   let address = {
@@ -81,16 +88,18 @@ export default function PersonOrgDetail() {
       <SecondaryNav
         target="personOrgs"
         id={personOrg.id}
-        canDelete={false}
+        canDelete={true}
+        re={re}
+        ret={ret}
         canCreate={false}
         canEdit={true}
         canClone={false}
         viewLoginLog={false}
         viewDetail={false}
-        showBack1={true}
-        backTarget={"persons/" + personOrg.personId}
-        showBackTitle="Back to User Detail"
-        what="Person Org Linkage"
+        showBack={true}
+        backTarget={re}
+        showBackTitle={ret}
+        what="Person Org Association"
       />
       <br />
 

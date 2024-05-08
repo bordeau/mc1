@@ -10,6 +10,14 @@ export async function getAllPersons() {
   return persons;
 }
 
+export async function getAllActivePersons() {
+  const persons = await prisma.persons.findMany({
+    where: { isActive: true },
+    orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
+  });
+  return persons;
+}
+
 export async function getAllPersonsByOwner(oid) {
   const persons = await prisma.persons.findMany({
     where: { ownerId: oid },

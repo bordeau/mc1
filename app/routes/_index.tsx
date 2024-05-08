@@ -4,6 +4,8 @@ import Nav from "~/components/nav";
 import { isAuthenticatedNoRedirect } from "~/services/auth.server";
 import { useLoaderData } from "@remix-run/react";
 import { Roles } from "~/models/role";
+import Aboutcomp from "~/components/aboutcomp";
+import React from "react";
 
 export const meta: MetaFunction = () => {
   return [
@@ -15,7 +17,7 @@ export const meta: MetaFunction = () => {
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const currentUser = await isAuthenticatedNoRedirect(request);
 
-  console.log("\n\n index currentUser: " + JSON.stringify(currentUser));
+  // console.log("\n\n index currentUser: " + JSON.stringify(currentUser));
   return { currentUser };
 };
 
@@ -33,11 +35,7 @@ export default function Index() {
           name={currentUser.firstName + " " + currentUser.lastName}
         />
 
-        <h1>Welcome to NSF CRM</h1>
-        <p>
-          Building a CRM as an experiment using Remix, Remix Auth, React,
-          SQLite, Prisma, Zod, Resend
-        </p>
+        <Aboutcomp />
       </>
     );
   } else {
@@ -45,11 +43,7 @@ export default function Index() {
       <>
         <NavNon showRegister={true} showLogin={true} />
 
-        <h1>Welcome to NSF CRM</h1>
-        <p>
-          Building a CRM as an experiment using Remix, Remix Auth, React,
-          SQLite, Prisma, Zod, Resend
-        </p>
+        <Aboutcomp />
       </>
     );
   }

@@ -5,6 +5,7 @@ import { isAuthenticated } from "~/services/auth.server";
 import { useLoaderData } from "@remix-run/react";
 import { Roles } from "~/models/role";
 import Nav from "~/components/nav";
+import Aboutcomp from "~/components/aboutcomp";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const currentUser = await isAuthenticated(request);
@@ -27,11 +28,7 @@ export default function About() {
           name={currentUser.firstName + " " + currentUser.lastName}
         />
 
-        <h1>Welcome to NSF CRM</h1>
-        <p>
-          Building a CRM as an experiment using Remix, Remix Auth, React,
-          SQLite, Prisma, Zod, Resend, React Email
-        </p>
+        <Aboutcomp />
       </>
     );
   }
@@ -41,11 +38,7 @@ export default function About() {
       <>
         <NavNon showRegister={true} showLogin={true} />
 
-        <h1>Welcome to NSF CRM</h1>
-        <p>
-          Building a CRM as an experiment using Remix, Remix Auth, React,
-          SQLite, Prisma, Zod, Resend, React Email
-        </p>
+        <Aboutcomp />
       </>
     );
   }

@@ -25,7 +25,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   if (q == "yes") user = await getUserByIdWithLog(params.id);
   else user = await getUserById(params.id);
 
-  // console.log("\n\n q: " + q + " user: " + JSON.stringify(user, null, 2));
+  console.log("\n\n q: " + q + " user: " + JSON.stringify(user, null, 2));
 
   if (!user) {
     throw new Response("Not Found", { status: 404 });

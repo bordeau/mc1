@@ -11,10 +11,10 @@ import SecondaryNav from "~/components/secondarynav";
 import React from "react";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  invariant(params.id, "Missing personId param");
-
   const currentUser = await isAuthenticated(request);
   if (!currentUser) return redirect("/login");
+
+  invariant(params.id, "Missing id param");
 
   const person = await getPersonById(params.id);
 

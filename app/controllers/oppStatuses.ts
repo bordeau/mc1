@@ -2,6 +2,7 @@ import { prisma } from "~/db/db.server";
 
 import { z } from "zod";
 import { OrderByType } from "~/models/misc";
+import { OpportunityType } from "~/models/opportunityType";
 function validateEdit(formData) {
   const schema = z.object({
     id: z.string(),
@@ -13,6 +14,14 @@ function validateEdit(formData) {
     orderBy: z.string().transform((val) => {
       // console.log("\n\n validatecreate orderby : " + val);
       const p = Number(val);
+      return p;
+    }),
+    type: z.string().transform((val) => {
+      if (OpportunityType.isOpportunityTypeValid(val)) return val;
+      else return OpportunityType.opportunity();
+    }),
+    isClosed: z.string().transform((val) => {
+      const p = !!val; // val ? true : false;
       return p;
     }),
   });
@@ -35,6 +44,14 @@ function validateCreate(formData) {
       const p = Number(val);
       return p;
     }),
+    type: z.string().transform((val) => {
+      if (OpportunityType.isOpportunityTypeValid(val)) return val;
+      else return OpportunityType.opportunity();
+    }),
+    isClosed: z.string().transform((val) => {
+      const p = !!val; // val ? true : false;
+      return p;
+    }),
   });
 
   const parsedData = schema.safeParse(formData);
@@ -42,6 +59,22 @@ function validateCreate(formData) {
   // console.log("\n\opp status validateCreate data?: " + JSON.stringify(parseddata, null, 2));
 
   return parsedData;
+}
+
+export async function getAllOOppStatuses() {
+  const rval = await prisma.opportunityStatuses.findMany({
+    where: { type: "O" },
+    orderBy: [{ orderBy: "asc" }, { id: "asc" }],
+  });
+  return rval;
+}
+
+export async function getAllActiveOOppStatuses() {
+  const rval = await prisma.opportunityStatuses.findMany({
+    where: { isActive: true, type: "O" },
+    orderBy: [{ orderBy: "asc" }, { id: "asc" }],
+  });
+  return rval;
 }
 
 export async function getAllOppStatuses() {
@@ -54,6 +87,14 @@ export async function getAllOppStatuses() {
 export async function getAllActiveOppStatuses() {
   const rval = await prisma.opportunityStatuses.findMany({
     where: { isActive: true },
+    orderBy: [{ orderBy: "asc" }, { id: "asc" }],
+  });
+  return rval;
+}
+
+export async function getAllActiveLeadStatuses() {
+  const rval = await prisma.opportunityStatuses.findMany({
+    where: { isActive: true, type: "L" },
     orderBy: [{ orderBy: "asc" }, { id: "asc" }],
   });
   return rval;
@@ -85,12 +126,17 @@ export async function updateOppStatus(formData) {
   const data = {
     id: parsedData.id,
     isActive: parsedData.isActive,
+    orderBy: parsedData.orderBy,
+    type: parsedData.type,
+    isClosed: parsedData.isClosed,
   };
 
   const rval = await prisma.opportunityStatuses.update({
     where: { id: oid },
     data: data,
   });
+
+  console.log("\n\n opstatus update rval:" + JSON.stringify(rval, null, 2));
 
   return rval;
 }
@@ -144,13 +190,16 @@ export async function createOppStatus(formData) {
   const data = {
     id: parsedData.id,
     isActive: parsedData.isActive,
+    orderBy: parsedData.orderBy,
+    type: parsedData.type,
+    isClosed: parsedData.isClosed,
   };
 
-  const orgType = await prisma.opportunityStatuses.create({
+  const item = await prisma.opportunityStatuses.create({
     data: data,
   });
 
-  return orgType;
+  return item;
 }
 
 export async function destroyOppStatuses(oid) {

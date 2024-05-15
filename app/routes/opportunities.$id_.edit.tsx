@@ -23,32 +23,43 @@ import { getAllActiveOppTypes } from "~/controllers/oppTypes";
 import { getAllActiveOrgs } from "~/controllers/orgs";
 import { getAllActivePersons } from "~/controllers/persons";
 import { getAllActiveOppSources } from "~/controllers/oppSources";
-import { createOpp } from "~/controllers/opps";
+import { createOpp, getOppById, updateOpp } from "~/controllers/opps";
 import { OpportunityType } from "~/models/opportunityType";
+import invariant from "tiny-invariant";
+import { getAllUsersByIsActive } from "~/controllers/users";
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const currentUser = await isAuthenticated(request);
   if (!currentUser) return redirect("/login");
 
-  const url = new URL(request.url);
-  const l = url.searchParams.get("l");
+  invariant(params.id, "Missing id param");
 
-  const [oppStatuses, leadStatuses, oppSources, oppTypes, orgs, persons] =
-    await Promise.all([
-      getAllActiveOOppStatuses(),
-      getAllActiveLeadStatuses(),
-      getAllActiveOppSources(),
-      getAllActiveOppTypes(),
-      getAllActiveOrgs(),
-      getAllActivePersons(),
-    ]);
+  const [
+    opp,
+    oppStatuses,
+    leadStatuses,
+    oppSources,
+    oppTypes,
+    orgs,
+    persons,
+    users,
+  ] = await Promise.all([
+    getOppById(params.id),
+    getAllActiveOOppStatuses(),
+    getAllActiveLeadStatuses(),
+    getAllActiveOppSources(),
+    getAllActiveOppTypes(),
+    getAllActiveOrgs(),
+    getAllActivePersons(),
+    getAllUsersByIsActive(true),
+  ]);
   // console.log("\n\n orgTypes=" + JSON.stringify(orgTypes, null, 2));
   //  console.log("\n\n orgIndustries=" + JSON.stringify(orgIndustries), null, 2 );
 
-  let leadOrOpp = OpportunityType.opportunity();
-  if (l == "lead") leadOrOpp = OpportunityType.lead();
+  let leadOrOpp = opp.type;
 
   return json({
+    opp,
     currentUser,
     oppStatuses,
     leadStatuses,
@@ -57,25 +68,39 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     orgs,
     persons,
     leadOrOpp,
+    users,
   });
 };
 
 export async function action({ request }: ActionFunctionArgs) {
+  const currentUser = await isAuthenticated(request);
   const formdata = Object.fromEntries(await request.formData());
 
-  console.log("\n\norg create formdata?: " + JSON.stringify(formdata, null, 2));
+  console.log(
+    "\n\n opp edit action request?: " + JSON.stringify(request, null, 2)
+  );
 
-  const org = await createOpp(formdata);
+  console.log(
+    "\n\nopp action update formdata?: " + JSON.stringify(formdata, null, 2)
+  );
 
-  console.log("\n\n create result: " + JSON.stringify(org, null, 2));
+  if (formdata.hasOwnProperty("convertLead") && formdata.convertLead === "1") {
+    formdata.type = "O";
+    formdata.opportunityStatus = "Lead Converted to Opportunity";
+  }
+
+  const org = await updateOpp(formdata, currentUser.id);
+
+  console.log("\n\nopp update action result: " + JSON.stringify(org, null, 2));
 
   if (org.hasOwnProperty("error")) return org;
   else return redirect(`/opportunities/${org.id}`);
 }
 
-export default function OpportunitiesCreate() {
+export default function OpportunitiesId_Edit() {
   const data = useActionData<typeof action>();
   const {
+    opp,
     currentUser,
     oppStatuses,
     leadStatuses,
@@ -84,6 +109,7 @@ export default function OpportunitiesCreate() {
     orgs,
     persons,
     leadOrOpp,
+    users,
   } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const [isOrgDisabled, setIsOrgDisabled] = useState(false);
@@ -91,8 +117,6 @@ export default function OpportunitiesCreate() {
 
   const isAdmin = Roles.isAdmin(currentUser.role);
   const isLoggedIn = currentUser.isLoggedIn;
-
-  console.log("\n\n leadorOpp:" + leadOrOpp);
 
   function handleOrgChange(e) {
     if (e.target.value != "") setIsPersonDisabled(true);
@@ -111,8 +135,7 @@ export default function OpportunitiesCreate() {
         isLoggedIn={isLoggedIn}
         name={currentUser.firstName + " " + currentUser.lastName}
       />
-      {leadOrOpp == "L" ? <h1>Create Lead</h1> : <h1>Create Opportunity</h1>}
-
+      <h1>Edit {opp.type == "L" ? "Lead" : "Opportunity"}</h1>
       <SecondaryNav
         target="opportunities"
         canDelete={false}
@@ -134,8 +157,8 @@ export default function OpportunitiesCreate() {
           empty. Same goes for Person, Org will be inaccessible until Person is
           set to empty. One or the other is required to save.
         </li>
-        {leadOrOpp == "L" ? (
-          <li>A Lead is an Opportunity with fewer fields</li>
+        {opp.type == "L" ? (
+          <li>An Opportunity can be a Lead, just use an appropriate Status</li>
         ) : (
           <></>
         )}
@@ -146,7 +169,8 @@ export default function OpportunitiesCreate() {
         method="post"
         className="padding ps-2"
       >
-        <input type="hidden" name="ownerId" value={currentUser.id} />
+        <input type="hidden" name="id" value={opp.id} />
+
         <input type="hidden" name="type" value={leadOrOpp} />
         <div className="row">
           <div className="col-2 align-text-top">
@@ -158,9 +182,10 @@ export default function OpportunitiesCreate() {
             <input
               name="name"
               type="text"
-              placeholder="Use a meaningful name"
+              placeholder="Use a meaningful name for your Opportunity"
               className="form-control"
               required={true}
+              defaultValue={opp.name}
             />
             {data && data.error.name && (
               <p className="text-danger">{data.error.name._errors[0]}</p>
@@ -171,7 +196,7 @@ export default function OpportunitiesCreate() {
           <div className="row">
             <div className="col-2 align-text-top">
               <label htmlFor="orgId" className="form-label">
-                Associate an Org:
+                Associate an Organization:
               </label>
             </div>
             <div className="col-9 lead align-text-top">
@@ -180,6 +205,7 @@ export default function OpportunitiesCreate() {
                 className="form-control"
                 onChange={handleOrgChange}
                 disabled={isOrgDisabled}
+                defaultValue={opp.orgId}
               >
                 <option value="">Choose Org or leave empty</option>
                 {orgs.map((o) => (
@@ -208,6 +234,7 @@ export default function OpportunitiesCreate() {
                 className="form-control"
                 onChange={handlePersonChange}
                 disabled={isPersonDisabled}
+                defaultValue={opp.personId}
               >
                 <option value="">Choose Person or leave empty</option>
                 {persons.map((o) => (
@@ -223,7 +250,7 @@ export default function OpportunitiesCreate() {
           </div>
         </div>
 
-        <div className={leadOrOpp == "O" ? "d-block" : "d-none"}>
+        <div className={opp.type == "O" ? "d-block" : "d-none"}>
           <div className="row">
             <div className="col-2 align-text-top">
               <label htmlFor="opportunityType" className="form-label">
@@ -231,7 +258,11 @@ export default function OpportunitiesCreate() {
               </label>
             </div>
             <div className="col-9 lead align-text-top">
-              <select name="opportunityType" className="form-control">
+              <select
+                name="opportunityType"
+                className="form-control"
+                defaultValue={opp.opportunityType}
+              >
                 <option value="">Choose Opportunity Type</option>
                 {oppTypes.map((o) => (
                   <option key={o.id} value={o.id}>
@@ -248,17 +279,20 @@ export default function OpportunitiesCreate() {
           </div>
         </div>
 
-        <div className={leadOrOpp == "O" ? "d-block" : "d-none"}>
+        <div className={opp.type == "O" ? "d-block" : "d-none"}>
           <div className="row">
             <div className="col-2 align-text-top">
-              <label htmlFor="opportunityStatus" className="form-label">
+              <label
+                htmlFor="opportunityStatus"
+                className="form-label"
+                defaultValue={opp.opportunityStatus}
+              >
                 Status:
               </label>
             </div>
             <div className="col-9 lead align-text-top">
               <select name="opportunityStatus" className="form-control">
                 <option value="">Choose Status</option>
-
                 {oppStatuses.map((o) => (
                   <option key={o.id} value={o.id}>
                     {o.id}
@@ -274,17 +308,20 @@ export default function OpportunitiesCreate() {
           </div>
         </div>
 
-        <div className={leadOrOpp == "L" ? "d-block" : "d-none"}>
+        <div className={opp.type == "L" ? "d-block" : "d-none"}>
           <div className="row">
             <div className="col-2 align-text-top">
-              <label htmlFor="opportunityStatus" className="form-label">
+              <label
+                htmlFor="opportunityStatus"
+                className="form-label"
+                defaultValue={opp.opportunityStatus}
+              >
                 Status:
               </label>
             </div>
             <div className="col-9 lead align-text-top">
               <select name="opportunityStatus" className="form-control">
                 <option value="">Choose Status</option>
-
                 {leadStatuses.map((o) => (
                   <option key={o.id} value={o.id}>
                     {o.id}
@@ -307,7 +344,11 @@ export default function OpportunitiesCreate() {
             </label>
           </div>
           <div className="col-9 lead align-text-top">
-            <select name="opportunitySource" className="form-control">
+            <select
+              name="opportunitySource"
+              className="form-control"
+              defaultValue={opp.opportunitySource}
+            >
               <option value="">Choose Source</option>
               {oppSources.map((o) => (
                 <option key={o.id} value={o.id}>
@@ -323,7 +364,7 @@ export default function OpportunitiesCreate() {
           </div>
         </div>
 
-        <div className={leadOrOpp == "O" ? "d-block" : "d-none"}>
+        <div className={opp.type == "O" ? "d-block" : "d-none"}>
           <div className="row">
             <div className="col-2 align-text-top">
               <label htmlFor="isActive" className="form-label">
@@ -331,7 +372,11 @@ export default function OpportunitiesCreate() {
               </label>
             </div>
             <div className="col-9 lead align-text-top">
-              <select name="isActive" className="form-control">
+              <select
+                name="isActive"
+                className="form-control"
+                defaultValue={opp.isActive ? "yes" : "no"}
+              >
                 <option key="yes" value="yes" defaultValue="yes">
                   Yes
                 </option>
@@ -357,14 +402,15 @@ export default function OpportunitiesCreate() {
               name="description"
               placeholder="Description"
               className="form-control"
+              defaultValue={opp.description}
             />
-            {data && data.error.description.website && (
+            {data && data.error.description && (
               <p className="text-danger">{data.error.description._errors[0]}</p>
             )}
           </div>
         </div>
 
-        <div className={leadOrOpp == "O" ? "d-block" : "d-none"}>
+        <div className={opp.type == "O" ? "d-block" : "d-none"}>
           <div className="row">
             <div className="col-2 align-text-top">
               <label htmlFor="expectedCloseDate" className="form-label">
@@ -377,6 +423,7 @@ export default function OpportunitiesCreate() {
                 type="date"
                 placeholder=""
                 className="form-control"
+                defaultValue={opp.expectedCloseDate}
               />
               {data && data.error.expectedCloseDate && (
                 <p className="text-danger">
@@ -387,7 +434,7 @@ export default function OpportunitiesCreate() {
           </div>
         </div>
 
-        <div className={leadOrOpp == "O" ? "d-block" : "d-none"}>
+        <div className={opp.type == "O" ? "d-block" : "d-none"}>
           <div className="row">
             <div className="col-2 align-text-top">
               <label htmlFor="expectedOutcome" className="form-label">
@@ -399,6 +446,7 @@ export default function OpportunitiesCreate() {
                 name="expectedOutcome"
                 placeholder=""
                 className="form-control"
+                defaultValue={opp.expectedOutcome}
               />
               {data && data.error.expectedOutcome && (
                 <p className="text-danger">
@@ -409,7 +457,7 @@ export default function OpportunitiesCreate() {
           </div>
         </div>
 
-        <div className={leadOrOpp == "O" ? "d-block" : "d-none"}>
+        <div className={opp.type == "O" ? "d-block" : "d-none"}>
           <div className="row">
             <div className="col-2 align-text-top">
               <label htmlFor="activityDiscussion" className="form-label">
@@ -421,8 +469,9 @@ export default function OpportunitiesCreate() {
                 name="activityDiscussion"
                 placeholder=""
                 className="form-control"
+                defaultValue={opp.activityDiscussion}
               />
-              {data && data.error.activityDiscussion.website && (
+              {data && data.error.activityDiscussion && (
                 <p className="text-danger">
                   {data.error.activityDiscussion._errors[0]}
                 </p>
@@ -431,7 +480,7 @@ export default function OpportunitiesCreate() {
           </div>
         </div>
 
-        <div className={leadOrOpp == "O" ? "d-block" : "d-none"}>
+        <div className={opp.type == "O" ? "d-block" : "d-none"}>
           <div className="row">
             <div className="col-2 align-text-top">
               <label htmlFor="actualClosedDate" className="form-label">
@@ -444,6 +493,7 @@ export default function OpportunitiesCreate() {
                 type="date"
                 placeholder=""
                 className="form-control"
+                defaultValue={opp.actualClosedDate}
               />
               {data && data.error.actualClosedDate && (
                 <p className="text-danger">
@@ -454,7 +504,7 @@ export default function OpportunitiesCreate() {
           </div>
         </div>
 
-        <div className={leadOrOpp == "O" ? "d-block" : "d-none"}>
+        <div className={opp.type == "O" ? "d-block" : "d-none"}>
           <div className="row">
             <div className="col-2 align-text-top">
               <label htmlFor="closeddOutcome" className="form-label">
@@ -466,6 +516,7 @@ export default function OpportunitiesCreate() {
                 name="closeddOutcome"
                 placeholder=""
                 className="form-control"
+                defaultValue={opp.closedOutcome}
               />
               {data && data.error.closeddOutcome && (
                 <p className="text-danger">
@@ -475,12 +526,52 @@ export default function OpportunitiesCreate() {
             </div>
           </div>
         </div>
+        <div className="border border-primary border-2 gx-10">
+          <label htmlFor="ownerId" className="form-label">
+            Owner
+          </label>
+
+          {opp.ownerId === currentUser.id ? (
+            <select
+              name="ownerId"
+              className="form-control"
+              defaultValue={opp.ownerId}
+            >
+              <option value="">Choose Owner</option>
+              {users.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {o.lastName}, {o.firstName}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <span className="lead">
+              &nbsp;&nbsp;---&nbsp;&nbsp;
+              {opp.owner.firstName + " " + opp.owner.lastName}
+            </span>
+          )}
+          {data && data.error.ownerId && (
+            <p className="text-danger">{data.error.ownerId._errors[0]}</p>
+          )}
+        </div>
+        <br />
 
         <div className="mg-3">
           <button type="submit" className="btn btn-primary">
             Save
           </button>
-
+          {leadOrOpp == "L" ? (
+            <button
+              type="submit"
+              className="btn btn-info"
+              name="convertLead"
+              value="1"
+            >
+              Save as Opportunity
+            </button>
+          ) : (
+            <></>
+          )}
           <button type="reset" className="btn btn-secondary">
             Cancel
           </button>

@@ -9,27 +9,38 @@ import Openregistrations from "~/components/dashboard/openregistrations";
 import { getAllInProcessingRegistrations } from "~/controllers/registrations";
 import Mypersons from "~/components/dashboard/mypersons";
 import Myorgs from "~/components/dashboard/myorgs";
-import { getAllPersonsByOwner } from "~/controllers/persons";
-import { getAllOrgsByOwner } from "~/controllers/orgs";
+import { getActivePersonsByOwner } from "~/controllers/persons";
+import { getActiveOrgsByOwner } from "~/controllers/orgs";
+import {
+  getActiveLeadsByOwner,
+  getActiveOppsByOwner,
+} from "~/controllers/opps";
+import Myopps from "~/components/dashboard/myopps";
+import Myleads from "~/components/dashboard/myleads";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  // If the user is already authenticated redirect to /dashboard directly
   const currentUser = await isAuthenticated(request);
-
-  // console.log("\n\n dashboard loader uu: " + JSON.stringify(currentUser));
-
-  const [registrations, persons, orgs] = await Promise.all([
+  if (!currentUser.isLoggedIn) return redirect("/login");
+  /*
+  console.log(
+    "\n\n dashboard loader after redirect uu: " + JSON.stringify(currentUser)
+  );
+*/
+  const [registrations, persons, orgs, opps, leads] = await Promise.all([
     getAllInProcessingRegistrations(),
-    getAllPersonsByOwner(currentUser.id),
-    getAllOrgsByOwner(currentUser.id),
+    getActivePersonsByOwner(currentUser.id),
+    getActiveOrgsByOwner(currentUser.id),
+    getActiveOppsByOwner(currentUser.id),
+    getActiveLeadsByOwner(currentUser.id),
   ]);
 
-  if (currentUser) return { currentUser, registrations, persons, orgs };
+  if (currentUser)
+    return { currentUser, registrations, persons, orgs, opps, leads };
   else return redirect("/login");
 }
 
 export default function Dashboard() {
-  const { currentUser, registrations, persons, orgs } =
+  const { currentUser, registrations, persons, orgs, opps, leads } =
     useLoaderData<typeof loader>();
 
   const isAdmin = Roles.isAdmin(currentUser.role);
@@ -48,6 +59,8 @@ export default function Dashboard() {
       {isAdmin ? <Openregistrations registrations={registrations} /> : <></>}
       <Myorgs orgs={orgs} />
       <Mypersons persons={persons} />
+      <Myleads opps={leads} />
+      <Myopps opps={opps} />
     </div>
   );
 }

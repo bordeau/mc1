@@ -26,10 +26,10 @@ import SecondaryNav from "~/components/secondarynav";
 import { getAllUsers } from "~/controllers/users";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  invariant(params.id, "Missing  ID param");
-
   const currentUser = await isAuthenticated(request);
   if (!currentUser) return redirect("/login");
+
+  invariant(params.id, "Missing  ID param");
 
   const [person, users] = await Promise.all([
     getPersonById(params.id),

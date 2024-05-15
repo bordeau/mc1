@@ -1,5 +1,6 @@
 import {
   type ActionFunctionArgs,
+  json,
   LoaderFunctionArgs,
   redirect,
 } from "@remix-run/node";
@@ -16,12 +17,13 @@ import { getAllPersons, getLikeNamePersons } from "~/controllers/persons";
 import { EmptyLetterTray } from "~/components/icons";
 import { createPersonOrg } from "~/controllers/personsOrgs";
 import { getOppById } from "~/controllers/opps";
+import { undefined } from "zod";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  invariant(params.id, "Missing ID param");
-
   const currentUser = await isAuthenticated(request);
-  if (!currentUser) return redirect("/login");
+  if (!currentUser.isLoggedIn) return redirect("/login");
+
+  invariant(params.id, "Missing ID param");
 
   const url = new URL(request.url);
   const q = url.searchParams.get("q");
@@ -85,7 +87,14 @@ export default function OpportunitiesId() {
   const isManager = Roles.isManager(currentUser.role);
   const isLoggedIn = currentUser.isLoggedIn;
 
-  console.log("\n\n org detail: " + JSON.stringify(item, null, 2));
+  // console.log("\n\n org detail: " + JSON.stringify(item, null, 2));
+  const options: Intl.DateTimeFormatOptions = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+  };
 
   return (
     <>
@@ -95,7 +104,7 @@ export default function OpportunitiesId() {
         isLoggedIn={isLoggedIn}
         name={currentUser.firstName + " " + currentUser.lastName}
       />
-      <h1>Opportunity Detail</h1>
+      <h1>{item.type == "O" ? "Opportunity" : "Lead"} Detail</h1>
       <SecondaryNav
         target="opportunities"
         id={item.id}
@@ -109,7 +118,7 @@ export default function OpportunitiesId() {
         showBack1={whichBack}
         backTarget={"opportunities"}
         showBackTitle={!whichBack ? "Back to List" : "Back to Person Detail"}
-        what="Opportunity"
+        what={item.type == "O" ? "Opportunity" : "Lead"}
       />
       <br />
 
@@ -179,6 +188,63 @@ export default function OpportunitiesId() {
         </p>
       </div>
 
+      <div className={item.type == "O" ? "d-block" : "d-none"}>
+        <div className="row">
+          <h6 className="col-2 align-text-top">Expected Close Date:</h6>
+          <p className="col-7 lead align-text-top">
+            {item.expectedCloseDate ? (
+              item.expectedCloseDate
+            ) : (
+              <EmptyLetterTray />
+            )}
+          </p>
+        </div>
+      </div>
+
+      <div className={item.type == "O" ? "d-block" : "d-none"}>
+        <div className="row">
+          <h6 className="col-2 align-text-top">Expected Outcome:</h6>
+          <p className="col-7 lead align-text-top">
+            {item.expectedOutcome ? item.expectedOutcome : <EmptyLetterTray />}
+          </p>
+        </div>
+      </div>
+
+      <div className={item.type == "O" ? "d-block" : "d-none"}>
+        <div className="row">
+          <h6 className="col-2 align-text-top">Activity Discussion:</h6>
+          <p className="col-7 lead align-text-top">
+            {item.activityDiscussion ? (
+              item.activityDiscussion
+            ) : (
+              <EmptyLetterTray />
+            )}
+          </p>
+        </div>
+      </div>
+
+      <div className={item.type == "O" ? "d-block" : "d-none"}>
+        <div className="row">
+          <h6 className="col-2 align-text-top">Actual Closed Date:</h6>
+          <p className="col-7 lead align-text-top">
+            {item.actualClosedDate ? (
+              item.actualClosedDate
+            ) : (
+              <EmptyLetterTray />
+            )}
+          </p>
+        </div>
+      </div>
+
+      <div className={item.type == "O" ? "d-block" : "d-none"}>
+        <div className="row">
+          <h6 className="col-2 align-text-top">Closed Outcome:</h6>
+          <p className="col-7 lead align-text-top">
+            {item.closedOutcome ? item.closedOutcome : <EmptyLetterTray />}
+          </p>
+        </div>
+      </div>
+
       <div className="row">
         <h6 className="col-2 align-text-top">Owner:</h6>
         <p className="col-7 lead align-text-top">
@@ -187,6 +253,31 @@ export default function OpportunitiesId() {
       </div>
 
       <h4 className="mt-xl-4">Opportunity Team</h4>
+
+      <h4>Opportunity History</h4>
+      <div className="row">
+        <p className="col-2 align-text-top fs s-7">Date</p>
+        <p className="col-2 align-text-top fs s-7">Change By</p>
+        <p className="col-7 align-text-top fs s-7">Fields Changes</p>
+      </div>
+      {item.opportunityHistory.map((nn) => (
+        <div className="row">
+          <p className="col-2 align-text-top fs s-7">
+            {new Date(nn.createdaAt).toLocaleDateString(undefined, options)}
+          </p>
+          <p className="col-2 align-text-top fs fs-7">
+            {nn.user.firstName + " " + nn.user.lastName}
+          </p>
+          <p className="col-7 align-text-top fs fs-7">
+            {JSON.parse(nn.data).map((hh) => (
+              <p className="fs fs-7">
+                Field: {hh.name}&nbsp;&nbsp;&nbsp; Old: {hh.orig}{" "}
+                &nbsp;&nbsp;&nbsp; New: {hh.new}
+              </p>
+            ))}
+          </p>
+        </div>
+      ))}
     </>
   );
 }

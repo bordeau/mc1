@@ -27,12 +27,13 @@ model Users {
   lastPasswordChangeAt DateTime?
   isActive             Boolean   @default(false)
 
-  passwordReset PasswordReset[] @relation("password_reset_user")
-  loginLog      LoginLog[]      @relation("login_log_user")
+  passwordReset      PasswordReset[]      @relation("password_reset_user")
+  loginLog           LoginLog[]           @relation("login_log_user")
+  opportunityHistory OpportunityHistory[] @relation("opposhistory_changer")
 
   managerId String?
   manager   Users?  @relation("manager_user", fields: [managerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  managees  Users[] @relation("manager_user")
+  minions   Users[] @relation("manager_user")
 
   personsOwner       Persons[]       @relation("persons_owner")
   orgsOwner          Orgs[]          @relation("orgs_owner")
@@ -180,6 +181,8 @@ model OpportunityStatuses {
   id       String  @id
   isActive Boolean @default(true)
   orderBy  Int     @default(100)
+  type     String? // Lead or Opp
+  isClosed Boolean @default(false) // Lead or Opp
 
   opportunities Opportunities[]
 
@@ -222,9 +225,12 @@ model Opportunities {
   expectedOutcome    String?
   closedOutcome      String?
   activityDiscussion String?
+  amount             BigInt? // store as pennies USD
 
   isActive Boolean @default(true)
+  type     String? // Lead or Opp
 
+  opportunityHistory  OpportunityHistory[]
   opportunityTeam     OpportunityTeam[]
   opportunityType     String?
   opportunityTypes    OpportunityTypes?    @relation(fields: [opportunityType], references: [id])
@@ -244,6 +250,20 @@ model Opportunities {
 
   createdaAt DateTime @default(now())
   updatedAt  DateTime @updatedAt
+}
+
+model OpportunityHistory {
+  id String @id @default(cuid())
+
+  opp   Opportunities @relation(fields: [oppId], references: [id])
+  oppId String
+
+  userId String?
+  user   Users?  @relation("opposhistory_changer", fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  data String // this will be JSON.. just the changes
+
+  createdaAt DateTime @default(now())
 }
 
 // currently using changes to this to force prisma to generate new, when only spelling issue above

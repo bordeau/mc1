@@ -21,10 +21,10 @@ import { Roles } from "~/models/role";
 import { getAllUsers } from "~/controllers/users";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  invariant(params.id, "Missing ID param");
-
   const currentUser = await isAuthenticated(request);
   if (!currentUser) return redirect("/login");
+
+  invariant(params.id, "Missing ID param");
 
   const [org, orgTypes, orgIndustries, users] = await Promise.all([
     getOrgById(params.id),

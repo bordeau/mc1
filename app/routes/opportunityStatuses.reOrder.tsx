@@ -10,11 +10,7 @@ import { isAuthenticated } from "~/services/auth.server";
 import { Roles } from "~/models/role";
 import Nav from "~/components/nav";
 import SecondaryNav from "~/components/secondarynav";
-import {
-  getAllActiveOppTypes,
-  getAllOppTypes,
-  updateOppTypeReOrder,
-} from "~/controllers/oppTypes";
+
 import React, { useEffect } from "react";
 import { OrderByType } from "~/models/misc";
 import {

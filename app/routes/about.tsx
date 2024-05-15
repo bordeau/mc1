@@ -1,14 +1,14 @@
 import NavNon from "~/components/navnon";
 import React from "react";
 import { json, LoaderFunctionArgs } from "@remix-run/node";
-import { isAuthenticated } from "~/services/auth.server";
+import { isAuthenticatedNoRedirect } from "~/services/auth.server";
 import { useLoaderData } from "@remix-run/react";
 import { Roles } from "~/models/role";
 import Nav from "~/components/nav";
 import Aboutcomp from "~/components/aboutcomp";
 
-export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  const currentUser = await isAuthenticated(request);
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const currentUser = await isAuthenticatedNoRedirect(request);
 
   return json({ currentUser });
 };

@@ -26,6 +26,14 @@ export async function getAllPersonsByOwner(oid) {
   return persons;
 }
 
+export async function getActivePersonsByOwner(oid) {
+  const persons = await prisma.persons.findMany({
+    where: { ownerId: oid, isActive: true },
+    orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
+  });
+  return persons;
+}
+
 export async function getLikeNamePersons(sp) {
   const persons = await prisma.persons.findMany({
     where: {

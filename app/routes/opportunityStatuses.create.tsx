@@ -102,6 +102,52 @@ export default function opportunitySourcesCreate() {
             </div>
           </div>
 
+          <div className="row">
+            <div className="col-2 align-text-top">
+              <label htmlFor="type" className="form-label">
+                Type
+              </label>
+            </div>
+            <div className="col-9 lead align-text-top">
+              <select name="type" className="form-control">
+                <option key="O" value="L">
+                  Opportunity
+                </option>
+                <option key="L" value="L">
+                  Lead
+                </option>
+              </select>
+              {data && data.error.type && (
+                <p className="text-danger">{data.error.type._errors[0]}</p>
+              )}
+            </div>
+          </div>
+
+          <div className="row">
+            <div className="col-2 align-text-top">
+              <label htmlFor="isClosed" className="form-label">
+                Indicates Closed?
+              </label>
+            </div>
+            <div className="col-9 lead align-text-top">
+              <select
+                name="isClosed"
+                className="form-control"
+                defaultValue="no"
+              >
+                <option key="yes" value="yes">
+                  Closed
+                </option>
+                <option key="no" value="">
+                  Open
+                </option>
+              </select>
+              {data && data.error.isClosed && (
+                <p className="text-danger">{data.error.isClosed._errors[0]}</p>
+              )}
+            </div>
+          </div>
+
           <div className="mg-3">
             <button type="submit" className="btn btn-primary">
               Save

@@ -20,10 +20,12 @@ import { EmptyLetterTray } from "~/components/icons";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   //console.log("\n\nperson org loader:" + JSON.stringify(params));
-  const id = params.id;
-
   const currentUser = await isAuthenticated(request);
   if (!currentUser) return redirect("/login");
+
+  invariant(params.id, "Missing id param");
+
+  const id = params.id;
 
   const url = new URL(request.url);
   const re = url.searchParams.get("re");

@@ -5,12 +5,7 @@ import {
   redirect,
 } from "@remix-run/node";
 import { isAuthenticated } from "~/services/auth.server";
-import {
-  getUserById,
-  getUserByUsername,
-  updateUserPassword,
-} from "~/controllers/users";
-import { sendEmail, EmailType } from "~/components/myresend";
+import { getUserById, updateUserPassword } from "~/controllers/users";
 import { useActionData } from "react-router";
 import React from "react";
 import { Roles } from "~/models/role";

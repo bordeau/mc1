@@ -9,11 +9,11 @@ import Nav from "~/components/nav";
 import SecondaryNav from "~/components/secondarynav";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const url = new URL(request.url);
-  const q = url.searchParams.get("q");
-
   const currentUser = await isAuthenticated(request);
   if (!currentUser) return redirect("/login");
+
+  const url = new URL(request.url);
+  const q = url.searchParams.get("q");
 
   // console.log("\n\n q:" + q);
 

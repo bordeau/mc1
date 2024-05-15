@@ -12,10 +12,10 @@ import React from "react";
 import { destroyPersonOrg, getPersonOrgById } from "~/controllers/personsOrgs";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  invariant(params.id, "Missing personId param");
-
   const currentUser = await isAuthenticated(request);
   if (!currentUser) return redirect("/login");
+
+  invariant(params.id, "Missing id param");
 
   const url = new URL(request.url);
   const re = url.searchParams.get("re");

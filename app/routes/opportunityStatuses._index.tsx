@@ -24,7 +24,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const qq = q == null ? false : true;
 
   let list;
-  if (qq) list = await getAllOppStatuses();
+  if (qq) list = await getAllStatuses();
   else list = await getAllActiveOppStatuses();
 
   return json({ currentUser, list });
@@ -97,13 +97,19 @@ export default function OpportunityStatuses_index() {
       <nav className="nav flex-column">
         {list.map((oi) => (
           <div className="row" key={oi.id}>
-            <div className="col-sm-9">
+            <div className="col-sm-5">
               <Link to={"/" + target + "/" + oi.id} className="nav-link">
                 {oi.id}
               </Link>
             </div>
             <div className="col-sm-2">
               <span>{oi.isActive ? "Active" : "Inactive"}</span>
+            </div>
+            <div className="col-sm-2">
+              <span>{oi.type == "O" ? "Opportunity" : "Lead"}</span>
+            </div>
+            <div className="col-sm-2">
+              <span>{oi.isClosed ? "Closed" : "Open"}</span>
             </div>
           </div>
         ))}

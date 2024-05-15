@@ -56,12 +56,19 @@ export default function opportunityStatusesId() {
         what={what}
       />
       <br />
+      <p>fix so you can't edit or delete Lead Converted To Opportunity</p>
 
       <div className="bd-example">
         <div className="row">
           <div className="col lead">{item.id}</div>
           <div className="col lead">
             {item.isActive ? "Active" : "Inactive"}
+          </div>
+          <div className="col lead">
+            {item.type == "O" ? "Opportunity" : "Lead"}
+          </div>
+          <div className="col lead">
+            {item.isClosed ? "Closed Type" : "Open"}
           </div>
         </div>
       </div>

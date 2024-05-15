@@ -10,9 +10,10 @@ import React from "react";
 import { Roles } from "~/models/role";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  invariant(params.orgId, "Missing org Id param");
   const currentUser = await isAuthenticated(request);
   if (!currentUser) return redirect("/login");
+
+  invariant(params.orgId, "Missing org Id param");
 
   const id = Number(params.orgId);
   const org = await getOrgById(id);

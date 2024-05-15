@@ -21,10 +21,10 @@ import { EmptyLetterTray } from "~/components/icons";
 import { createPersonOrg } from "~/controllers/personsOrgs";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  invariant(params.id, "Missing ID param");
-
   const currentUser = await isAuthenticated(request);
   if (!currentUser) return redirect("/login");
+
+  invariant(params.id, "Missing ID param");
 
   const url = new URL(request.url);
   const q = url.searchParams.get("q");

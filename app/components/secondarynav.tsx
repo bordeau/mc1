@@ -9,6 +9,18 @@ export default function SecondaryNav(props) {
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light border border-primary rounded-1 ">
       <nav className="nav flex-sm">
+        {props.createLead ? (
+          <Link
+            to={"/" + props.target + "/create?l=lead"}
+            className="nav-link"
+            aria-current="page"
+          >
+            Create Lead
+          </Link>
+        ) : (
+          " "
+        )}
+
         {props.canCreate ? (
           <Link
             to={"/" + props.target + "/create"}
@@ -20,6 +32,7 @@ export default function SecondaryNav(props) {
         ) : (
           " "
         )}
+
         {props.canEdit ? (
           <Link
             to={"/" + props.target + "/" + props.id + "/edit"}

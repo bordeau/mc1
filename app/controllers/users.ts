@@ -2,6 +2,7 @@ import { prisma } from "~/db/db.server";
 import { z } from "zod";
 import { Roles } from "~/models/role";
 import bcrypt from "bcryptjs";
+import { i } from "vite/dist/node/types.d-aGj9QkWt";
 
 export async function getAllUsers() {
   const users = await prisma.users.findMany({
@@ -156,6 +157,15 @@ export async function getLikeNameRoleIsActiveUsers(
 export async function getUserById(i: string) {
   const rval = await prisma.users.findUniqueOrThrow({
     where: { id: i },
+    include: {
+      minions: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+        },
+      },
+    },
   });
 
   return rval;
@@ -173,7 +183,55 @@ export async function getUserByIdWithLog(i: string) {
 export async function getUserByUsername(nm: string) {
   const rval = await prisma.users.findUniqueOrThrow({
     where: { username: nm },
+    include: {
+      minions: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+        },
+      },
+    },
   });
+
+  console.log("\n\ngetUserByUsername: nm: " + nm);
+  console.log("\n\ngetUserByUsername: rval: " + JSON.stringify(rval, null, 2));
+
+  return rval;
+}
+
+// same as above but grabs 4 levels deep of minions
+export async function getUserByUsername4(nm: string) {
+  const rval = await prisma.users.findUniqueOrThrow({
+    where: { username: nm },
+    include: {
+      minions: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          minions: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              minions: {
+                select: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                  minions: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  console.log("\n\ngetUserByUsername: nm: " + nm);
+  console.log("\n\ngetUserByUsername: rval: " + JSON.stringify(rval, null, 2));
 
   return rval;
 }
@@ -183,7 +241,12 @@ function validateEdit(formData) {
     id: z.string(),
     username: z.string(),
     password: z.string(),
-    role: z.string(),
+    role: z.string().transform((val) => {
+      if (Roles.isRoleValid(val))
+        return val; // if role is valid use it, else use User role
+      else return Roles.userRole();
+    }),
+
     isActive: z.string().transform((val) => {
       const p = !!val; // val ? true : false;
       return p;
@@ -223,7 +286,11 @@ function validateCreate(formData) {
   const schema = z.object({
     username: z.string(),
     password: z.string(),
-    role: z.string(),
+    role: z.string().transform((val) => {
+      if (Roles.isRoleValid(val))
+        return val; // if role is valid use it, else use User role
+      else return Roles.userRole();
+    }),
     isActive: z.string().transform((val) => {
       const p = !!val; // val ? true : false;
       return p;
@@ -260,12 +327,26 @@ function validateCreate(formData) {
   return validatedData;
 }
 
+export async function updateUserLastLogin(id) {
+  const data = {
+    lastLogAt: new Date(Date.now()),
+  };
+
+  const rval = await prisma.users.update({
+    where: { id: id },
+    data: data,
+  });
+
+  return rval;
+}
+
 export async function updateUserPassword(id: string, newPassword: string) {
   const salt = bcrypt.genSaltSync(10);
   const hashedPassword = await bcrypt.hash(newPassword, salt);
 
   const data = {
     password: hashedPassword,
+    lastPasswordChangeAt: new Date(Date.now()),
   };
 
   const rval = await prisma.users.update({

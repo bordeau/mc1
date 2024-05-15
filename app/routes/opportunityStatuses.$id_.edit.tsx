@@ -23,6 +23,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
   const item = await getOppStatusById(params.id);
 
+  // console.log("\n\n opp status load: " + JSON.stringify(item, null, 2));
   if (!item) {
     throw new Response("Org Type Not Found", { status: 404 });
   }
@@ -37,12 +38,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     "\n\norgtype edit formdata?: " + JSON.stringify(formData, null, 2)
   );
 */
+
   const item = await updateOppStatus(formData);
-  /*
-  console.log(
-    "\n\n orgtype edit post action: " + JSON.stringify(orgType, null, 2)
-  );
-*/
+
+  console.log("\n\n item edit post action: " + JSON.stringify(item, null, 2));
+
   if (item.hasOwnProperty("error")) return item;
   // else return redirect(`/opportunitySources/${item.id}`);
   else return redirect("/" + target + "/" + item.id);
@@ -83,6 +83,7 @@ export default function opportunitySourcesId_Edit() {
       <div className="bd-example">
         <Form key={item.id} id="org_type-form" method="post">
           <input type="hidden" name="currentId" value={item.id} />
+          <input type="hidden" name="orderBy" value={item.orderBy} />
           <div className="row">
             <div className="col-2 align-text-top">
               <label htmlFor="id" className="form-label">
@@ -125,6 +126,56 @@ export default function opportunitySourcesId_Edit() {
               </select>
               {data && data.error.isActive && (
                 <p className="text-danger">{data.error.isActive._errors[0]}</p>
+              )}
+            </div>
+          </div>
+
+          <div className="row">
+            <div className="col-2 align-text-top">
+              <label htmlFor="type" className="form-label">
+                Type
+              </label>
+            </div>
+            <div className="col-9 lead align-text-top">
+              <select
+                name="type"
+                className="form-control"
+                defaultValue={item.type}
+              >
+                <option key="O" value="O">
+                  Opportunity
+                </option>
+                <option key="L" value="L">
+                  Lead
+                </option>
+              </select>
+              {data && data.error.type && (
+                <p className="text-danger">{data.error.type._errors[0]}</p>
+              )}
+            </div>
+          </div>
+
+          <div className="row">
+            <div className="col-2 align-text-top">
+              <label htmlFor="isClosed" className="form-label">
+                Indicates Closed?
+              </label>
+            </div>
+            <div className="col-9 lead align-text-top">
+              <select
+                name="isClosed"
+                className="form-control"
+                defaultValue={item.isClosed ? "yes" : ""}
+              >
+                <option key="yes" value="yes">
+                  Closed
+                </option>
+                <option key="no" value="">
+                  Open
+                </option>
+              </select>
+              {data && data.error.isClosed && (
+                <p className="text-danger">{data.error.isClosed._errors[0]}</p>
               )}
             </div>
           </div>

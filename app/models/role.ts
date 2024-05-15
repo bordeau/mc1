@@ -10,6 +10,18 @@ export class Roles {
     return rval;
   }
 
+  public static userRole(): string {
+    return "User";
+  }
+
+  public static managerRole(): string {
+    return "Manager";
+  }
+
+  public static adminRole(): string {
+    return "Admin";
+  }
+
   public static isAdmin(rr: string): boolean {
     return rr === "Admin";
   }

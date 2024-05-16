@@ -1,5 +1,10 @@
-import { json, LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import {
+  type ActionFunctionArgs,
+  json,
+  LoaderFunctionArgs,
+  redirect,
+} from "@remix-run/node";
+import { Form, useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
 // existing imports
 
@@ -8,8 +13,8 @@ import { Roles } from "~/models/role";
 import Nav from "~/components/nav";
 import SecondaryNav from "~/components/secondarynav";
 import React from "react";
-import { getOppTypeById } from "~/controllers/oppTypes";
-import { getOppTeamById } from "~/controllers/opportunityTeam";
+import { getOppTypeById, updateOppType } from "~/controllers/oppTypes";
+import { getOppTeamById, updateOppTeam } from "~/controllers/opportunityTeam";
 import { getOppById } from "~/controllers/opps";
 import { getAllActivePersons, getLikeNamePersons } from "~/controllers/persons";
 import { getAllUsersByIsActive } from "~/controllers/users";
@@ -23,11 +28,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
   invariant(params.id, "Missing id param");
 
-  const [item, persons, users] = await Promise.all([
-    getOppTeamById(params.id),
-    getAllActivePersons(),
-    getAllUsersByIsActive(true),
-  ]);
+  const [item] = await Promise.all([getOppTeamById(params.id)]);
 
   let data;
   if (item.user != null) {
@@ -56,18 +57,35 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     };
   }
 
-  console.log("\n\n opportunityTeam item: " + JSON.stringify(item, null, 2));
-  console.log("\n\n persons: " + JSON.stringify(persons, null, 2));
-  console.log("\n\n users: " + JSON.stringify(users, null, 2));
+  // console.log("\n\n opportunityTeam item: " + JSON.stringify(item, null, 2));
 
   if (!item) {
     throw new Response("Not Found", { status: 404 });
   }
-  return json({ currentUser, data, persons, users });
+  return json({ currentUser, data });
+};
+
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const formData = Object.fromEntries(await request.formData());
+
+  /*
+  console.log(
+    "\n\oppTeam edit formdata?: " + JSON.stringify(formData, null, 2)
+  );
+*/
+  const item = await updateOppTeam(formData);
+
+  //console.log(
+  //  "\n\n oppTeam edit post action: " + JSON.stringify(item, null, 2)
+  // );
+
+  if (item.hasOwnProperty("error")) return item;
+  // else return redirect(`/opportunitySources/${item.id}`);
+  else return redirect("/" + target + "/" + item.id);
 };
 
 export default function opportunityTeamId() {
-  const { currentUser, data, persons, users } = useLoaderData<typeof loader>();
+  const { currentUser, data } = useLoaderData<typeof loader>();
   const isAdmin = Roles.isAdmin(currentUser.role);
   const isManager = Roles.isManager(currentUser.role);
   const isLoggedIn = currentUser.isLoggedIn;
@@ -85,39 +103,69 @@ export default function opportunityTeamId() {
         target={target}
         id={data.id}
         canDelete={true}
-        canCreate={true}
-        canEdit={true}
+        canCreate={false}
+        canEdit={false}
         canClone={false}
         viewLoginLog={false}
         viewDetail={false}
         showBack={true}
-        backTarget={target}
+        backTarget={"opportunityTeam/" + data.id}
+        showBackTitle={"Back to Detail"}
         what={what}
       />
       <br />
 
       <div className="bd-example">
-        <div className="row">
-          <h6 className="col-2 align-text-top">Opportunity</h6>
-          <p className="col-7 lead align-text-top">{data.name}</p>
-        </div>
+        <Form method="post">
+          <input type="hidden" value={data.id} name="id" />
+          <input
+            type="hidden"
+            value={data.opportunityId}
+            name="opportunityId"
+          />
+          {data.type == "Internal" ? (
+            <input type="hidden" value={data.userId} name="userId" />
+          ) : (
+            <input type="hidden" value={data.personId} name="personId" />
+          )}
+          <div className="row">
+            <h6 className="col-2 align-text-top">Opportunity</h6>
+            <p className="col-7 lead align-text-top">{data.name}</p>
+          </div>
 
-        <div className="row">
-          <h6 className="col-2 align-text-top">Team Member Name</h6>
-          <p className="col-7 lead align-text-top">
-            {data.firstName + " " + data.lastName}
-          </p>
-        </div>
+          <div className="row">
+            <h6 className="col-2 align-text-top">Team Member Name</h6>
+            <p className="col-7 lead align-text-top">
+              {data.firstName + " " + data.lastName}
+            </p>
+          </div>
 
-        <div className="row">
-          <h6 className="col-2 align-text-top">Type</h6>
-          <p className="col-7 lead align-text-top">{data.type}</p>
-        </div>
+          <div className="row">
+            <h6 className="col-2 align-text-top">Type</h6>
+            <p className="col-7 lead align-text-top">{data.type}</p>
+          </div>
 
-        <div className="row">
-          <h6 className="col-2 align-text-top">Role</h6>
-          <p className="col-7 lead align-text-top">{data.role}</p>
-        </div>
+          <div className="row">
+            <h6 className="col-2 align-text-top">Role</h6>
+            <div className="col-sm-6">
+              <input
+                name="role"
+                type="text"
+                placeholder="Role"
+                className="form-control"
+                defaultValue={data.role}
+              />
+            </div>
+          </div>
+          <div className="mg-3">
+            <button type="submit" className="btn btn-primary">
+              Save
+            </button>
+            <button type="reset" className="btn btn-secondary">
+              Cancel
+            </button>
+          </div>
+        </Form>
       </div>
     </>
   );

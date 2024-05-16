@@ -9,16 +9,11 @@ import SecondaryNav from "~/components/secondarynav";
 import React from "react";
 import { Roles } from "~/models/role";
 
-import { destroyOppSource, getOppSourceById } from "~/controllers/oppSources";
-import {
-  destroyOppStatue,
-  destroyOppStatuses,
-  getOppStatusById,
-} from "~/controllers/oppStatuses";
 import { destroyOppType, getOppTypeById } from "~/controllers/oppTypes";
+import { destroyOppTeam, getOppTeamById } from "~/controllers/opportunityTeam";
 
-const target = "opportunityTypes";
-const what = "Opportunity Type";
+const target = "opportunityTeam";
+const what = "Opportunity Team Member";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   invariant(params.id, "Missing org type ID param");
@@ -26,42 +21,63 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const currentUser = await isAuthenticated(request);
   if (!currentUser) return redirect("/login");
 
-  let item = await getOppTypeById(params.id);
+  let item = await getOppTeamById(params.id);
+
+  let data;
+  if (item.user != null) {
+    data = {
+      id: params.id,
+      name: item.opportunity.name,
+      role: item.role,
+      firstName: item.user.firstName,
+      lastName: item.user.lastName,
+      userId: item.userId,
+      opportunityId: item.opportunityId,
+      type: "Internal",
+    };
+  }
+  //
+  else if (item.person != null) {
+    data = {
+      id: params.id,
+      name: item.opportunity.name,
+      role: item.role,
+      firstName: item.person.firstName,
+      lastName: item.person.lastName,
+      personId: item.personId,
+      opportunityId: item.opportunityId,
+      type: "External",
+    };
+  }
 
   //console.log(
   //  "\n\n delete org type loader:" + JSON.stringify(item, null, 2)
   //);
 
-  if (item.opportunities.length === 0) return { currentUser, item };
-  else {
-    item = null;
-    console.log(
-      "\n\n attempt to delete " + what + " that is currently referenced"
-    );
-    return { currentUser, item };
-  }
+  return { currentUser, data };
 };
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = Object.fromEntries(await request.formData());
   // console.log("\n\n delete form data: " + JSON.stringify(formData));
   const id = formData.id;
+  const opportunityId = formData.opportunityId;
   if (formData.button === "yes") {
-    await destroyOppType(id);
-    return redirect("/" + target);
+    await destroyOppTeam(id);
+    return redirect("/opportunity/" + opportunityId);
   } else {
     return redirect("/" + target + "/" + id);
   }
 }
 
 export default function opportunitySourcesId_Destroy() {
-  const { currentUser, item } = useLoaderData<typeof loader>();
+  const { currentUser, data } = useLoaderData<typeof loader>();
 
   const isAdmin = Roles.isAdmin(currentUser.role);
   const isManager = Roles.isManager(currentUser.role);
   const isLoggedIn = currentUser.isLoggedIn;
 
-  if (item === null) {
+  if (data === null) {
     return (
       <>
         <Nav
@@ -74,9 +90,9 @@ export default function opportunitySourcesId_Destroy() {
         <SecondaryNav
           target={target}
           canDelete={false}
-          canCreate={true}
+          canCreate={false}
           canEdit={true}
-          canClone={true}
+          canClone={false}
           viewLoginLog={false}
           viewDetail={false}
           showBack={true}
@@ -100,13 +116,13 @@ export default function opportunitySourcesId_Destroy() {
           isLoggedIn={isLoggedIn}
           name={currentUser.firstName + " " + currentUser.lastName}
         />
-        <h1>User Detail</h1>
+        <h1>Opportunity Team Delete</h1>
         <SecondaryNav
           target={target}
           canDelete={false}
-          canCreate={true}
+          canCreate={false}
           canEdit={true}
-          canClone={true}
+          canClone={false}
           viewLoginLog={false}
           viewDetail={false}
           showBack={true}
@@ -115,11 +131,39 @@ export default function opportunitySourcesId_Destroy() {
         />
         <br />
         <Form key="orgTypeIddelete" id="orgTypeIddelete-form" method="post">
-          <input type="hidden" name="id" value={item.id} />
+          <input type="hidden" value={data.id} name="id" />
+          <input
+            type="hidden"
+            value={data.opportunityId}
+            name="opportunityId"
+          />
           <div className="mg-3">
             <label className="form-label">
-              Are you sure you want to delete {what} : {item.id}?
+              Are you sure you want to delete {what}?
             </label>
+            <div className="bd-example">
+              <div className="row">
+                <h6 className="col-2 align-text-top">Opportunity</h6>
+                <p className="col-7 lead align-text-top">{data.name}</p>
+              </div>
+
+              <div className="row">
+                <h6 className="col-2 align-text-top">Team Member Name</h6>
+                <p className="col-7 lead align-text-top">
+                  {data.firstName + " " + data.lastName}
+                </p>
+              </div>
+
+              <div className="row">
+                <h6 className="col-2 align-text-top">Type</h6>
+                <p className="col-7 lead align-text-top">{data.type}</p>
+              </div>
+
+              <div className="row">
+                <h6 className="col-2 align-text-top">Role</h6>
+                <p className="col-7 lead align-text-top">{data.role}</p>
+              </div>
+            </div>
           </div>
           <div className="mg-3">
             <button

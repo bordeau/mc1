@@ -236,6 +236,7 @@ export async function getOppById(i: string) {
       orgs: true,
       persons: true,
       owner: true,
+      opportunityTeam: { include: { user: true, person: true } },
       opportunityHistory: {
         include: { user: true },
       },

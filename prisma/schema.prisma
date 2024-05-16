@@ -30,6 +30,7 @@ model Users {
   passwordReset      PasswordReset[]      @relation("password_reset_user")
   loginLog           LoginLog[]           @relation("login_log_user")
   opportunityHistory OpportunityHistory[] @relation("opposhistory_changer")
+  opportunityTeam    OpportunityTeam[]    @relation("opp_team")
 
   managerId String?
   manager   Users?  @relation("manager_user", fields: [managerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -86,8 +87,8 @@ model Persons {
   description String?
 
   personOrgs      PersonsOrgs[]
-  opportunityTeam OpportunityTeam[]
   opportunities   Opportunities[]
+  OpportunityTeam OpportunityTeam[]
 
   ownerId String
   owner   Users  @relation("persons_owner", fields: [ownerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -162,19 +163,19 @@ model PersonsOrgs {
 }
 
 model OpportunityTeam {
-  id        String  @id @default(cuid())
-  role      String
-  isOurTeam Boolean @default(true)
+  id   String  @id @default(cuid())
+  role String?
 
-  personId      String
-  person        Persons       @relation(fields: [personId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   opportunityId String
   opportunity   Opportunities @relation(fields: [opportunityId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
+  userId   String?
+  user     Users?   @relation("opp_team", fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  personId String?
+  person   Persons? @relation(fields: [personId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@unique([personId, opportunityId])
 }
 
 model OpportunityStatuses {

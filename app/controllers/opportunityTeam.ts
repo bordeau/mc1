@@ -2,30 +2,28 @@ import { prisma } from "~/db/db.server.ts";
 import { z } from "zod";
 import { json } from "@remix-run/node";
 
-export async function findPersonOrgsByPersonId(pid: string) {
-  const rval = await prisma.personsOrgs.findMany({
-    where: { personId: pid },
-    include: { org: true, person: true },
+export async function getOppTeamByOppId(oid: string) {
+  const rval = await prisma.opportunityTeam.findMany({
+    where: { opportunityId: oid },
+    include: {
+      person: true,
+      user: true,
+    },
   });
 
   return rval;
 }
 
-export async function findPersonOrgsByOrgId(oid: string) {
-  const rval = await prisma.personsOrgs.findMany({
-    where: { orgId: oid },
-    include: { org: true, person: true },
-  });
-
-  return rval;
-}
-
-export async function getPersonOrgById(id: string) {
-  const rval = await prisma.personsOrgs.findUnique({
+export async function getOppTeamById(id: string) {
+  const rval = await prisma.opportunityTeam.findUnique({
     where: {
       id: id,
     },
-    include: { org: true, person: true },
+    include: {
+      opportunity: true,
+      person: true,
+      user: true,
+    },
   });
 
   return rval;
@@ -34,33 +32,34 @@ export async function getPersonOrgById(id: string) {
 function validateEdit(formData) {
   const schema = z.object({
     id: z.string(),
-    title: z.string().nullable(),
-    subOrg: z.string().nullable(),
-    email: z.union([z.string().email().nullable(), z.literal("")]),
-    phone: z.string().nullable(),
-    addressType: z.string().nullable(),
-    street1: z.string().nullable(),
-    street2: z.string().nullable(),
-    city: z.string().nullable(),
-    state: z.string().nullable(),
-    zip: z.string().nullable(),
-    country: z.string().nullable(),
-    description: z.string().nullable(),
+    opportunityId: z.string(),
+    role: z
+      .string()
+      .nullable()
+      .transform((val) => {
+        if (val == "") return null;
+        else return val;
+      }),
+    personOrgId: z
+      .string()
+      .nullable()
+      .transform((val) => {
+        if (val == "") return null;
+        else return val;
+      }),
+    userId: z
+      .string()
+      .nullable()
+      .transform((val) => {
+        if (val == "") return null;
+        else return val;
+      }),
   });
 
   const optional = schema.partial({
-    subOrg: true,
-    title: true,
-    email: true,
-    phone: true,
-    addressType: true,
-    street1: true,
-    street2: true,
-    city: true,
-    state: true,
-    zip: true,
-    country: true,
-    description: true,
+    role: true,
+    personOrgId: true,
+    userId: true,
   });
 
   const parseddata = optional.safeParse(formData);
@@ -72,35 +71,34 @@ function validateEdit(formData) {
 
 function validateCreate(formData) {
   const schema = z.object({
-    personId: z.string(),
-    orgId: z.string(),
-    title: z.string().nullable(),
-    subOrg: z.string().nullable(),
-    email: z.union([z.string().email().nullable(), z.literal("")]),
-    phone: z.string().nullable(),
-    addressType: z.string().nullable(),
-    street1: z.string().nullable(),
-    street2: z.string().nullable(),
-    city: z.string().nullable(),
-    state: z.string().nullable(),
-    zip: z.string().nullable(),
-    country: z.string().nullable(),
-    description: z.string().nullable(),
+    opportunityId: z.string(),
+    role: z
+      .string()
+      .nullable()
+      .transform((val) => {
+        if (val == "") return null;
+        else return val;
+      }),
+    personOrgId: z
+      .string()
+      .nullable()
+      .transform((val) => {
+        if (val == "") return null;
+        else return val;
+      }),
+    userId: z
+      .string()
+      .nullable()
+      .transform((val) => {
+        if (val == "") return null;
+        else return val;
+      }),
   });
 
   const optional = schema.partial({
-    subOrg: true,
-    title: true,
-    email: true,
-    phone: true,
-    addressType: true,
-    street1: true,
-    street2: true,
-    city: true,
-    state: true,
-    zip: true,
-    country: true,
-    description: true,
+    role: true,
+    personOrgId: true,
+    userId: true,
   });
 
   const parseddata = optional.safeParse(formData);
@@ -110,12 +108,12 @@ function validateCreate(formData) {
   return parseddata;
 }
 
-export async function updatePersonOrg(formdata) {
+export async function updateOppTeam(formdata) {
   const validatedData = validateEdit(formdata);
 
   /*
   console.log(
-    "\n\nupdate person: " +
+    "\n\nupdateOppTeam: " +
       JSON.stringify(validatedData, null, 2) +
       " success:" +
       validatedData.success
@@ -131,32 +129,20 @@ export async function updatePersonOrg(formdata) {
   // console.log("\n\n\n should only be here if parsedata.sucess is true");
   const parsedData = validatedData.data;
 
-  const address = JSON.stringify({
-    address_type: parsedData.addressType,
-    street1: parsedData.street1,
-    street2: parsedData.street2,
-    city: parsedData.city,
-    state: parsedData.state,
-    zip: parsedData.zip,
-    country: parsedData.country,
-  });
-
   const data = {
-    title: parsedData.title,
-    subOrg: parsedData.subOrg,
-    email: parsedData.email,
-    phone: parsedData.phone,
-    address: address,
-    description: parsedData.description,
+    personOrgId: parsedData.personOrgId,
+    userId: parsedData.userId,
+    role: parsedData.role,
+    opportunityId: parsedData.opportunityId,
   };
 
   const id = parsedData.id;
 
   // console.log(
-  //  "\n\nperson org to update data: " + JSON.stringify(data, null, 2)
+  //  "\n\nupdateOppTeam to update data: " + JSON.stringify(data, null, 2)
   // );
 
-  const rval = await prisma.personsOrgs.update({
+  const rval = await prisma.opportunityTeam.update({
     where: {
       id: id,
     },
@@ -166,13 +152,13 @@ export async function updatePersonOrg(formdata) {
   return rval;
 }
 
-export async function createPersonOrg(formdata) {
-  // console.log("\n\ncreatepersonOrg formdata: " + JSON.stringify(formdata));
+export async function createOppTeam(formdata) {
+  // console.log("\n\createOppTeam formdata: " + JSON.stringify(formdata, null, 2));
 
   const validatedData = validateCreate(formdata);
 
   // console.log(
-  //   "\n\ncreatepersonOrg validated: " + JSON.stringify(validatedData)
+  //   "\n\ncreateOppTeam validated: " + JSON.stringify(validatedData)
   // );
 
   if (!validatedData.success) {
@@ -181,38 +167,24 @@ export async function createPersonOrg(formdata) {
 
   const parsedData = validatedData.data;
 
-  const address = JSON.stringify({
-    addressType: parsedData.addressType,
-    street1: parsedData.street1,
-    street2: parsedData.street2,
-    city: parsedData.city,
-    state: parsedData.state,
-    zip: parsedData.zip,
-    country: parsedData.country,
-  });
-
   const data = {
-    personId: parsedData.personId,
-    orgId: parsedData.orgId,
-    title: parsedData.title,
-    subOrg: parsedData.subOrg,
-    email: parsedData.email,
-    phone: parsedData.phone,
-    address: address,
-    description: parsedData.description,
+    personOrgId: parsedData.personOrgId,
+    userId: parsedData.userId,
+    role: parsedData.role,
+    opportunityId: parsedData.opportunityId,
   };
 
-  // console.log("\n\nperson org to create data: " + JSON.stringify(data));
+  // console.log("\n\ncreateOppTeam to create data: " + JSON.stringify(data));
 
-  const rval = await prisma.personsOrgs.create({
+  const rval = await prisma.opportunityTeam.create({
     data: data,
   });
 
   return rval;
 }
 
-export async function destroyPersonOrg(id: string) {
-  await prisma.personsOrgs.delete({
+export async function destroyOppTeam(id: string) {
+  await prisma.opportunityTeam.delete({
     where: {
       id: id,
     },

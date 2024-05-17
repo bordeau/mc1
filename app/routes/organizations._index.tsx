@@ -2,10 +2,10 @@ import { Form, Link, useLoaderData, useSubmit } from "@remix-run/react";
 import { json, LoaderFunctionArgs, redirect } from "@remix-run/node";
 import React, { useEffect } from "react";
 import { getAllOrgs, getLikeNameOrgs } from "~/controllers/orgs";
-import Nav from "~/components/nav";
+import NavBar from "~/components/nav";
 import SecondaryNav from "~/components/secondarynav";
-import { Roles } from "~/models/role";
 import { isAuthenticated } from "~/services/auth.server";
+import { PAGE_MARGIN } from "~/models/misc";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const currentUser = await isAuthenticated(request);
@@ -29,9 +29,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 export default function Organizations() {
   const { currentUser, orgs, q } = useLoaderData<typeof loader>();
 
-  const isAdmin = Roles.isAdmin(currentUser.role);
-  const isLoggedIn = currentUser.isLoggedIn;
-
   const submit = useSubmit();
   useEffect(() => {
     const searchField = document.getElementById("q");
@@ -42,59 +39,61 @@ export default function Organizations() {
 
   return (
     <>
-      <Nav
-        isAdmin={isAdmin}
-        isLoggedIn={isLoggedIn}
+      <NavBar
+        role={currentUser.role}
+        isLoggedIn={currentUser.isLoggedIn}
         name={currentUser.firstName + " " + currentUser.lastName}
       />
-      <h1>Organizations</h1>
-      <SecondaryNav
-        target="organizations"
-        canDelete={false}
-        canCreate={true}
-        canEdit={false}
-        canClone={false}
-        viewLoginLog={false}
-        viewDetail={false}
-        showBack={true}
-        backTarget={"dashboard"}
-        showBackTitle="To Dashboard"
-        showBack1={false}
-        what="Organization"
-      />
-      <br />
-
-      <Form
-        id="search-form"
-        role="search"
-        onChange={(event) => submit(event.currentTarget)}
-      >
-        <input
-          aria-label="Search organizations"
-          defaultValue={q || ""}
-          id="q"
-          name="q"
-          placeholder="Search"
-          type="search"
+      <div className={PAGE_MARGIN}>
+        <h1>Organizations</h1>
+        <SecondaryNav
+          target="organizations"
+          canDelete={false}
+          canCreate={true}
+          canEdit={false}
+          canClone={false}
+          viewLoginLog={false}
+          viewDetail={false}
+          showBack={true}
+          backTarget={"dashboard"}
+          showBackTitle="To Dashboard"
+          showBack1={false}
+          what="Organization"
         />
-        {/* existing elements */}
-      </Form>
+        <br />
 
-      <nav className="nav flex-column">
-        {orgs.map((org) => (
-          <li key={org.id}>
-            <h5>
-              <Link
-                to={`/organizations/${org.id}`}
-                className="nav-link"
-                aria-current="page"
-              >
-                {org.name}
-              </Link>
-            </h5>
-          </li>
-        ))}
-      </nav>
+        <Form
+          id="search-form"
+          role="search"
+          onChange={(event) => submit(event.currentTarget)}
+        >
+          <input
+            aria-label="Search organizations"
+            defaultValue={q || ""}
+            id="q"
+            name="q"
+            placeholder="Search"
+            type="search"
+          />
+          {/* existing elements */}
+        </Form>
+
+        <nav className="nav flex-column">
+          {orgs.map((org) => (
+            <li key={org.id}>
+              <h5>
+                <Link
+                  to={`/organizations/${org.id}`}
+                  className="nav-link"
+                  aria-current="page"
+                >
+                  {org.name}
+                </Link>
+              </h5>
+            </li>
+          ))}
+        </nav>
+      </div>
     </>
   );
 }

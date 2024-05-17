@@ -7,7 +7,7 @@ export default function Myorgs(params) {
   // console.log("\n\n params: " + JSON.stringify(params, null, 2));
   const orgs = params.orgs;
   return (
-    <div className="container-sm border border-2">
+    <div className="border border-2">
       <h3>My Orgs</h3>
       <p>maybe shows 5 most recent??</p>
 

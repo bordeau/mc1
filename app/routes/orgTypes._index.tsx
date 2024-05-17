@@ -3,10 +3,10 @@ import { useLoaderData, Link, Form, useSubmit } from "@remix-run/react";
 
 import { getAllActiveOrgTypes, getAllOrgTypes } from "~/controllers/orgTypes";
 import { isAuthenticated } from "~/services/auth.server";
-import { Roles } from "~/models/role";
-import Nav from "~/components/nav";
 import SecondaryNav from "~/components/secondarynav";
 import React, { useEffect } from "react";
+import NavBar from "~/components/nav";
+import { PAGE_MARGIN } from "~/models/misc";
 
 const target = "orgTypes";
 const what = "Org Type";
@@ -38,73 +38,70 @@ export default function Index() {
     }
   }, [qq]);
 
-  const isAdmin = Roles.isAdmin(currentUser.role);
-  const isManager = Roles.isManager(currentUser.role);
-  const isLoggedIn = currentUser.isLoggedIn;
-
   return (
     <>
-      <Nav
-        isAdmin={isAdmin}
-        isManager={isManager}
-        isLoggedIn={isLoggedIn}
+      <NavBar
+        role={currentUser.role}
+        isLoggedIn={currentUser.isLoggedIn}
         name={currentUser.firstName + " " + currentUser.lastName}
       />
-      <h1>Organization Types</h1>
-      <SecondaryNav
-        target={target}
-        canDelete={false}
-        canCreate={true}
-        canEdit={false}
-        canClone={false}
-        viewLoginLog={false}
-        viewDetail={false}
-        showBack={true}
-        backTarget={""}
-        reOrder={true}
-        showBackTitle="To Dashboard"
-        what={what}
-      />
-      <br />
-
-      <Form
-        id="search-form"
-        role="search"
-        onChange={(event) => submit(event.currentTarget)}
-      >
-        <input
-          value="true"
-          defaultChecked={qq}
-          id="q"
-          name="q"
-          placeholder="Search"
-          type="checkbox"
+      <div className={PAGE_MARGIN}>
+        <h1>Organization Types</h1>
+        <SecondaryNav
+          target={target}
+          canDelete={false}
+          canCreate={true}
+          canEdit={false}
+          canClone={false}
+          viewLoginLog={false}
+          viewDetail={false}
+          showBack={true}
+          backTarget={""}
+          reOrder={true}
+          showBackTitle="To Dashboard"
+          what={what}
         />
-        <label htmlFor="q" className="form-label">
-          Show Active & Inactive
-        </label>
+        <br />
 
-        {/* existing elements */}
-      </Form>
+        <Form
+          id="search-form"
+          role="search"
+          onChange={(event) => submit(event.currentTarget)}
+        >
+          <input
+            value="true"
+            defaultChecked={qq}
+            id="q"
+            name="q"
+            placeholder="Search"
+            type="checkbox"
+          />
+          <label htmlFor="q" className="form-label">
+            Show Active & Inactive
+          </label>
 
-      <nav className="nav flex-column">
-        {list.map((oi) => (
-          <div className="row" key={oi.id}>
-            <div className="col-sm-9">
-              <Link
-                to={`/orgTypes/${oi.id}`}
-                className="nav-link"
-                aria-current="page"
-              >
-                {oi.id}
-              </Link>
+          {/* existing elements */}
+        </Form>
+
+        <nav className="nav flex-column">
+          {list.map((oi) => (
+            <div className="row" key={oi.id}>
+              <div className="col-sm-9">
+                <Link
+                  to={`/orgTypes/${oi.id}`}
+                  className="nav-link"
+                  aria-current="page"
+                >
+                  {oi.id}
+                </Link>
+              </div>
+              <div className="col-sm-2">
+                <span>{oi.isActive ? "Active" : "Inactive"}</span>
+              </div>
             </div>
-            <div className="col-sm-2">
-              <span>{oi.isActive ? "Active" : "Inactive"}</span>
-            </div>
-          </div>
-        ))}
-      </nav>
+          ))}
+        </nav>
+      </div>
     </>
   );
 }

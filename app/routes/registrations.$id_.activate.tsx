@@ -6,12 +6,11 @@ import {
 import { Form, Link, useLoaderData } from "@remix-run/react";
 
 import invariant from "tiny-invariant";
-import FormAddress from "~/components/formaddress";
 
 import { isAuthenticated } from "~/services/auth.server";
 import { createUser, getUserById, updateUser } from "~/controllers/users";
 import { blankAddress, SYSTEM_TITLE } from "~/components/utils";
-import Nav from "~/components/nav";
+
 import { Roles } from "~/models/role";
 import { useActionData } from "react-router";
 import React from "react";
@@ -20,12 +19,12 @@ import {
   getRegistrationById, setIsProcessRegistration,
 } from "~/controllers/registrations";
 import PlainAddress from "~/components/plainaddress";
-import { EmailType, sendEmail } from "~/components/myresend";
 import {
   ReactPasswordResetEmailType,
   sendAccountActivatedEmail,
-  sendPasswordResetEmail
 } from "~/components/emailTemplates/myreactemailresend";
+import NavBar from "~/components/nav";
+import { PAGE_MARGIN } from "~/models/misc";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const currentUser = await isAuthenticated(request);
@@ -118,141 +117,162 @@ export default function RegistrationActivate() {
     // console.log("\n\n splitting address " + JSON.stringify(address));
   }
 
-  const isAdmin = Roles.isAdmin(currentUser.role);
-  const isLoggedIn = currentUser.isLoggedIn;
-
-  if (isAdmin) {
+  if (!Roles.isAdmin(currentUser.role)) {
     return (
         <>
-        <Nav
-          isAdmin={isAdmin}
-          isLoggedIn={isLoggedIn}
-          name={currentUser.firstName + " " + currentUser.lastName}
-        />
-        <h1>Activate Registration (Create User)</h1>
-
-        <SecondaryNav
-          target="registrations"
-          id={registration.id}
-          canDelete={true}
-          canCreate={false}
-          canEdit={false}
-          canClone={false}
-          canActivate={false}
-          showBack={true}
-          backTarget={"registrations/" + registration.id}
-          showBackTitle="Back to Registration Detail"
-          what="Registration"
-
-        />
-        <br />
-        <Form key = { registration.id } id = "user-form" method = "post">
-          <input name = "id" type = "hidden" value = { registration.id } />
-          <div className = "row">
-            <h6 className = "col-2 align-text-top">
-              <label htmlFor = "username" className = "form-label">
-                Username:
-              </label>
-            </h6>
-            <p className = "col-7 lead align-text-top">
-              <input
-                  defaultValue = { registration.username }
-                  name = "username"
-                  type = "text"
-                  placeholder = "username"
-                  className = "form-control"
-              />
-              { data && data.error.registration && (
-                  <p className = "text-danger">
-                    { data.error.registration._errors[0] }
-                  </p>
-              ) }
-            </p>
+          <NavBar
+              role={currentUser.role}
+              isLoggedIn={currentUser.isLoggedIn}
+              name={currentUser.firstName + " " + currentUser.lastName}
+          />
+          <div className={PAGE_MARGIN}>
+            <h1>Activate Registration (Create User)</h1>
+            <p>You need to be an Administrator</p>
+            <SecondaryNav
+                target="registrations"
+                id={registration.id}
+                canDelete={false}
+                canCreate={false}
+                canEdit={false}
+                canClone={false}
+                canActivate={false}
+                showBack={true}
+                backTarget={"dashboard"}
+                showBackTitle="To Dashboard"
+                what="Registration"
+            />
+            <br />
           </div>
-
-
-
-
-            <div className = "row">
-              <h6 className = "col-2 align-text-top">Is Processed?</h6>
-              <p className = "col-7 lead align-text-top">{ registration.isProcessed ? "Yes" : "No" }</p>
-            </div>
-
-
-            <div className = "row">
-              <h6 className = "col-2 align-text-top">
-                <label htmlFor = "role" className = "form-label">
-                  Role:
-                </label>
-              </h6>
-
-              <p className = "col-7 lead align-text-top">
-                <select
-                    name = "role"
-                    className = "form-control"
-                    defaultValue = "User"
-                    Required: true
-                >
-                  <option value = "">Choose Role</option>
-                  { Roles.validRoles.map( ( o ) => (
-                      <option key = { o } value = { o }>
-                        { o }
-                      </option>
-                  ) ) }
-                </select>
-
-                { data && data.error.role && (
-                    <p className = "text-danger">{ data.error.role._errors[0] }</p>
-                ) }
-              </p>
-            </div>
-
-            <div className = "row">
-              <h6 className = "col-2 align-text-top">First Name:</h6>
-              <p className = "col-7 lead align-text-top">{ registration.firstName }</p>
-            </div>
-            <div className = "row">
-              <h6 className = "col-2 align-text-top">Last Name:</h6>
-              <p className = "col-7 lead align-text-top">{ registration.lastName }</p>
-            </div>
-            <div className = "row">
-              <h6 className = "col-2 align-text-top">Email:</h6>
-              <p className = "col-7 lead align-text-top">
-                <a href = { `mailto:` + registration.email }>{ registration.email }</a>
-              </p>
-            </div>
-            <div className = "row">
-              <h6 className = "col-2 align-text-top">Phone:</h6>
-              <p className = "col-7 lead align-text-top">{ registration.phone }</p>
-            </div>
-            <div className = "accordion-body">
-              <PlainAddress
-                  type = "personal"
-                  typeLabel = "Personal Address"
-                  street1 = { address.street1 }
-                  street2 = { address.street2 }
-                  city = { address.city }
-                  state = { address.state }
-                  country = { address.country }
-                  zip = { address.zip }
-              />
-            </div>
-            <div className = "mg-3">
-              <button type = "submit" className = "btn btn-primary">
-                Activate
-              </button>
-              <button type = "reset" className = "btn btn-secondary">
-                Cancel
-              </button>
-            </div>
-        </Form>
-      </>
-  );
+        </>
+    );
   }
+  //
   else {
+
     return (
         <>
-          <p>You're not an Admin and therefore do not have access.</p>
+          <NavBar
+              role = { currentUser.role }
+              isLoggedIn = { currentUser.isLoggedIn }
+              name = { currentUser.firstName + " " + currentUser.lastName }
+          />
+          <div className = { PAGE_MARGIN }>
+            <h1>Activate Registration (Create User)</h1>
+
+            <SecondaryNav
+                target = "registrations"
+                id = { registration.id }
+                canDelete = { true }
+                canCreate = { false }
+                canEdit = { false }
+                canClone = { false }
+                canActivate = { false }
+                showBack = { true }
+                backTarget = { "registrations/" + registration.id }
+                showBackTitle = "Back to Registration Detail"
+                what = "Registration"
+
+            />
+            <br />
+            <Form key = { registration.id } id = "user-form" method = "post">
+              <input name = "id" type = "hidden" value = { registration.id } />
+              <div className = "row">
+                <h6 className = "col-2 align-text-top">
+                  <label htmlFor = "username" className = "form-label">
+                    Username:
+                  </label>
+                </h6>
+                <p className = "col-7 lead align-text-top">
+                  <input
+                      defaultValue = { registration.username }
+                      name = "username"
+                      type = "text"
+                      placeholder = "username"
+                      className = "form-control"
+                  />
+                  { data && data.error.registration && (
+                      <p className = "text-danger">
+                        { data.error.registration._errors[0] }
+                      </p>
+                  ) }
+                </p>
+              </div>
+
+
+              <div className = "row">
+                <h6 className = "col-2 align-text-top">Is Processed?</h6>
+                <p className = "col-7 lead align-text-top">{ registration.isProcessed ? "Yes" : "No" }</p>
+              </div>
+
+
+              <div className = "row">
+                <h6 className = "col-2 align-text-top">
+                  <label htmlFor = "role" className = "form-label">
+                    Role:
+                  </label>
+                </h6>
+
+                <p className = "col-7 lead align-text-top">
+                  <select
+                      name = "role"
+                      className = "form-control"
+                      defaultValue = "User"
+                      Required: true
+                  >
+                    <option value = "">Choose Role</option>
+                    { Roles.validRoles.map( ( o ) => (
+                        <option key = { o } value = { o }>
+                          { o }
+                        </option>
+                    ) ) }
+                  </select>
+
+                  { data && data.error.role && (
+                      <p className = "text-danger">{ data.error.role._errors[0] }</p>
+                  ) }
+                </p>
+              </div>
+
+              <div className = "row">
+                <h6 className = "col-2 align-text-top">First Name:</h6>
+                <p className = "col-7 lead align-text-top">{ registration.firstName }</p>
+              </div>
+              <div className = "row">
+                <h6 className = "col-2 align-text-top">Last Name:</h6>
+                <p className = "col-7 lead align-text-top">{ registration.lastName }</p>
+              </div>
+              <div className = "row">
+                <h6 className = "col-2 align-text-top">Email:</h6>
+                <p className = "col-7 lead align-text-top">
+                  <a href = { `mailto:` + registration.email }>{ registration.email }</a>
+                </p>
+              </div>
+              <div className = "row">
+                <h6 className = "col-2 align-text-top">Phone:</h6>
+                <p className = "col-7 lead align-text-top">{ registration.phone }</p>
+              </div>
+              <div className = "accordion-body">
+                <PlainAddress
+                    type = "personal"
+                    typeLabel = "Personal Address"
+                    street1 = { address.street1 }
+                    street2 = { address.street2 }
+                    city = { address.city }
+                    state = { address.state }
+                    country = { address.country }
+                    zip = { address.zip }
+                />
+              </div>
+              <div className = "mg-3">
+                <button type = "submit" className = "btn btn-primary">
+                  Activate
+                </button>
+                <button type = "reset" className = "btn btn-secondary">
+                  Cancel
+                </button>
+              </div>
+            </Form>
+          </div>
         </>
     );
   }

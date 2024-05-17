@@ -7,7 +7,7 @@ export default function Myopps(params) {
   // console.log("\n\n params: " + JSON.stringify(params, null, 2));
   const persons = params.opps;
   return (
-    <div className="container-sm border border-2">
+    <div className="border border-2">
       <h3>My Opportunities</h3>
 
       <p>maybe shows 5 most recent??</p>

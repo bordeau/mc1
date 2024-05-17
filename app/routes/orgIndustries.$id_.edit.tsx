@@ -9,10 +9,10 @@ import {
   getOrgIndustryById,
   updateOrgIndustry,
 } from "~/controllers/orgIndustries";
-import Nav from "~/components/nav";
 import SecondaryNav from "~/components/secondarynav";
-import { Roles } from "~/models/role";
 import { isAuthenticated } from "~/services/auth.server";
+import NavBar from "~/components/nav";
+import { PAGE_MARGIN } from "~/models/misc";
 
 const target = "orgIndustries";
 const what = "Org Industry";
@@ -48,89 +48,88 @@ export default function EditOrgIndustry() {
   const data = useActionData<typeof action>();
   const { currentUser, item } = useLoaderData<typeof loader>();
 
-  const isAdmin = Roles.isAdmin(currentUser.role);
-  const isManager = Roles.isManager(currentUser.role);
-  const isLoggedIn = currentUser.isLoggedIn;
-
   return (
     <>
-      <Nav
-        isAdmin={isAdmin}
-        isManager={isManager}
-        isLoggedIn={isLoggedIn}
+      <NavBar
+        role={currentUser.role}
+        isLoggedIn={currentUser.isLoggedIn}
         name={currentUser.firstName + " " + currentUser.lastName}
       />
-      <h1>Edit {what}</h1>
-      <SecondaryNav
-        target={target}
-        canDelete={false}
-        canCreate={true}
-        canEdit={false}
-        canClone={false}
-        viewLoginLog={false}
-        viewDetail={false}
-        showBack={true}
-        backTarget={target}
-        what={what}
-      />
-      <br />
+      <div className={PAGE_MARGIN}>
+        <h1>Edit {what}</h1>
+        <SecondaryNav
+          target={target}
+          canDelete={false}
+          canCreate={true}
+          canEdit={false}
+          canClone={false}
+          viewLoginLog={false}
+          viewDetail={false}
+          showBack={true}
+          backTarget={target}
+          what={what}
+        />
+        <br />
 
-      <div className="bd-example">
-        <Form key={item.id} id="org_type-form" method="post">
-          <input type="hidden" name="currentId" value={item.id} />
-          <div className="row">
-            <div className="col-2 align-text-top">
-              <label htmlFor="id" className="form-label">
-                Name
-              </label>
+        <div className="bd-example">
+          <Form key={item.id} id="org_type-form" method="post">
+            <input type="hidden" name="currentId" value={item.id} />
+            <div className="row">
+              <div className="col-2 align-text-top">
+                <label htmlFor="id" className="form-label">
+                  Name
+                </label>
+              </div>
+              <div className="col-9 lead align-text-top">
+                <input
+                  defaultValue={item.id}
+                  name="id"
+                  type="text"
+                  placeholder="Name"
+                  className="form-control"
+                  required={true}
+                />
+                {data && data.error.id && (
+                  <p className="text-danger">{data.error.id._errors[0]}</p>
+                )}
+              </div>
             </div>
-            <div className="col-9 lead align-text-top">
-              <input
-                defaultValue={item.id}
-                name="id"
-                type="text"
-                placeholder="Name"
-                className="form-control"
-                required={true}
-              />
-              {data && data.error.id && (
-                <p className="text-danger">{data.error.id._errors[0]}</p>
-              )}
+            <div className="row">
+              <div className="col-2 align-text-top">
+                <label htmlFor="isActive" className="form-label">
+                  Active?
+                </label>
+              </div>
+              <div className="col-9 lead align-text-top">
+                <select
+                  name="isActive"
+                  className="form-control"
+                  defaultValue={item.isActive ? "yes" : ""}
+                >
+                  <option key="yes" value="yes">
+                    Yes
+                  </option>
+                  <option key="no" value="">
+                    No
+                  </option>
+                </select>
+                {data && data.error.isActive && (
+                  <p className="text-danger">
+                    {data.error.isActive._errors[0]}
+                  </p>
+                )}
+              </div>
             </div>
-          </div>
-          <div className="row">
-            <div className="col-2 align-text-top">
-              <label htmlFor="isActive" className="form-label">
-                Active?
-              </label>
+            <div className="mg-3">
+              <button type="submit" className="btn btn-primary">
+                Save
+              </button>
+              <button type="reset" className="btn btn-secondary">
+                Cancel
+              </button>
             </div>
-            <div className="col-9 lead align-text-top">
-              <select
-                name="isActive"
-                className="form-control"
-                defaultValue={item.isActive ? "yes" : ""}
-              >
-                <option key="yes" value="yes">
-                  Yes
-                </option>
-                <option key="no" value="">
-                  No
-                </option>
-              </select>
-              {data && data.error.isActive && (
-                <p className="text-danger">{data.error.isActive._errors[0]}</p>
-              )}
-            </div>
-          </div>
-          <div className="mg-3">
-            <button type="submit" className="btn btn-primary">
-              Save
-            </button>
-            <button type="reset" className="btn btn-secondary">
-              Cancel
-            </button>
-          </div>
-        </Form>
+          </Form>
+        </div>
       </div>
     </>
   );

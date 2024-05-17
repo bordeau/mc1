@@ -4,7 +4,7 @@ import { json, LoaderFunctionArgs } from "@remix-run/node";
 import { isAuthenticatedNoRedirect } from "~/services/auth.server";
 import { useLoaderData } from "@remix-run/react";
 import { Roles } from "~/models/role";
-import Nav from "~/components/nav";
+import NavBar from "~/components/nav";
 import Aboutcomp from "~/components/aboutcomp";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -21,7 +21,7 @@ export default function About() {
   if (isLoggedIn) {
     return (
       <>
-        <Nav
+        <NavBar
           isAdmin={isAdmin}
           isManager={isManager}
           isLoggedIn={isLoggedIn}

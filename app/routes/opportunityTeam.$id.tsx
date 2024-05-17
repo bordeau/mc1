@@ -4,15 +4,12 @@ import invariant from "tiny-invariant";
 // existing imports
 
 import { isAuthenticated } from "~/services/auth.server";
-import { Roles } from "~/models/role";
-import Nav from "~/components/nav";
+
 import SecondaryNav from "~/components/secondarynav";
 import React from "react";
-import { getOppTypeById } from "~/controllers/oppTypes";
 import { getOppTeamById } from "~/controllers/opportunityTeam";
-import { getOppById } from "~/controllers/opps";
-import { getAllActivePersons, getLikeNamePersons } from "~/controllers/persons";
-import { getAllUsersByIsActive } from "~/controllers/users";
+import NavBar from "~/components/nav";
+import { PAGE_MARGIN } from "~/models/misc";
 
 const target = "opportunityTeam";
 const what = "Opportunity Team Member";
@@ -68,56 +65,54 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
 export default function opportunityTeamId() {
   const { currentUser, data, re, ret } = useLoaderData<typeof loader>();
-  const isAdmin = Roles.isAdmin(currentUser.role);
-  const isManager = Roles.isManager(currentUser.role);
-  const isLoggedIn = currentUser.isLoggedIn;
 
   return (
     <>
-      <Nav
-        isAdmin={isAdmin}
-        isManager={isManager}
-        isLoggedIn={isLoggedIn}
+      <NavBar
+        role={currentUser.role}
+        isLoggedIn={currentUser.isLoggedIn}
         name={currentUser.firstName + " " + currentUser.lastName}
       />
-      <h1>{what} Detail</h1>
-      <SecondaryNav
-        target={target}
-        id={data.id}
-        canDelete={true}
-        canCreate={false}
-        canEdit={true}
-        canClone={false}
-        viewLoginLog={false}
-        viewDetail={false}
-        showBack={true}
-        backTarget={"opportunities/" + data.opportunityId}
-        showBackTitle={"Back to Opportunity Detail"}
-        what={what}
-      />
-      <br />
+      <div className={PAGE_MARGIN}>
+        <h1>{what} Detail</h1>
+        <SecondaryNav
+          target={target}
+          id={data.id}
+          canDelete={true}
+          canCreate={false}
+          canEdit={true}
+          canClone={false}
+          viewLoginLog={false}
+          viewDetail={false}
+          showBack={true}
+          backTarget={"opportunities/" + data.opportunityId}
+          showBackTitle={"Back to Opportunity Detail"}
+          what={what}
+        />
+        <br />
 
-      <div className="bd-example">
-        <div className="row">
-          <h6 className="col-2 align-text-top">Opportunity</h6>
-          <p className="col-7 lead align-text-top">{data.name}</p>
-        </div>
+        <div className="bd-example">
+          <div className="row">
+            <h6 className="col-2 align-text-top">Opportunity</h6>
+            <p className="col-7 lead align-text-top">{data.name}</p>
+          </div>
 
-        <div className="row">
-          <h6 className="col-2 align-text-top">Team Member Name</h6>
-          <p className="col-7 lead align-text-top">
-            {data.firstName + " " + data.lastName}
-          </p>
-        </div>
+          <div className="row">
+            <h6 className="col-2 align-text-top">Team Member Name</h6>
+            <p className="col-7 lead align-text-top">
+              {data.firstName + " " + data.lastName}
+            </p>
+          </div>
 
-        <div className="row">
-          <h6 className="col-2 align-text-top">Type</h6>
-          <p className="col-7 lead align-text-top">{data.type}</p>
-        </div>
+          <div className="row">
+            <h6 className="col-2 align-text-top">Type</h6>
+            <p className="col-7 lead align-text-top">{data.type}</p>
+          </div>
 
-        <div className="row">
-          <h6 className="col-2 align-text-top">Role</h6>
-          <p className="col-7 lead align-text-top">{data.role}</p>
+          <div className="row">
+            <h6 className="col-2 align-text-top">Role</h6>
+            <p className="col-7 lead align-text-top">{data.role}</p>
+          </div>
         </div>
       </div>
     </>

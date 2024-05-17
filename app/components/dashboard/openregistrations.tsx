@@ -7,7 +7,7 @@ export default function Openregistrations(params) {
   // console.log("\n\n params: " + JSON.stringify(params, null, 2));
   const registrations = params.registrations;
   return (
-    <div className="container-sm border border-2">
+    <div className="border border-2">
       <h3>Open Registrations</h3>
 
       {registrations.map((u) => (

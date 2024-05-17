@@ -2,6 +2,7 @@ import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { isAuthenticated } from "~/services/auth.server";
 import { useLoaderData } from "react-router";
 import Nav from "~/components/nav";
+import NavBar from "~/components/nav";
 
 import { Roles } from "~/models/role";
 import Openregistrations from "~/components/dashboard/openregistrations";
@@ -17,6 +18,7 @@ import {
 } from "~/controllers/opps";
 import Myopps from "~/components/dashboard/myopps";
 import Myleads from "~/components/dashboard/myleads";
+import { PAGE_MARGIN } from "~/models/misc";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const currentUser = await isAuthenticated(request);
@@ -34,9 +36,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     getActiveLeadsByOwner(currentUser.id),
   ]);
 
-  if (currentUser)
-    return { currentUser, registrations, persons, orgs, opps, leads };
-  else return redirect("/login");
+  return { currentUser, registrations, persons, orgs, opps, leads };
 }
 
 export default function Dashboard() {
@@ -44,23 +44,25 @@ export default function Dashboard() {
     useLoaderData<typeof loader>();
 
   const isAdmin = Roles.isAdmin(currentUser.role);
-  const isLoggedIn = currentUser.isLoggedIn;
 
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
-      <Nav
-        isAdmin={isAdmin}
-        isLoggedIn={isLoggedIn}
+    <>
+      <NavBar
+        role={currentUser.role}
+        isLoggedIn={currentUser.isLoggedIn}
         name={currentUser.firstName + " " + currentUser.lastName}
       />
 
-      <h1>Dashboard</h1>
+      <div className={PAGE_MARGIN}>
+        <h1>Dashboard</h1>
+        <br />
 
-      {isAdmin ? <Openregistrations registrations={registrations} /> : <></>}
-      <Myorgs orgs={orgs} />
-      <Mypersons persons={persons} />
-      <Myleads opps={leads} />
-      <Myopps opps={opps} />
-    </div>
+        {isAdmin ? <Openregistrations registrations={registrations} /> : <></>}
+        <Myorgs orgs={orgs} />
+        <Mypersons persons={persons} />
+        <Myleads opps={leads} />
+        <Myopps opps={opps} />
+      </div>
+    </>
   );
 }

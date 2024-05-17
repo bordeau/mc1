@@ -9,15 +9,12 @@ import invariant from "tiny-invariant";
 // existing imports
 
 import { isAuthenticated } from "~/services/auth.server";
-import { Roles } from "~/models/role";
-import Nav from "~/components/nav";
+
 import SecondaryNav from "~/components/secondarynav";
 import React from "react";
-import { getOppTypeById, updateOppType } from "~/controllers/oppTypes";
 import { getOppTeamById, updateOppTeam } from "~/controllers/opportunityTeam";
-import { getOppById } from "~/controllers/opps";
-import { getAllActivePersons, getLikeNamePersons } from "~/controllers/persons";
-import { getAllUsersByIsActive } from "~/controllers/users";
+import NavBar from "~/components/nav";
+import { PAGE_MARGIN } from "~/models/misc";
 
 const target = "opportunityTeam";
 const what = "Opportunity Team Member";
@@ -86,86 +83,84 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function opportunityTeamId() {
   const { currentUser, data } = useLoaderData<typeof loader>();
-  const isAdmin = Roles.isAdmin(currentUser.role);
-  const isManager = Roles.isManager(currentUser.role);
-  const isLoggedIn = currentUser.isLoggedIn;
 
   return (
     <>
-      <Nav
-        isAdmin={isAdmin}
-        isManager={isManager}
-        isLoggedIn={isLoggedIn}
+      <NavBar
+        role={currentUser.role}
+        isLoggedIn={currentUser.isLoggedIn}
         name={currentUser.firstName + " " + currentUser.lastName}
       />
-      <h1>{what} Detail</h1>
-      <SecondaryNav
-        target={target}
-        id={data.id}
-        canDelete={true}
-        canCreate={false}
-        canEdit={false}
-        canClone={false}
-        viewLoginLog={false}
-        viewDetail={false}
-        showBack={true}
-        backTarget={"opportunityTeam/" + data.id}
-        showBackTitle={"Back to Detail"}
-        what={what}
-      />
-      <br />
+      <div className={PAGE_MARGIN}>
+        <h1>{what} Detail</h1>
+        <SecondaryNav
+          target={target}
+          id={data.id}
+          canDelete={true}
+          canCreate={false}
+          canEdit={false}
+          canClone={false}
+          viewLoginLog={false}
+          viewDetail={false}
+          showBack={true}
+          backTarget={"opportunityTeam/" + data.id}
+          showBackTitle={"Back to Detail"}
+          what={what}
+        />
+        <br />
 
-      <div className="bd-example">
-        <Form method="post">
-          <input type="hidden" value={data.id} name="id" />
-          <input
-            type="hidden"
-            value={data.opportunityId}
-            name="opportunityId"
-          />
-          {data.type == "Internal" ? (
-            <input type="hidden" value={data.userId} name="userId" />
-          ) : (
-            <input type="hidden" value={data.personId} name="personId" />
-          )}
-          <div className="row">
-            <h6 className="col-2 align-text-top">Opportunity</h6>
-            <p className="col-7 lead align-text-top">{data.name}</p>
-          </div>
-
-          <div className="row">
-            <h6 className="col-2 align-text-top">Team Member Name</h6>
-            <p className="col-7 lead align-text-top">
-              {data.firstName + " " + data.lastName}
-            </p>
-          </div>
-
-          <div className="row">
-            <h6 className="col-2 align-text-top">Type</h6>
-            <p className="col-7 lead align-text-top">{data.type}</p>
-          </div>
-
-          <div className="row">
-            <h6 className="col-2 align-text-top">Role</h6>
-            <div className="col-sm-6">
-              <input
-                name="role"
-                type="text"
-                placeholder="Role"
-                className="form-control"
-                defaultValue={data.role}
-              />
+        <div className="bd-example">
+          <Form method="post">
+            <input type="hidden" value={data.id} name="id" />
+            <input
+              type="hidden"
+              value={data.opportunityId}
+              name="opportunityId"
+            />
+            {data.type == "Internal" ? (
+              <input type="hidden" value={data.userId} name="userId" />
+            ) : (
+              <input type="hidden" value={data.personId} name="personId" />
+            )}
+            <div className="row">
+              <h6 className="col-2 align-text-top">Opportunity</h6>
+              <p className="col-7 lead align-text-top">{data.name}</p>
             </div>
-          </div>
-          <div className="mg-3">
-            <button type="submit" className="btn btn-primary">
-              Save
-            </button>
-            <button type="reset" className="btn btn-secondary">
-              Cancel
-            </button>
-          </div>
-        </Form>
+
+            <div className="row">
+              <h6 className="col-2 align-text-top">Team Member Name</h6>
+              <p className="col-7 lead align-text-top">
+                {data.firstName + " " + data.lastName}
+              </p>
+            </div>
+
+            <div className="row">
+              <h6 className="col-2 align-text-top">Type</h6>
+              <p className="col-7 lead align-text-top">{data.type}</p>
+            </div>
+
+            <div className="row">
+              <h6 className="col-2 align-text-top">Role</h6>
+              <div className="col-sm-6">
+                <input
+                  name="role"
+                  type="text"
+                  placeholder="Role"
+                  className="form-control"
+                  defaultValue={data.role}
+                />
+              </div>
+            </div>
+            <div className="mg-3">
+              <button type="submit" className="btn btn-primary">
+                Save
+              </button>
+              <button type="reset" className="btn btn-secondary">
+                Cancel
+              </button>
+            </div>
+          </Form>
+        </div>
       </div>
     </>
   );

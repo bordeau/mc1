@@ -2,8 +2,6 @@ import { json, LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { useLoaderData, Link, Form, useSubmit } from "@remix-run/react";
 
 import { isAuthenticated } from "~/services/auth.server";
-import { Roles } from "~/models/role";
-import Nav from "~/components/nav";
 import SecondaryNav from "~/components/secondarynav";
 
 import {
@@ -11,6 +9,8 @@ import {
   getAllOppSources,
 } from "~/controllers/oppSources";
 import React, { useEffect } from "react";
+import NavBar from "~/components/nav";
+import { PAGE_MARGIN } from "~/models/misc";
 
 const target = "opportunitySources";
 const what = "Opportunity Source";
@@ -42,77 +42,73 @@ export default function OpportunitySources_index() {
     }
   }, [qq]);
 
-  const isAdmin = Roles.isAdmin(currentUser.role);
-  const isManager = Roles.isManager(currentUser.role);
-  const isLoggedIn = currentUser.isLoggedIn;
-
   return (
     <>
-      <Nav
-        isAdmin={isAdmin}
-        isManager={isManager}
-        isLoggedIn={isLoggedIn}
+      <NavBar
+        role={currentUser.role}
+        isLoggedIn={currentUser.isLoggedIn}
         name={currentUser.firstName + " " + currentUser.lastName}
       />
-
-      <div>
-        <h1>{what}s</h1>
-      </div>
-      <SecondaryNav
-        target={target}
-        canDelete={false}
-        canCreate={true}
-        canEdit={false}
-        canClone={false}
-        viewLoginLog={false}
-        viewDetail={false}
-        showBack={true}
-        showBack1={false}
-        reOrder={true}
-        backTarget={"dashboard"}
-        showBackTitle="To Dashboard"
-        what={what}
-      />
-      <br />
-
-      <Form
-        id="search-form"
-        role="search"
-        onChange={(event) => submit(event.currentTarget)}
-      >
-        <input
-          value="true"
-          defaultChecked={qq}
-          id="q"
-          name="q"
-          placeholder="Search"
-          type="checkbox"
+      <div className={PAGE_MARGIN}>
+        <div>
+          <h1>{what}s</h1>
+        </div>
+        <SecondaryNav
+          target={target}
+          canDelete={false}
+          canCreate={true}
+          canEdit={false}
+          canClone={false}
+          viewLoginLog={false}
+          viewDetail={false}
+          showBack={true}
+          showBack1={false}
+          reOrder={true}
+          backTarget={"dashboard"}
+          showBackTitle="To Dashboard"
+          what={what}
         />
-        <label htmlFor="q" className="form-label">
-          Show Active & Inactive
-        </label>
+        <br />
 
-        {/* existing elements */}
-      </Form>
+        <Form
+          id="search-form"
+          role="search"
+          onChange={(event) => submit(event.currentTarget)}
+        >
+          <input
+            value="true"
+            defaultChecked={qq}
+            id="q"
+            name="q"
+            placeholder="Search"
+            type="checkbox"
+          />
+          <label htmlFor="q" className="form-label">
+            Show Active & Inactive
+          </label>
 
-      <nav className="nav flex-column">
-        {list.map((oi) => (
-          <div className="row" key={oi.id}>
-            <div className="col-sm-9">
-              <Link
-                to={"/" + target + "/" + oi.id}
-                className="nav-link"
-                aria-current="page"
-              >
-                {oi.id}
-              </Link>
+          {/* existing elements */}
+        </Form>
+
+        <nav className="nav flex-column">
+          {list.map((oi) => (
+            <div className="row" key={oi.id}>
+              <div className="col-sm-9">
+                <Link
+                  to={"/" + target + "/" + oi.id}
+                  className="nav-link"
+                  aria-current="page"
+                >
+                  {oi.id}
+                </Link>
+              </div>
+              <div className="col-sm-2">
+                <span>{oi.isActive ? "Active" : "Inactive"}</span>
+              </div>
             </div>
-            <div className="col-sm-2">
-              <span>{oi.isActive ? "Active" : "Inactive"}</span>
-            </div>
-          </div>
-        ))}
-      </nav>
+          ))}
+        </nav>
+      </div>
     </>
   );
 }

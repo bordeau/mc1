@@ -4,13 +4,12 @@ import { Form, useLoaderData, useNavigate } from "@remix-run/react";
 import invariant from "tiny-invariant";
 
 import { isAuthenticated } from "~/services/auth.server";
-import Nav from "~/components/nav";
 import SecondaryNav from "~/components/secondarynav";
 import React from "react";
-import { Roles } from "~/models/role";
 
-import { destroyOppType, getOppTypeById } from "~/controllers/oppTypes";
 import { destroyOppTeam, getOppTeamById } from "~/controllers/opportunityTeam";
+import NavBar from "~/components/nav";
+import { PAGE_MARGIN } from "~/models/misc";
 
 const target = "opportunityTeam";
 const what = "Opportunity Team Member";
@@ -73,117 +72,115 @@ export async function action({ request }: ActionFunctionArgs) {
 export default function opportunitySourcesId_Destroy() {
   const { currentUser, data } = useLoaderData<typeof loader>();
 
-  const isAdmin = Roles.isAdmin(currentUser.role);
-  const isManager = Roles.isManager(currentUser.role);
-  const isLoggedIn = currentUser.isLoggedIn;
-
   if (data === null) {
     return (
       <>
-        <Nav
-          isAdmin={isAdmin}
-          isManager={isManager}
-          isLoggedIn={isLoggedIn}
+        <NavBar
+          role={currentUser.role}
+          isLoggedIn={currentUser.isLoggedIn}
           name={currentUser.firstName + " " + currentUser.lastName}
         />
-        <h1>User Detail</h1>
-        <SecondaryNav
-          target={target}
-          canDelete={false}
-          canCreate={false}
-          canEdit={true}
-          canClone={false}
-          viewLoginLog={false}
-          viewDetail={false}
-          showBack={true}
-          backTarget={target}
-          what={what}
-        />
-        <br />
+        <div className={PAGE_MARGIN}>
+          <h1>User Detail</h1>
+          <SecondaryNav
+            target={target}
+            canDelete={false}
+            canCreate={false}
+            canEdit={true}
+            canClone={false}
+            viewLoginLog={false}
+            viewDetail={false}
+            showBack={true}
+            backTarget={target}
+            what={what}
+          />
+          <br />
 
-        <p>
-          The {what} is referenced by an Opportunity, to delete you will need to
-          remove all references
-        </p>
+          <p>
+            The {what} is referenced by an Opportunity, to delete you will need
+            to remove all references
+          </p>
+        </div>
       </>
     );
   } else
     return (
       <>
-        <Nav
-          isAdmin={isAdmin}
-          isManager={isManager}
-          isLoggedIn={isLoggedIn}
+        <NavBar
+          role={currentUser.role}
+          isLoggedIn={currentUser.isLoggedIn}
           name={currentUser.firstName + " " + currentUser.lastName}
         />
-        <h1>Opportunity Team Delete</h1>
-        <SecondaryNav
-          target={target}
-          canDelete={false}
-          canCreate={false}
-          canEdit={true}
-          canClone={false}
-          viewLoginLog={false}
-          viewDetail={false}
-          showBack={true}
-          backTarget={target}
-          what={what}
-        />
-        <br />
-        <Form key="orgTypeIddelete" id="orgTypeIddelete-form" method="post">
-          <input type="hidden" value={data.id} name="id" />
-          <input
-            type="hidden"
-            value={data.opportunityId}
-            name="opportunityId"
+        <div className="mx-1">
+          <h1>Opportunity Team Delete</h1>
+          <SecondaryNav
+            target={target}
+            canDelete={false}
+            canCreate={false}
+            canEdit={true}
+            canClone={false}
+            viewLoginLog={false}
+            viewDetail={false}
+            showBack={true}
+            backTarget={target}
+            what={what}
           />
-          <div className="mg-3">
-            <label className="form-label">
-              Are you sure you want to delete {what}?
-            </label>
-            <div className="bd-example">
-              <div className="row">
-                <h6 className="col-2 align-text-top">Opportunity</h6>
-                <p className="col-7 lead align-text-top">{data.name}</p>
-              </div>
+          <br />
+          <Form key="orgTypeIddelete" id="orgTypeIddelete-form" method="post">
+            <input type="hidden" value={data.id} name="id" />
+            <input
+              type="hidden"
+              value={data.opportunityId}
+              name="opportunityId"
+            />
+            <div className="mg-3">
+              <label className="form-label">
+                Are you sure you want to delete {what}?
+              </label>
+              <div className="bd-example">
+                <div className="row">
+                  <h6 className="col-2 align-text-top">Opportunity</h6>
+                  <p className="col-7 lead align-text-top">{data.name}</p>
+                </div>
 
-              <div className="row">
-                <h6 className="col-2 align-text-top">Team Member Name</h6>
-                <p className="col-7 lead align-text-top">
-                  {data.firstName + " " + data.lastName}
-                </p>
-              </div>
+                <div className="row">
+                  <h6 className="col-2 align-text-top">Team Member Name</h6>
+                  <p className="col-7 lead align-text-top">
+                    {data.firstName + " " + data.lastName}
+                  </p>
+                </div>
 
-              <div className="row">
-                <h6 className="col-2 align-text-top">Type</h6>
-                <p className="col-7 lead align-text-top">{data.type}</p>
-              </div>
+                <div className="row">
+                  <h6 className="col-2 align-text-top">Type</h6>
+                  <p className="col-7 lead align-text-top">{data.type}</p>
+                </div>
 
-              <div className="row">
-                <h6 className="col-2 align-text-top">Role</h6>
-                <p className="col-7 lead align-text-top">{data.role}</p>
+                <div className="row">
+                  <h6 className="col-2 align-text-top">Role</h6>
+                  <p className="col-7 lead align-text-top">{data.role}</p>
+                </div>
               </div>
             </div>
-          </div>
-          <div className="mg-3">
-            <button
-              type="submit"
-              className="btn btn-primary"
-              name="button"
-              value="yes"
-            >
-              Yes
-            </button>
-            <button
-              type="submit"
-              className="btn btn-secondary"
-              name="button"
-              value="no"
-            >
-              No
-            </button>
-          </div>
-        </Form>
+            <div className="mg-3">
+              <button
+                type="submit"
+                className="btn btn-primary"
+                name="button"
+                value="yes"
+              >
+                Yes
+              </button>
+              <button
+                type="submit"
+                className="btn btn-secondary"
+                name="button"
+                value="no"
+              >
+                No
+              </button>
+            </div>
+          </Form>
+        </div>
       </>
     );
 }

@@ -11,6 +11,8 @@ import Nav from "~/components/nav";
 import { Roles } from "~/models/role";
 import SecondaryNav from "~/components/secondarynav";
 import React from "react";
+import NavBar from "~/components/nav";
+import { PAGE_MARGIN } from "~/models/misc";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const currentUser = await isAuthenticated(request);
@@ -63,20 +65,44 @@ export default function UserDetail() {
   );
 */
 
-  if (!isAdmin) {
-    console.log(
-      "\n\n user: " + currentUser.username + " is trying to access users._$id"
-    );
-    throw new Error("Sorry you do have access to this feature.");
-  } else {
+  if (!Roles.isAdmin(currentUser.role)) {
     return (
       <>
-        <div className="container-md">
-          <Nav
-            isAdmin={isAdmin}
-            isLoggedIn={isLoggedIn}
-            name={currentUser.firstName + " " + currentUser.lastName}
+        <NavBar
+          role={currentUser.role}
+          isLoggedIn={currentUser.isLoggedIn}
+          name={currentUser.firstName + " " + currentUser.lastName}
+        />
+        <div className={PAGE_MARGIN}>
+          <h1>User Detail</h1>
+          <p>You need to be an Administrator</p>
+          <SecondaryNav
+            target="registrations"
+            canDelete={false}
+            canCreate={false}
+            canEdit={false}
+            canClone={false}
+            canActivate={false}
+            showBack={true}
+            backTarget={"dashboard"}
+            showBackTitle="To Dashboard"
+            what="Registration"
           />
+          <br />
+        </div>
+      </>
+    );
+  }
+  //
+  else {
+    return (
+      <>
+        <NavBar
+          role={currentUser.role}
+          isLoggedIn={currentUser.isLoggedIn}
+          name={currentUser.firstName + " " + currentUser.lastName}
+        />
+        <div className={PAGE_MARGIN}>
           <h1>User Detail</h1>
           <SecondaryNav
             target="users"
@@ -137,26 +163,26 @@ export default function UserDetail() {
               zip={address.zip}
             />
           </div>
-        </div>
 
-        {logLength ? (
-          <div className="container-md">
-            <div className="row">
-              <div className="col lead">Name</div>
-              <div className="col lead">Datetime</div>
-            </div>
-            {logs.map((ll) => (
+          {logLength ? (
+            <div className="container-md">
               <div className="row">
-                <div className="col lead">{ll.status}</div>
-                <div className="col lead">
-                  {new Date(ll.createdAt).toUTCString()}
-                </div>
+                <div className="col lead">Name</div>
+                <div className="col lead">Datetime</div>
               </div>
-            ))}
-          </div>
-        ) : (
-          <></>
-        )}
+              {logs.map((ll) => (
+                <div className="row">
+                  <div className="col lead">{ll.status}</div>
+                  <div className="col lead">
+                    {new Date(ll.createdAt).toUTCString()}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <></>
+          )}
+        </div>
       </>
     );
   }

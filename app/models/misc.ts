@@ -5,3 +5,5 @@ export type OrderByType = {
 };
 
 export const MINION_LEVELS = 1; // can be other number there is function for 4 levels of minios
+
+export const PAGE_MARGIN = "mx-1";

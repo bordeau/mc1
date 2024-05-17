@@ -1,38 +1,19 @@
-import {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  redirect,
-} from "@remix-run/node";
-import {
-  Form,
-  Link,
-  NavLink,
-  useLoaderData,
-  useNavigate,
-} from "@remix-run/react";
+import { ActionFunctionArgs, redirect } from "@remix-run/node";
+import { Form, NavLink, useNavigate } from "@remix-run/react";
 
 import FormAddress from "~/components/formaddress";
-import {
-  createUser,
-  getAllAdminUsers,
-  getUserById,
-  updateUser,
-} from "~/controllers/users";
+import { getAllAdminUsers } from "~/controllers/users";
 import { blankAddress } from "~/components/utils";
-import Nav from "~/components/nav";
-import { Roles } from "~/models/role";
 import { useActionData } from "react-router";
 import React from "react";
-import SecondaryNav from "~/components/secondarynav";
+
 import { createRegistration } from "~/controllers/registrations";
 import NavNon from "~/components/navnon";
-import { EmailType, sendEmail } from "~/components/myresend";
+
 import {
   ReactAdminRegistrationRequestType,
-  ReactPasswordResetEmailType,
   ReactRegisterReceiptEmailType,
   sendAdminRegistrationRequestEmail,
-  sendPasswordResetEmail,
   sendRegisterReceiptEmail,
 } from "~/components/emailTemplates/myreactemailresend";
 

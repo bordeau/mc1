@@ -15,10 +15,10 @@ import { getAllOrgs, getLikeNameOrgs } from "~/controllers/orgs";
 import { useActionData } from "react-router";
 import { blankAddress } from "~/components/utils";
 import { isAuthenticated } from "~/services/auth.server";
-import { Roles } from "~/models/role";
-import Nav from "~/components/nav";
 import SecondaryNav from "~/components/secondarynav";
 import { EmptyLetterTray } from "~/components/icons";
+import NavBar from "~/components/nav";
+import { PAGE_MARGIN } from "~/models/misc";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const currentUser = await isAuthenticated(request);
@@ -125,215 +125,216 @@ export default function PersonDetail() {
     // console.log("\n\n splitting address " + JSON.stringify(address));
   }
 
-  const isAdmin = Roles.isAdmin(currentUser.role);
-  const isManager = Roles.isManager(currentUser.role);
-  const isLoggedIn = currentUser.isLoggedIn;
-
   return (
     <>
-      <Nav
-        isAdmin={isAdmin}
-        isManager={isManager}
-        isLoggedIn={isLoggedIn}
+      <NavBar
+        role={currentUser.role}
+        isLoggedIn={currentUser.isLoggedIn}
         name={currentUser.firstName + " " + currentUser.lastName}
       />
-      <h1>Person Detail</h1>
-      <SecondaryNav
-        target="persons"
-        id={person.id}
-        canDelete={false}
-        canCreate={true}
-        canEdit={true}
-        canClone={false}
-        viewLoginLog={false}
-        viewDetail={false}
-        showBack={true}
-        backTarget={"persons"}
-        what="Person"
-      />
-      <br />
-
-      <div className="row">
-        <h6 className="col-2 align-text-top">First Name</h6>
-        <p className="col-9 lead align-text-top">{person.firstName}</p>
-      </div>
-
-      <div className="row">
-        <h6 className="col-2 align-text-top">Last Name</h6>
-        <p className="col-9 lead align-text-top">{person.lastName}</p>
-      </div>
-
-      <div className="row">
-        <h6 className="col-2 align-text-top">Email</h6>
-        <p className="col-9 lead align-text-top">
-          <a href={`mailto:` + person.email}>{person.email}</a>
-        </p>
-      </div>
-
-      <div className="row">
-        <h6 className="col-2 align-text-top">Phone</h6>
-        <p className="col-9 lead align-text-top">
-          {person.phone ? person.phone : <EmptyLetterTray />}
-        </p>
-      </div>
-
-      <div className="row">
-        <h6 className="col-2 align-text-top">Description</h6>
-        <p className="col-9 lead align-text-top">
-          {person.description ? person.description : <EmptyLetterTray />}
-        </p>
-      </div>
-
-      <div className="row">
-        <h6 className="col-2 align-text-top">Is Active?</h6>
-        <p className="col-9 lead align-text-top">
-          {person.isActive ? "Yes" : "No"}
-        </p>
-      </div>
-
-      <div className="accordion-body">
-        <PlainAddress
-          type="personal"
-          typeLabel="Personal Address"
-          street1={address.street1}
-          street2={address.street2}
-          city={address.city}
-          state={address.state}
-          country={address.country}
-          zip={address.zip}
+      <div className={PAGE_MARGIN}>
+        <h1>Person Detail</h1>
+        <SecondaryNav
+          target="persons"
+          id={person.id}
+          canDelete={false}
+          canCreate={true}
+          canEdit={true}
+          canClone={false}
+          viewLoginLog={false}
+          viewDetail={false}
+          showBack={true}
+          backTarget={"persons"}
+          what="Person"
         />
-      </div>
+        <br />
 
-      <div className="border border-primary border-2 gx-10">
-        <label htmlFor="ownerId" className="form-label">
-          Owner
-        </label>
-        <span className="lead">
-          &nbsp;&nbsp;---&nbsp;&nbsp;
-          {person.owner.firstName + " " + person.owner.lastName}
-        </span>
-      </div>
-      <br />
-      <h4 className="mt-xl-4">Associated Organizations</h4>
-
-      {personOrgs != null && personOrgs.length ? (
-        <div className="flex-column">
-          <div className="row">
-            <div className="col-sm-5">Organization</div>
-            <div className="col-sm-4">Title</div>
-          </div>
-          {personOrgs.map((morg) => (
-            <div className="row" key={morg.id}>
-              <div className="col-sm-5">
-                <Link
-                  to={
-                    "/personOrgs/" +
-                    morg.id +
-                    "?re=persons/" +
-                    morg.personId +
-                    "&ret=Back to Person Detail"
-                  }
-                  className="nav-link"
-                  aria-current="page"
-                >
-                  {morg.org.name}
-                </Link>
-              </div>
-              <div className="col-sm-4">{morg.title}</div>
-            </div>
-          ))}
+        <div className="row">
+          <h6 className="col-2 align-text-top">First Name</h6>
+          <p className="col-9 lead align-text-top">{person.firstName}</p>
         </div>
-      ) : (
-        <i>No Associated Organizations</i>
-      )}
 
-      <br />
-      {showOrgs != null && showOrgs.length ? (
+        <div className="row">
+          <h6 className="col-2 align-text-top">Last Name</h6>
+          <p className="col-9 lead align-text-top">{person.lastName}</p>
+        </div>
+
+        <div className="row">
+          <h6 className="col-2 align-text-top">Email</h6>
+          <p className="col-9 lead align-text-top">
+            <a href={`mailto:` + person.email}>{person.email}</a>
+          </p>
+        </div>
+
+        <div className="row">
+          <h6 className="col-2 align-text-top">Phone</h6>
+          <p className="col-9 lead align-text-top">
+            {person.phone ? person.phone : <EmptyLetterTray />}
+          </p>
+        </div>
+
+        <div className="row">
+          <h6 className="col-2 align-text-top">Description</h6>
+          <p className="col-9 lead align-text-top">
+            {person.description ? person.description : <EmptyLetterTray />}
+          </p>
+        </div>
+
+        <div className="row">
+          <h6 className="col-2 align-text-top">Is Active?</h6>
+          <p className="col-9 lead align-text-top">
+            {person.isActive ? "Yes" : "No"}
+          </p>
+        </div>
+
         <div className="accordion-body">
-          <div className="accordion " id="associateAccordian">
-            <div className="accordion-item">
-              <h4 className="accordion-header" id="headingTwo">
-                <button
-                  className="accordion-button collapsed"
-                  type="button"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#collapseTwo"
-                  aria-expanded="false"
-                  aria-controls="collapseTwo"
+          <PlainAddress
+            type="personal"
+            typeLabel="Personal Address"
+            street1={address.street1}
+            street2={address.street2}
+            city={address.city}
+            state={address.state}
+            country={address.country}
+            zip={address.zip}
+          />
+        </div>
+
+        <div className="border border-primary border-2 gx-10">
+          <label htmlFor="ownerId" className="form-label">
+            Owner
+          </label>
+          <span className="lead">
+            &nbsp;&nbsp;---&nbsp;&nbsp;
+            {person.owner.firstName + " " + person.owner.lastName}
+          </span>
+        </div>
+        <br />
+        <h4 className="mt-xl-4">Associated Organizations</h4>
+
+        {personOrgs != null && personOrgs.length ? (
+          <div className="flex-column">
+            <div className="row">
+              <div className="col-sm-5">Organization</div>
+              <div className="col-sm-4">Title</div>
+            </div>
+            {personOrgs.map((morg) => (
+              <div className="row" key={morg.id}>
+                <div className="col-sm-5">
+                  <Link
+                    to={
+                      "/personOrgs/" +
+                      morg.id +
+                      "?re=persons/" +
+                      morg.personId +
+                      "&ret=Back to Person Detail"
+                    }
+                    className="nav-link"
+                    aria-current="page"
+                  >
+                    {morg.org.name}
+                  </Link>
+                </div>
+                <div className="col-sm-4">{morg.title}</div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <i>No Associated Organizations</i>
+        )}
+
+        <br />
+        {showOrgs != null && showOrgs.length ? (
+          <div className="accordion-body">
+            <div className="accordion " id="associateAccordian">
+              <div className="accordion-item">
+                <h4 className="accordion-header" id="headingTwo">
+                  <button
+                    className="accordion-button collapsed"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#collapseTwo"
+                    aria-expanded="false"
+                    aria-controls="collapseTwo"
+                  >
+                    Associate Additional Organization(s)
+                  </button>
+                </h4>
+                <div
+                  id="collapseTwo"
+                  className="accordion-collapse collapse"
+                  aria-labelledby="headingTwo"
+                  data-bs-parent="#associateAccordian"
                 >
-                  Associate Additional Organization(s)
-                </button>
-              </h4>
-              <div
-                id="collapseTwo"
-                className="accordion-collapse collapse"
-                aria-labelledby="headingTwo"
-                data-bs-parent="#associateAccordian"
-              >
-                <Form
-                  id="search-form"
-                  role="search"
-                  onChange={(event) => submit(event.currentTarget)}
-                >
-                  <input
-                    aria-label="Search organizations"
-                    defaultValue={q || ""}
-                    id="q"
-                    name="q"
-                    placeholder="Search"
-                    type="search"
-                  />
-                  {/* existing elements */}
-                </Form>
-
-                <p>
-                  If you need to create a new Organization,{" "}
-                  <Link to="organizations">Go to Organizations</Link>, create
-                  the organization record, then you can associate the
-                  organization to this person in the Organization detail{" "}
-                </p>
-
-                <nav className="nav flex-column my-5">
-                  <Form method="post">
-                    <input type="hidden" name="personId" value={person.id} />
-                    <div className="row">
-                      <div className="col-sm-2">Link</div>
-                      <div className="col-sm-7">Organization Name</div>
-                    </div>
-
-                    {showOrgs.map((org) => (
-                      <div className="row" key={org.id}>
-                        <div className="col-sm-2">
-                          <input type="checkbox" name="orgId" value={org.id} />
-                        </div>
-                        <div className="col-sm-7">
-                          <Link
-                            to={`/organizations/${org.id}?back=1`}
-                            className="nav-link"
-                            aria-current="page"
-                          >
-                            {org.name}
-                          </Link>
-                        </div>
-                      </div>
-                    ))}
-                    <div className="mg-3">
-                      <button type="submit" className="btn btn-primary">
-                        Link
-                      </button>
-                      <button type="reset" className="btn btn-secondary">
-                        Cancel
-                      </button>
-                    </div>
+                  <Form
+                    id="search-form"
+                    role="search"
+                    onChange={(event) => submit(event.currentTarget)}
+                  >
+                    <input
+                      aria-label="Search organizations"
+                      defaultValue={q || ""}
+                      id="q"
+                      name="q"
+                      placeholder="Search"
+                      type="search"
+                    />
+                    {/* existing elements */}
                   </Form>
-                </nav>
+
+                  <p>
+                    If you need to create a new Organization,{" "}
+                    <Link to="organizations">Go to Organizations</Link>, create
+                    the organization record, then you can associate the
+                    organization to this person in the Organization detail{" "}
+                  </p>
+
+                  <nav className="nav flex-column my-5">
+                    <Form method="post">
+                      <input type="hidden" name="personId" value={person.id} />
+                      <div className="row">
+                        <div className="col-sm-2">Link</div>
+                        <div className="col-sm-7">Organization Name</div>
+                      </div>
+
+                      {showOrgs.map((org) => (
+                        <div className="row" key={org.id}>
+                          <div className="col-sm-2">
+                            <input
+                              type="checkbox"
+                              name="orgId"
+                              value={org.id}
+                            />
+                          </div>
+                          <div className="col-sm-7">
+                            <Link
+                              to={`/organizations/${org.id}?back=1`}
+                              className="nav-link"
+                              aria-current="page"
+                            >
+                              {org.name}
+                            </Link>
+                          </div>
+                        </div>
+                      ))}
+                      <div className="mg-3">
+                        <button type="submit" className="btn btn-primary">
+                          Link
+                        </button>
+                        <button type="reset" className="btn btn-secondary">
+                          Cancel
+                        </button>
+                      </div>
+                    </Form>
+                  </nav>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      ) : (
-        <></>
-      )}
+        ) : (
+          <></>
+        )}
+      </div>
     </>
   );
 }

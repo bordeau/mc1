@@ -13,6 +13,8 @@ import {
   getLikeNameNotIsProcessedRegistrations,
   getLikeNameRegistrations,
 } from "~/controllers/registrations";
+import NavBar from "~/components/nav";
+import { PAGE_MARGIN } from "~/models/misc";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const currentUser = await isAuthenticated(request);
@@ -61,106 +63,134 @@ export default function Registrations() {
     }
   }, [q]);
 
-  const isAdmin = Roles.isAdmin(currentUser.role);
-  const isLoggedIn = currentUser.isLoggedIn;
-
   // console.log("\n\n AFTER p:" + p + " pp:" + (pp ? "YES" : "NO"));
 
-  return (
-    <>
-      <Nav
-        isAdmin={isAdmin}
-        isLoggedIn={isLoggedIn}
-        name={currentUser.firstName + " " + currentUser.lastName}
-      />
-      <div>
-        <h1>Registrations</h1>
-      </div>
-
-      <SecondaryNav
-        target="registrations"
-        id={""}
-        canDelete={false}
-        canCreate={false}
-        canEdit={false}
-        canClone={false}
-        showBack={true}
-        backTarget={""}
-        what="Registration"
-      />
-      <div className="container border">
-        <h5>Filter</h5>
-        <Form
-          id="search-form"
-          role="search"
-          onChange={(event) => submit(event.currentTarget)}
-        >
-          <input
-            aria-label="Search registrations"
-            defaultValue={q || ""}
-            id="q"
-            name="q"
-            placeholder="Search"
-            type="search"
+  if (!Roles.isAdmin(currentUser.role)) {
+    return (
+      <>
+        <NavBar
+          role={currentUser.role}
+          isLoggedIn={currentUser.isLoggedIn}
+          name={currentUser.firstName + " " + currentUser.lastName}
+        />
+        <div className={PAGE_MARGIN}>
+          <h1>Registrations</h1>
+          <p>You need to be an Administrator</p>
+          <SecondaryNav
+            target="registrations"
+            canDelete={false}
+            canCreate={false}
+            canEdit={false}
+            canClone={false}
+            canActivate={false}
+            showBack={true}
+            backTarget={"dashboard"}
+            showBackTitle="To Dashboard"
+            what="Registration"
           />
+          <br />
+        </div>
+      </>
+    );
+  }
+  //
+  else {
+    return (
+      <>
+        <NavBar
+          role={currentUser.role}
+          isLoggedIn={currentUser.isLoggedIn}
+          name={currentUser.firstName + " " + currentUser.lastName}
+        />
+        <div className={PAGE_MARGIN}>
+          <h1>Registrations</h1>
 
-          <input
-            className="form-check-input"
-            type="radio"
-            name="p"
-            value="p"
-            id="on"
-            defaultChecked={pp}
+          <SecondaryNav
+            target="registrations"
+            canDelete={false}
+            canCreate={false}
+            canEdit={false}
+            canClone={false}
+            showBack={true}
+            backTarget={"dashboard"}
+            showBackTitle="To Dashboard"
+            what="Registration"
           />
-          <label className="form-check-label" htmlFor="flexCheckDefault">
-            Show Pending
-          </label>
-          <input
-            className="form-check-input"
-            type="radio"
-            name="p"
-            id="off"
-            value="a"
-            defaultChecked={!pp}
-          />
-          <label className="form-check-label" htmlFor="flexCheckDefault">
-            Show All
-          </label>
+          <div className="border">
+            <h5>Filter</h5>
+            <Form
+              id="search-form"
+              role="search"
+              onChange={(event) => submit(event.currentTarget)}
+            >
+              <input
+                aria-label="Search registrations"
+                defaultValue={q || ""}
+                id="q"
+                name="q"
+                placeholder="Search"
+                type="search"
+              />
 
-          {/* existing elements */}
-        </Form>
-      </div>
-      <br />
+              <input
+                className="form-check-input"
+                type="radio"
+                name="p"
+                value="p"
+                id="on"
+                defaultChecked={pp}
+              />
+              <label className="form-check-label" htmlFor="flexCheckDefault">
+                Show Pending
+              </label>
+              <input
+                className="form-check-input"
+                type="radio"
+                name="p"
+                id="off"
+                value="a"
+                defaultChecked={!pp}
+              />
+              <label className="form-check-label" htmlFor="flexCheckDefault">
+                Show All
+              </label>
 
-      <div className="container">
-        <div className="row">
-          <div className="col lead">Name</div>
-          <div className="col lead">
-            Is Pending {!pp ? "/User Created" : ""}
+              {/* existing elements */}
+            </Form>
+          </div>
+          <br />
+
+          <div>
+            <div className="row">
+              <div className="col lead">Name</div>
+              <div className="col lead">
+                Is Pending {!pp ? "/User Created" : ""}
+              </div>
+            </div>
+
+            {registrations.map((u) => (
+              <div className="row" key={u.id}>
+                <div className="col">
+                  {!u.isProcessed ? (
+                    <Link
+                      to={`/registrations/${u.id}`}
+                      className="nav-link"
+                      aria-current="page"
+                    >
+                      {u.firstName + " " + u.lastName}
+                    </Link>
+                  ) : (
+                    u.firstName + " " + u.lastName
+                  )}
+                </div>
+                <div className="col">
+                  {u.isProcessed ? "User Created" : "Pending"}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-
-        {registrations.map((u) => (
-          <div className="row" key={u.id}>
-            <div className="col">
-              {!u.isProcessed ? (
-                <Link
-                  to={`/registrations/${u.id}`}
-                  className="nav-link"
-                  aria-current="page"
-                >
-                  {u.firstName + " " + u.lastName}
-                </Link>
-              ) : (
-                u.firstName + " " + u.lastName
-              )}
-            </div>
-            <div className="col">
-              {u.isProcessed ? "User Created" : "Pending"}
-            </div>
-          </div>
-        ))}
-      </div>
-    </>
-  );
+      </>
+    );
+  }
 }

@@ -12,10 +12,10 @@ import FormAddress from "~/components/formaddress";
 import { getPersonOrgById, updatePersonOrg } from "~/controllers/personsOrgs";
 import { useActionData } from "react-router";
 import { isAuthenticated } from "~/services/auth.server";
-import { Roles } from "~/models/role";
-import Nav from "~/components/nav";
 import SecondaryNav from "~/components/secondarynav";
 import React from "react";
+import NavBar from "~/components/nav";
+import { PAGE_MARGIN } from "~/models/misc";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   // console.log("\n\nperson edit org loader:" + JSON.stringify(params));
@@ -77,185 +77,184 @@ export default function PersonOrgEdit() {
     // console.log("\n\n splitting address " + JSON.stringify(address));
   }
 
-  const isAdmin = Roles.isAdmin(currentUser.role);
-  const isManager = Roles.isManager(currentUser.role);
-  const isLoggedIn = currentUser.isLoggedIn;
-
   return (
     <>
-      <Nav
-        isAdmin={isAdmin}
-        isManager={isManager}
-        isLoggedIn={isLoggedIn}
+      <NavBar
+        role={currentUser.role}
+        isLoggedIn={currentUser.isLoggedIn}
         name={currentUser.firstName + " " + currentUser.lastName}
       />
-      <h1>Person Organization Edit</h1>
-      <SecondaryNav
-        target="personOrgs"
-        id={personOrg.id}
-        canDelete={false}
-        canCreate={false}
-        canEdit={true}
-        canClone={false}
-        viewLoginLog={false}
-        viewDetail={false}
-        showBack1={true}
-        backTarget={"personOrgs"}
-        showBackTitle="Back to User Detail"
-        what="Person Org Linkage"
-      />
-      <br />
+      <div className={PAGE_MARGIN}>
+        <h1>Person Organization Edit</h1>
+        <SecondaryNav
+          target="personOrgs"
+          id={personOrg.id}
+          canDelete={false}
+          canCreate={false}
+          canEdit={true}
+          canClone={false}
+          viewLoginLog={false}
+          viewDetail={false}
+          showBack1={true}
+          backTarget={"personOrgs"}
+          showBackTitle="Back to User Detail"
+          what="Person Org Linkage"
+        />
+        <br />
 
-      <Form key={personOrg.id} id="personorg-form" method="post">
-        <input type="hidden" name="id" value={personOrg.id} />
+        <Form key={personOrg.id} id="personorg-form" method="post">
+          <input type="hidden" name="id" value={personOrg.id} />
 
-        <div className="row">
-          <div className="col-2 align-text-top">
-            <label htmlFor="name" className="form-label">
-              Person
-            </label>
-          </div>
-          <div className="col-9 lead align-text-top">
-            <p className="lead">
-              {personOrg.person.firstName} {personOrg.person.lastName}
-            </p>
-          </div>
-        </div>
-
-        <div className="row">
-          <div className="col-2 align-text-top">
-            <label htmlFor="name" className="form-label">
-              Organization
-            </label>
+          <div className="row">
+            <div className="col-2 align-text-top">
+              <label htmlFor="name" className="form-label">
+                Person
+              </label>
+            </div>
+            <div className="col-9 lead align-text-top">
+              <p className="lead">
+                {personOrg.person.firstName} {personOrg.person.lastName}
+              </p>
+            </div>
           </div>
 
-          <div className="col-9 lead align-text-top">
-            <p className="lead">{personOrg.org.name}</p>
-          </div>
-        </div>
+          <div className="row">
+            <div className="col-2 align-text-top">
+              <label htmlFor="name" className="form-label">
+                Organization
+              </label>
+            </div>
 
-        <div className="row">
-          <div className="col-2 align-text-top">
-            <label htmlFor="subOrg" className="form-label">
-              Sub-Organization:
-            </label>
+            <div className="col-9 lead align-text-top">
+              <p className="lead">{personOrg.org.name}</p>
+            </div>
           </div>
-          <div className="col-9 lead align-text-top">
-            <input
-              defaultValue={personOrg.subOrg}
-              name="subOrg"
-              type="text"
-              placeholder="Sub-Organization"
-              className="form-control"
+
+          <div className="row">
+            <div className="col-2 align-text-top">
+              <label htmlFor="subOrg" className="form-label">
+                Sub-Organization:
+              </label>
+            </div>
+            <div className="col-9 lead align-text-top">
+              <input
+                defaultValue={personOrg.subOrg}
+                name="subOrg"
+                type="text"
+                placeholder="Sub-Organization"
+                className="form-control"
+              />
+              {data && data.error.subOrg && (
+                <p className="text-danger">{data.error.subOrg._errors[0]}</p>
+              )}
+            </div>
+          </div>
+
+          <div className="row">
+            <div className="col-2 align-text-top">
+              <label htmlFor="title" className="form-label">
+                Title:
+              </label>
+            </div>
+            <div className="col-9 lead align-text-top">
+              <input
+                defaultValue={personOrg.title}
+                name="title"
+                type="text"
+                placeholder="Title"
+                className="form-control"
+              />
+              {data && data.error.title && (
+                <p className="text-danger">{data.error.title._errors[0]}</p>
+              )}
+            </div>
+          </div>
+
+          <div className="row">
+            <div className="col-2 align-text-top">
+              <label htmlFor="phone" className="form-label">
+                Phone:
+              </label>
+            </div>
+            <div className="col-9 lead align-text-top">
+              <input
+                defaultValue={personOrg.phone}
+                name="phone"
+                type="text"
+                placeholder="Phone"
+                className="form-control"
+              />
+              {data && data.error.phone && (
+                <p className="text-danger">{data.error.phone._errors[0]}</p>
+              )}
+            </div>
+          </div>
+
+          <div className="row">
+            <div className="col-2 align-text-top">
+              <label htmlFor="email" className="form-label">
+                Email:
+              </label>
+            </div>
+            <div className="col-9 lead align-text-top">
+              <input
+                defaultValue={personOrg.email}
+                name="email"
+                type="text"
+                placeholder="Email"
+                className="form-control"
+              />
+              {data && data.error.email && (
+                <p className="text-danger">{data.error.email._errors[0]}</p>
+              )}
+            </div>
+          </div>
+
+          <div className="row">
+            <div className="col-2 align-text-top">
+              <label htmlFor="description" className="form-label">
+                Description:
+              </label>
+            </div>
+            <div className="col-9 lead align-text-top">
+              <textarea
+                defaultValue={personOrg.description}
+                name="description"
+                type="text"
+                placeholder="Description"
+                className="form-control"
+              />
+              {data && data.error.description && (
+                <p className="text-danger">
+                  {data.error.description._errors[0]}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="accordion-body">
+            <FormAddress
+              type="organizational"
+              typeLabel="Organizational Address"
+              street1={address.street1}
+              street2={address.street2}
+              city={address.city}
+              state={address.state}
+              country={address.country}
+              zip={address.zip}
             />
-            {data && data.error.subOrg && (
-              <p className="text-danger">{data.error.subOrg._errors[0]}</p>
-            )}
           </div>
-        </div>
 
-        <div className="row">
-          <div className="col-2 align-text-top">
-            <label htmlFor="title" className="form-label">
-              Title:
-            </label>
+          <div className="mg-3">
+            <button type="submit" className="btn btn-primary">
+              Save
+            </button>
+            <button type="reset" className="btn btn-secondary">
+              Cancel
+            </button>
           </div>
-          <div className="col-9 lead align-text-top">
-            <input
-              defaultValue={personOrg.title}
-              name="title"
-              type="text"
-              placeholder="Title"
-              className="form-control"
-            />
-            {data && data.error.title && (
-              <p className="text-danger">{data.error.title._errors[0]}</p>
-            )}
-          </div>
-        </div>
-
-        <div className="row">
-          <div className="col-2 align-text-top">
-            <label htmlFor="phone" className="form-label">
-              Phone:
-            </label>
-          </div>
-          <div className="col-9 lead align-text-top">
-            <input
-              defaultValue={personOrg.phone}
-              name="phone"
-              type="text"
-              placeholder="Phone"
-              className="form-control"
-            />
-            {data && data.error.phone && (
-              <p className="text-danger">{data.error.phone._errors[0]}</p>
-            )}
-          </div>
-        </div>
-
-        <div className="row">
-          <div className="col-2 align-text-top">
-            <label htmlFor="email" className="form-label">
-              Email:
-            </label>
-          </div>
-          <div className="col-9 lead align-text-top">
-            <input
-              defaultValue={personOrg.email}
-              name="email"
-              type="text"
-              placeholder="Email"
-              className="form-control"
-            />
-            {data && data.error.email && (
-              <p className="text-danger">{data.error.email._errors[0]}</p>
-            )}
-          </div>
-        </div>
-
-        <div className="row">
-          <div className="col-2 align-text-top">
-            <label htmlFor="description" className="form-label">
-              Description:
-            </label>
-          </div>
-          <div className="col-9 lead align-text-top">
-            <textarea
-              defaultValue={personOrg.description}
-              name="description"
-              type="text"
-              placeholder="Description"
-              className="form-control"
-            />
-            {data && data.error.description && (
-              <p className="text-danger">{data.error.description._errors[0]}</p>
-            )}
-          </div>
-        </div>
-
-        <div className="accordion-body">
-          <FormAddress
-            type="organizational"
-            typeLabel="Organizational Address"
-            street1={address.street1}
-            street2={address.street2}
-            city={address.city}
-            state={address.state}
-            country={address.country}
-            zip={address.zip}
-          />
-        </div>
-
-        <div className="mg-3">
-          <button type="submit" className="btn btn-primary">
-            Save
-          </button>
-          <button type="reset" className="btn btn-secondary">
-            Cancel
-          </button>
-        </div>
-      </Form>
+        </Form>
+      </div>
     </>
   );
 }

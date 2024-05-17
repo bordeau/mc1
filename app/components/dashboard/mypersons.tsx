@@ -7,7 +7,7 @@ export default function Mypersons(params) {
   // console.log("\n\n params: " + JSON.stringify(params, null, 2));
   const persons = params.persons;
   return (
-    <div className="container-sm border border-2">
+    <div className="border border-2">
       <h3>My People</h3>
 
       <p>maybe shows 5 most recent??</p>

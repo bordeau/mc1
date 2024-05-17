@@ -1,91 +1,12 @@
 import React from "react";
-import { NavLink } from "@remix-run/react";
+
 import { SYSTEM_TITLE } from "~/components/utils";
+import Container from "react-bootstrap/Container";
+import Nav from "react-bootstrap/Nav";
+import Navbar from "react-bootstrap/Navbar";
+import NavDropdown from "react-bootstrap/NavDropdown";
+import { Roles } from "~/models/role";
 
-function NavItem(props) {
-  // console.log("MenuItem props:" + JSON.stringify(props));
-
-  return (
-    <li className="nav-item">
-      <NavLink to={props.target} className="nav-link">
-        {props.label}
-      </NavLink>
-    </li>
-  );
-}
-
-function ManagerNavItem(props) {
-  // console.log("MenuItem props:" + JSON.stringify(props));
-
-  return (
-    <li className="nav-item">
-      <NavLink to={props.target} className="nav-link">
-        {props.label}
-      </NavLink>
-    </li>
-  );
-}
-function AdminNavItem(props) {
-  // console.log("MenuItem props:" + JSON.stringify(props));
-
-  return (
-    <li className="nav-item">
-      <NavLink to={props.target} className="nav-link">
-        {props.label}
-      </NavLink>
-    </li>
-  );
-}
-
-function ManagerNav({ children }) {
-  return (
-    <li className="nav-item dropdown">
-      <a
-        className="nav-link dropdown-toggle"
-        href="#"
-        id="navbarDropdownMenuLink"
-        role="button"
-        data-bs-toggle="dropdown"
-        aria-expanded="false"
-      >
-        Manager
-      </a>
-      <ul className="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-        {children}
-      </ul>
-    </li>
-  );
-}
-
-function AdminNav({ children }) {
-  return (
-    <li className="nav-item dropdown">
-      <a
-        className="nav-link dropdown-toggle"
-        href="#"
-        id="navbarDropdownMenuLink"
-        role="button"
-        data-bs-toggle="dropdown"
-        aria-expanded="false"
-      >
-        Admin
-      </a>
-      <ul className="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-        {children}
-      </ul>
-    </li>
-  );
-}
-
-function MyLogout() {
-  return (
-    <form action="/logout" method="post">
-      <button type="submit" className="button">
-        Logout
-      </button>
-    </form>
-  );
-}
 export function SVGLogo() {
   return (
     <svg
@@ -102,274 +23,146 @@ export function SVGLogo() {
   );
 }
 
-export default function Nav(props) {
-  // console.log("\n\n nav props: " + JSON.stringify(props));
+export default function NavBar(props) {
+  console.log("\n\n\n\n\n\n\n nav props: " + JSON.stringify(props, null, 2));
 
-  if (props.isLoggedIn) {
-    if (props.isAdmin) {
-      // logged - admin
-      return (
-        <>
-          <nav className="navbar navbar-expand-lg navbar-light bg-light">
-            <div className="container-fluid">
-              <a className="navbar-brand align-middle" href="about">
-                <SVGLogo />
-                <span className="align-middle">{SYSTEM_TITLE}</span>
-              </a>
-              <button
-                className="navbar-toggler"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarTogglerDemo02"
-                aria-controls="navbarTogglerDemo02"
-                aria-expanded="false"
-                aria-label="Toggle navigation"
-              >
-                <span className="navbar-toggler-icon"></span>
-              </button>
-              <div
-                className="collapse navbar-collapse"
-                id="navbarTogglerDemo02"
-              >
-                <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-                  <NavItem target="/dashboard" label="Home" />
-                  <NavItem
-                    target="/organizations"
-                    label="Organizations"
-                    requireAdmin={false}
-                  />
-                  <NavItem target="/persons" label="People" />
-                  <NavItem
-                    target="/opportunities"
-                    label="Opportunities"
-                    requireAdmin={false}
-                  />
-                  <ManagerNav>
-                    <ManagerNavItem
-                      target="/orgIndustries"
-                      label="Org Industries"
-                    />
-                    <ManagerNavItem target="/orgTypes" label="Org Types" />
+  const isAdmin = Roles.isAdmin(props.role);
+  const isManager = Roles.isManager(props.role);
 
-                    <ManagerNavItem
-                      target="/opportunityStatuses"
-                      label="Opp Statuses"
-                    />
-                    <ManagerNavItem
-                      target="/opportunitySources"
-                      label="Opp Sources"
-                    />
-                    <ManagerNavItem
-                      target="/opportunityTypes"
-                      label="Opp Types"
-                    />
-                  </ManagerNav>
-                  <AdminNav>
-                    <AdminNavItem target="/users" label="Users" />
-                    <AdminNavItem
-                      target="/registrations"
-                      label="Registrations"
-                    />
-                  </AdminNav>
-                </ul>
-              </div>
-              <div className="d-flex mr-150">
-                <ul className="nav nav-tabs">
-                  <li className="nav-item dropdown">
-                    <a
-                      className="flex-sm-fill text-sm-left nav-link dropdown-toggle mr-5"
-                      data-bs-toggle="dropdown"
-                      href="#"
-                      role="button"
-                      aria-expanded="false"
-                    >
-                      {props.name} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    </a>
-                    <ul className="dropdown-menu">
-                      <NavLink
-                        to="/changepassword"
-                        className="dropdown-item flex-sm-fill text-sm-left nav-link"
-                      >
-                        Change Password
-                      </NavLink>
-                      <NavLink
-                        to="/logout"
-                        className="dropdown-item flex-sm-fill text-sm-left nav-link"
-                      >
-                        Logout
-                      </NavLink>
-                    </ul>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </nav>
-        </>
-      );
-    } else if (props.isManager) {
-      // logged - admin
-      return (
-        <>
-          <nav className="navbar navbar-expand-lg navbar-light bg-light">
-            <div className="container-fluid">
-              <a className="navbar-brand align-middle" href="about">
-                <SVGLogo />
-                <span className="align-middle">{SYSTEM_TITLE}</span>
-              </a>
-              <button
-                className="navbar-toggler"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarTogglerDemo02"
-                aria-controls="navbarTogglerDemo02"
-                aria-expanded="false"
-                aria-label="Toggle navigation"
-              >
-                <span className="navbar-toggler-icon"></span>
-              </button>
-              <div
-                className="collapse navbar-collapse"
-                id="navbarTogglerDemo02"
-              >
-                <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-                  <NavItem target="/dashboard" label="Home" />
-                  <NavItem
-                    target="/organizations"
-                    label="Organizations"
-                    requireAdmin={false}
-                  />
-                  <NavItem target="/persons" label="People" />
-                  <ManagerNav>
-                    <ManagerNavItem
-                      target="/orgIndustries"
-                      label="Org Industries"
-                    />
-                    <ManagerNavItem target="/orgTypes" label="Org Types" />
-
-                    <ManagerNavItem
-                      target="/opportunityStatuses"
-                      label="Opp Statuses"
-                    />
-                    <ManagerNavItem
-                      target="/opportunitySources"
-                      label="Opp Sources"
-                    />
-                    <ManagerNavItem
-                      target="/opportunityTypes"
-                      label="Opp Types"
-                    />
-                  </ManagerNav>
-                </ul>
-              </div>
-              <div className="d-flex mr-150">
-                <ul className="nav nav-tabs">
-                  <li className="nav-item dropdown">
-                    <a
-                      className="flex-sm-fill text-sm-left nav-link dropdown-toggle mr-5"
-                      data-bs-toggle="dropdown"
-                      href="#"
-                      role="button"
-                      aria-expanded="false"
-                    >
-                      {props.name} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    </a>
-                    <ul className="dropdown-menu">
-                      <NavLink
-                        to="/changepassword"
-                        className="dropdown-item flex-sm-fill text-sm-left nav-link"
-                      >
-                        Change Password
-                      </NavLink>
-                      <NavLink
-                        to="/logout"
-                        className="dropdown-item flex-sm-fill text-sm-left nav-link"
-                      >
-                        Logout
-                      </NavLink>
-                    </ul>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </nav>
-        </>
-      );
-    }
-
-    //
-    else {
-      // logged in -- not admin
-      return (
-        <>
-          <nav className="navbar navbar-expand-lg navbar-light bg-light">
-            <div className="container-fluid">
-              <a className="navbar-brand" href="about">
-                NSF CRM
-              </a>
-              <button
-                className="navbar-toggler"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarTogglerDemo02"
-                aria-controls="navbarTogglerDemo02"
-                aria-expanded="false"
-                aria-label="Toggle navigation"
-              >
-                <span className="navbar-toggler-icon"></span>
-              </button>
-              <div
-                className="collapse navbar-collapse"
-                id="navbarTogglerDemo02"
-              >
-                <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-                  <NavItem target="/dashboard" label="Home" />
-                  <NavItem
-                    target="/organizations"
-                    label="Organizations"
-                    requireAdmin={false}
-                  />
-                  <NavItem target="/persons" label="People" />
-                </ul>
-              </div>
-              <div className="d-flex mr-150">
-                <ul className="nav nav-tabs">
-                  <li className="nav-item dropdown">
-                    <a
-                      className="flex-sm-fill text-sm-left nav-link dropdown-toggle mr-5"
-                      data-bs-toggle="dropdown"
-                      href="#"
-                      role="button"
-                      aria-expanded="false"
-                    >
-                      {props.name} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    </a>
-                    <ul className="dropdown-menu">
-                      <NavLink
-                        to="/changepassword"
-                        className="dropdown-item flex-sm-fill text-sm-left nav-link"
-                      >
-                        Change Password
-                      </NavLink>
-                      <NavLink
-                        to="/logout"
-                        className="dropdown-item flex-sm-fill text-sm-left nav-link"
-                      >
-                        Logout
-                      </NavLink>
-                    </ul>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </nav>
-        </>
-      );
-    }
-  } else {
+  if (!props.isLoggedIn) {
+    return (
+      <Navbar expand="lg" className="bg-body-tertiary">
+        <Container className="container-fluid">
+          <Navbar.Brand href="#home">
+            <SVGLogo />
+            <span className="align-middle">{SYSTEM_TITLE}</span>
+          </Navbar.Brand>
+          <Nav className="me-auto">
+            <p>You're not logged in</p>
+          </Nav>
+        </Container>
+      </Navbar>
+    );
+  }
+  //
+  else {
     return (
       <>
-        <p>You're not logged in</p>
+        <Navbar expand="lg" className="bg-body-tertiary">
+          <Container fluid>
+            <Navbar.Brand href="#home">
+              <SVGLogo />
+              <span className="align-middle">{SYSTEM_TITLE}</span>
+            </Navbar.Brand>
+            <Navbar.Toggle aria-controls="basic-navbar-nav" />
+            <Navbar.Collapse id="basic-navbar-nav">
+              <Nav className="me-auto">
+                <Nav.Link href="/dashboard">Home</Nav.Link>
+                <Nav.Link href="/organizations">Orgs</Nav.Link>
+                <Nav.Link href="/persons">People</Nav.Link>
+                <Nav.Link href="/opportunities">Opportunities</Nav.Link>
+                {isManager || isAdmin ? (
+                  <NavDropdown title="Setup" id="basic-nav-dropdown">
+                    <Navbar.Text className="mx-5">Data Manager</Navbar.Text>
+                    <NavDropdown.Item href="/orgIndustries" className="mx-5">
+                      Org Industries
+                    </NavDropdown.Item>
+                    <NavDropdown.Item href="/orgTypes" className="mx-5">
+                      Org Types
+                    </NavDropdown.Item>
+                    <NavDropdown.Divider />
+                    <NavDropdown.Item
+                      href="/opportunityStatuses"
+                      className="mx-5"
+                    >
+                      Opp Statuses
+                    </NavDropdown.Item>
+                    <NavDropdown.Item
+                      href="/opportunitySources"
+                      className="mx-5"
+                    >
+                      Opp Sources
+                    </NavDropdown.Item>
+                    <NavDropdown.Item href="/opportunityTypes" className="mx-5">
+                      Opp Types
+                    </NavDropdown.Item>
+
+                    {isAdmin ? (
+                      <>
+                        <NavDropdown.Divider />
+                        <Navbar.Text className="mx-5">
+                          Administrator
+                        </Navbar.Text>
+                        <NavDropdown.Item href="/users" className="mx-5">
+                          Users
+                        </NavDropdown.Item>
+                        <NavDropdown.Item
+                          href="/registrations"
+                          className="mx-5"
+                        >
+                          Registrations
+                        </NavDropdown.Item>
+                      </>
+                    ) : (
+                      <></>
+                    )}
+                  </NavDropdown>
+                ) : (
+                  <></>
+                )}
+              </Nav>
+              <Nav className="d-flex">
+                <NavDropdown
+                  title={props.name}
+                  id="basic-nav-dropdown"
+                  className="me-5"
+                >
+                  <NavDropdown.Item href="/changepassword">
+                    Change Password
+                  </NavDropdown.Item>
+                  <NavDropdown.Item href="/logout">Log Out</NavDropdown.Item>
+                </NavDropdown>
+              </Nav>
+            </Navbar.Collapse>
+          </Container>
+        </Navbar>
       </>
     );
   }
 }
+
+/*
+{isManager || isAdmin ? (
+                  <NavDropdown title="Manager" id="basic-nav-dropdown">
+                    <NavDropdown.Item href="/orgIndustries">
+                      Org Industries
+                    </NavDropdown.Item>
+                    <NavDropdown.Item href="/orgTypes">
+                      Org Types
+                    </NavDropdown.Item>
+                    <NavDropdown.Divider />
+                    <NavDropdown.Item href="/opportunityStatuses">
+                      Opp Statuses
+                    </NavDropdown.Item>
+                    <NavDropdown.Item href="/opportunitySources">
+                      Opp Sources
+                    </NavDropdown.Item>
+                    <NavDropdown.Item href="/opportunityTypes">
+                      Opp Types
+                    </NavDropdown.Item>
+                  </NavDropdown>
+                ) : (
+                  <></>
+                )}
+                {isAdmin ? (
+                  <NavDropdown title="Admin" id="basic-nav-dropdown">
+                    <NavDropdown.Item href="/users">Users</NavDropdown.Item>
+                    <NavDropdown.Item href="/registrations">
+                      Registrations
+                    </NavDropdown.Item>
+                  </NavDropdown>
+                ) : (
+                  <></>
+                )}
+
+ */

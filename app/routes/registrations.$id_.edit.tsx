@@ -9,7 +9,6 @@ import invariant from "tiny-invariant";
 import FormAddress from "~/components/formaddress";
 
 import { isAuthenticated } from "~/services/auth.server";
-import { getUserById, updateUser } from "~/controllers/users";
 import { blankAddress } from "~/components/utils";
 import Nav from "~/components/nav";
 import { Roles } from "~/models/role";
@@ -20,6 +19,8 @@ import {
   getRegistrationById,
   updateRegistration,
 } from "~/controllers/registrations";
+import NavBar from "~/components/nav";
+import { PAGE_MARGIN } from "~/models/misc";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const currentUser = await isAuthenticated(request);
@@ -63,18 +64,45 @@ export default function RegistrationEdit() {
     // console.log("\n\n splitting address " + JSON.stringify(address));
   }
 
-  const isAdmin = Roles.isAdmin(currentUser.role);
-  const isLoggedIn = currentUser.isLoggedIn;
-
-  if (isAdmin) {
+  if (!Roles.isAdmin(currentUser.role)) {
     return (
       <>
-        <Nav
-          isAdmin={isAdmin}
-          isLoggedIn={isLoggedIn}
+        <NavBar
+          role={currentUser.role}
+          isLoggedIn={currentUser.isLoggedIn}
           name={currentUser.firstName + " " + currentUser.lastName}
         />
-        <h1>Edit User</h1>
+        <div className={PAGE_MARGIN}>
+          <h1>Edit Registration</h1>
+          <p>You need to be an Administrator</p>
+          <SecondaryNav
+            target="registrations"
+            id={registration.id}
+            canDelete={false}
+            canCreate={false}
+            canEdit={false}
+            canClone={false}
+            canActivate={false}
+            showBack={true}
+            backTarget={"dashboard"}
+            showBackTitle="To Dashboard"
+            what="Registration"
+          />
+          <br />
+        </div>
+      </>
+    );
+  }
+  //
+  else {
+    return (
+      <>
+        <NavBar
+          role={currentUser.role}
+          isLoggedIn={currentUser.isLoggedIn}
+          name={currentUser.firstName + " " + currentUser.lastName}
+        />
+        <h1>Edit Registration</h1>
 
         <SecondaryNav
           target="registrations"
@@ -233,12 +261,6 @@ export default function RegistrationEdit() {
             </button>
           </div>
         </Form>
-      </>
-    );
-  } else {
-    return (
-      <>
-        <p>You're not an Admin and therefore do not have access.</p>
       </>
     );
   }

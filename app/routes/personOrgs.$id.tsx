@@ -1,10 +1,5 @@
-import {
-  json,
-  LoaderFunction,
-  LoaderFunctionArgs,
-  redirect,
-} from "@remix-run/node";
-import { Link, useLoaderData, useNavigate } from "@remix-run/react";
+import { LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { useLoaderData, useNavigate } from "@remix-run/react";
 
 import invariant from "tiny-invariant";
 
@@ -13,10 +8,10 @@ import PlainAddress from "~/components/plainaddress";
 import { getPersonOrgById } from "~/controllers/personsOrgs";
 import React from "react";
 import { isAuthenticated } from "~/services/auth.server";
-import { Roles } from "~/models/role";
-import Nav from "~/components/nav";
 import SecondaryNav from "~/components/secondarynav";
 import { EmptyLetterTray } from "~/components/icons";
+import NavBar from "~/components/nav";
+import { PAGE_MARGIN } from "~/models/misc";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   //console.log("\n\nperson org loader:" + JSON.stringify(params));
@@ -74,99 +69,100 @@ export default function PersonOrgDetail() {
     // console.log("\n\n splitting address " + JSON.stringify(address));
   }
 
-  const isAdmin = Roles.isAdmin(currentUser.role);
-  const isManager = Roles.isManager(currentUser.role);
-  const isLoggedIn = currentUser.isLoggedIn;
-
   return (
     <>
-      <Nav
-        isAdmin={isAdmin}
-        isManager={isManager}
-        isLoggedIn={isLoggedIn}
+      <NavBar
+        role={currentUser.role}
+        isLoggedIn={currentUser.isLoggedIn}
         name={currentUser.firstName + " " + currentUser.lastName}
       />
-      <h1>Person Organization Association Detail</h1>
-      <SecondaryNav
-        target="personOrgs"
-        id={personOrg.id}
-        canDelete={true}
-        re={re}
-        ret={ret}
-        canCreate={false}
-        canEdit={true}
-        canClone={false}
-        viewLoginLog={false}
-        viewDetail={false}
-        showBack={true}
-        backTarget={re}
-        showBackTitle={ret}
-        what="Person Org Association"
-      />
-      <br />
-
-      <div className="row">
-        <h6 className="col-2 align-text-top">Person:</h6>
-        <p className="col-7 lead align-text-top">
-          {personOrg.person.firstName} {personOrg.person.lastName}
-        </p>
-      </div>
-
-      <div className="row">
-        <h6 className="col-2 align-text-top">Organization:</h6>
-        <p className="col-7 lead align-text-top">{personOrg.org.name}</p>
-      </div>
-
-      <div className="row">
-        <h6 className="col-2 align-text-top">Sub-Organization:</h6>
-        <p className="col-7 lead align-text-top">
-          {personOrg.subOrg ? personOrg.subOrg : <EmptyLetterTray />}
-        </p>
-      </div>
-
-      <div className="row">
-        <h6 className="col-2 align-text-top">Title:</h6>
-        <p className="col-7 lead align-text-top">
-          {personOrg.title ? personOrg.title : <EmptyLetterTray />}
-        </p>
-      </div>
-
-      <div className="row">
-        <h6 className="col-2 align-text-top">Phone:</h6>
-        <p className="col-7 lead align-text-top">
-          {personOrg.phone ? personOrg.phone : <EmptyLetterTray />}
-        </p>
-      </div>
-
-      <div className="row">
-        <h6 className="col-2 align-text-top">Email:</h6>
-        <p className="col-7 lead align-text-top">
-          {personOrg.email ? (
-            <a href={`mailto:` + personOrg.email}>{personOrg.email}</a>
-          ) : (
-            <EmptyLetterTray />
-          )}
-        </p>
-      </div>
-
-      <div className="row">
-        <h6 className="col-2 align-text-top">Description:</h6>
-        <p className="col-7 lead align-text-top">
-          {personOrg.description ? personOrg.description : <EmptyLetterTray />}
-        </p>
-      </div>
-
-      <div className="accordion-body">
-        <PlainAddress
-          type="organizational"
-          typeLabel="Organizational Address"
-          street1={address.street1}
-          street2={address.street2}
-          city={address.city}
-          state={address.state}
-          country={address.country}
-          zip={address.zip}
+      <div className={PAGE_MARGIN}>
+        <h1>Person Organization Association Detail</h1>
+        <SecondaryNav
+          target="personOrgs"
+          id={personOrg.id}
+          canDelete={true}
+          re={re}
+          ret={ret}
+          canCreate={false}
+          canEdit={true}
+          canClone={false}
+          viewLoginLog={false}
+          viewDetail={false}
+          showBack={true}
+          backTarget={re}
+          showBackTitle={ret}
+          what="Person Org Association"
         />
+        <br />
+
+        <div className="row">
+          <h6 className="col-2 align-text-top">Person:</h6>
+          <p className="col-7 lead align-text-top">
+            {personOrg.person.firstName} {personOrg.person.lastName}
+          </p>
+        </div>
+
+        <div className="row">
+          <h6 className="col-2 align-text-top">Organization:</h6>
+          <p className="col-7 lead align-text-top">{personOrg.org.name}</p>
+        </div>
+
+        <div className="row">
+          <h6 className="col-2 align-text-top">Sub-Organization:</h6>
+          <p className="col-7 lead align-text-top">
+            {personOrg.subOrg ? personOrg.subOrg : <EmptyLetterTray />}
+          </p>
+        </div>
+
+        <div className="row">
+          <h6 className="col-2 align-text-top">Title:</h6>
+          <p className="col-7 lead align-text-top">
+            {personOrg.title ? personOrg.title : <EmptyLetterTray />}
+          </p>
+        </div>
+
+        <div className="row">
+          <h6 className="col-2 align-text-top">Phone:</h6>
+          <p className="col-7 lead align-text-top">
+            {personOrg.phone ? personOrg.phone : <EmptyLetterTray />}
+          </p>
+        </div>
+
+        <div className="row">
+          <h6 className="col-2 align-text-top">Email:</h6>
+          <p className="col-7 lead align-text-top">
+            {personOrg.email ? (
+              <a href={`mailto:` + personOrg.email}>{personOrg.email}</a>
+            ) : (
+              <EmptyLetterTray />
+            )}
+          </p>
+        </div>
+
+        <div className="row">
+          <h6 className="col-2 align-text-top">Description:</h6>
+          <p className="col-7 lead align-text-top">
+            {personOrg.description ? (
+              personOrg.description
+            ) : (
+              <EmptyLetterTray />
+            )}
+          </p>
+        </div>
+
+        <div className="accordion-body">
+          <PlainAddress
+            type="organizational"
+            typeLabel="Organizational Address"
+            street1={address.street1}
+            street2={address.street2}
+            city={address.city}
+            state={address.state}
+            country={address.country}
+            zip={address.zip}
+          />
+        </div>
       </div>
     </>
   );

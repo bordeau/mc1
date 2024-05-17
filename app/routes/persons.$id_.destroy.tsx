@@ -5,10 +5,10 @@ import invariant from "tiny-invariant";
 
 import { destroyPerson, getPersonById } from "~/controllers/persons";
 import { isAuthenticated } from "~/services/auth.server";
-import { Roles } from "~/models/role";
-import Nav from "~/components/nav";
 import SecondaryNav from "~/components/secondarynav";
 import React from "react";
+import NavBar from "~/components/nav";
+import { PAGE_MARGIN } from "~/models/misc";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const currentUser = await isAuthenticated(request);
@@ -44,62 +44,59 @@ export async function action({ request }: ActionFunctionArgs) {
 export default function DestroyPerson() {
   const { currentUser, person } = useLoaderData<typeof loader>();
 
-  const isAdmin = Roles.isAdmin(currentUser.role);
-  const isManager = Roles.isManager(currentUser.role);
-  const isLoggedIn = currentUser.isLoggedIn;
-
   return (
     <>
-      <Nav
-        isAdmin={isAdmin}
-        isManager={isManager}
-        isLoggedIn={isLoggedIn}
+      <NavBar
+        role={currentUser.role}
+        isLoggedIn={currentUser.isLoggedIn}
         name={currentUser.firstName + " " + currentUser.lastName}
       />
-      <h1>User Detail</h1>
-      <SecondaryNav
-        target="persons"
-        id={person.id}
-        canDelete={false}
-        canCreate={true}
-        canEdit={false}
-        canClone={false}
-        viewLoginLog={false}
-        viewDetail={false}
-        showBack={true}
-        backTarget={"persons"}
-        what="Person"
-      />
-      <br />
+      <div className={PAGE_MARGIN}>
+        <h1>User Detail</h1>
+        <SecondaryNav
+          target="persons"
+          id={person.id}
+          canDelete={false}
+          canCreate={true}
+          canEdit={false}
+          canClone={false}
+          viewLoginLog={false}
+          viewDetail={false}
+          showBack={true}
+          backTarget={"persons"}
+          what="Person"
+        />
+        <br />
 
-      <Form key="persondelete" id="persondelete-form" method="post">
-        <input type="hidden" name="id" value={person.id} />
+        <Form key="persondelete" id="persondelete-form" method="post">
+          <input type="hidden" name="id" value={person.id} />
 
-        <div className="mg-3">
-          <label className="form-label">
-            Are you sure you want to delete person:{" "}
-            {person.firstName + " " + person.lastName}?
-          </label>
-        </div>
-        <div className="mg-3">
-          <button
-            type="submit"
-            className="btn btn-primary"
-            name="button"
-            value="yes"
-          >
-            Yes
-          </button>
-          <button
-            type="submit"
-            className="btn btn-secondary"
-            name="button"
-            value="no"
-          >
-            No
-          </button>
-        </div>
-      </Form>
+          <div className="mg-3">
+            <label className="form-label">
+              Are you sure you want to delete person:{" "}
+              {person.firstName + " " + person.lastName}?
+            </label>
+          </div>
+          <div className="mg-3">
+            <button
+              type="submit"
+              className="btn btn-primary"
+              name="button"
+              value="yes"
+            >
+              Yes
+            </button>
+            <button
+              type="submit"
+              className="btn btn-secondary"
+              name="button"
+              value="no"
+            >
+              No
+            </button>
+          </div>
+        </Form>
+      </div>
     </>
   );
 }

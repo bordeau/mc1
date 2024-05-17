@@ -1,7 +1,7 @@
 # Welcome to MC1 the next iteration of NSF CRM
 
 📖Building a CRM as an experiment using Remix, Remix Auth, React, SQLite,
-Prisma, Zod, Resend, React Email, Bootstrap, ???.
+Prisma, Zod, Resend, React Email, Bootstrap, React-bootstrap ???.
 
 This is not tested much as of now.  The current routes seems to be running fairly well as of this update.  For authentication it uses Remix Auth with the Form strategy.  
 
@@ -9,7 +9,7 @@ So far there is login, logout, self registration (current implementation inserts
 
 Most of the forms use Zod for validation.
 
-The styling there is my limited knowledge of Bootstrap.
+The styling there is my limited knowledge of Bootstrap and now using React-Bootstrap for main nav bar and accordians
 
 ## Development
 

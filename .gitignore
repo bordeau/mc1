@@ -7,3 +7,6 @@ node_modules
 /prisma/dev.db-journal
 /prisma/migrations
 
+prisma/dev.db
+prisma/dev.db
+*.db

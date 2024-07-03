@@ -130,6 +130,18 @@ async function main() {
         { id: "Other", isActive: true, orderBy: 200 },
       ],
     }),
+
+    prisma.subOrgTypes.createMany({
+      data: [
+        { id: "Team", isActive: true, orderBy: 80 },
+        { id: "Department", isActive: true, orderBy: 85 },
+        { id: "Division", isActive: true, orderBy: 88 },
+        { id: "Partner", isActive: true, orderBy: 110 },
+        { id: "Sub-contractor", isActive: true, orderBy: 100 },
+        { id: "Family", isActive: true, orderBy: 150 },
+        { id: "Other", isActive: true, orderBy: 200 },
+      ],
+    }),
   ]);
 }
 

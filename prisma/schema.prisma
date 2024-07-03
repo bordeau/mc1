@@ -142,10 +142,25 @@ model Orgs {
   updatedAt  DateTime @updatedAt
 }
 
+model SubOrgTypes {
+  id       String  @id
+  isActive Boolean @default(true)
+  orderBy  Int     @default(100)
+
+  personOrgs PersonsOrgs[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model PersonsOrgs {
-  id          String  @id @default(cuid())
-  title       String?
-  subOrg      String?
+  id     String  @id @default(cuid())
+  title  String?
+  subOrg String?
+
+  subOrgType   SubOrgTypes? @relation(fields: [subOrgTypeId], references: [id])
+  subOrgTypeId String?
+
   email       String?
   phone       String?
   address     String? // the contents will be Json
@@ -274,6 +289,8 @@ model Event {
   name      String
   eventTime DateTime
   location  String
+
+  who String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

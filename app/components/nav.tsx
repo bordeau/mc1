@@ -70,6 +70,9 @@ export default function NavBar(props) {
                     <NavDropdown.Item href="/orgTypes" className="mx-5">
                       Org Types
                     </NavDropdown.Item>
+                    <NavDropdown.Item href="/subOrgTypes" className="mx-5">
+                      Sub-Org Types
+                    </NavDropdown.Item>
                     <NavDropdown.Divider />
                     <NavDropdown.Item
                       href="/opportunityStatuses"
